@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bockaire/get_it.dart';
 import 'package:bockaire/utils/router.dart';
+import 'package:bockaire/themes/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,20 +16,8 @@ class BockaireApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Bockaire - Shipping Optimizer',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
-          brightness: Brightness.light,
-        ),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
+      theme: createAppTheme(brightness: Brightness.light),
+      darkTheme: createAppTheme(brightness: Brightness.dark),
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );

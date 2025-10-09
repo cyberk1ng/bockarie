@@ -43,15 +43,15 @@ class Carton extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        shipmentId,
-        lengthCm,
-        widthCm,
-        heightCm,
-        weightKg,
-        qty,
-        itemType,
-      ];
+    id,
+    shipmentId,
+    lengthCm,
+    widthCm,
+    heightCm,
+    weightKg,
+    qty,
+    itemType,
+  ];
 
   Carton copyWith({
     String? id,

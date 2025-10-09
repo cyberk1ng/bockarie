@@ -46,17 +46,17 @@ class RateTable extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        carrier,
-        service,
-        baseFee,
-        perKgLow,
-        perKgHigh,
-        breakpointKg,
-        fuelPct,
-        oversizeFee,
-        notes,
-      ];
+    id,
+    carrier,
+    service,
+    baseFee,
+    perKgLow,
+    perKgHigh,
+    breakpointKg,
+    fuelPct,
+    oversizeFee,
+    notes,
+  ];
 
   RateTable copyWith({
     String? id,

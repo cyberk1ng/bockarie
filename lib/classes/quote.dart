@@ -25,15 +25,15 @@ class Quote extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        shipmentId,
-        carrier,
-        service,
-        etaMin,
-        etaMax,
-        priceEur,
-        chargeableKg,
-      ];
+    id,
+    shipmentId,
+    carrier,
+    service,
+    etaMin,
+    etaMax,
+    priceEur,
+    chargeableKg,
+  ];
 
   Quote copyWith({
     String? id,

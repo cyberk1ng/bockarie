@@ -125,13 +125,15 @@ class PackOptimizer {
           // Finalize current carton
           if (currentCarton.isNotEmpty) {
             final size = _selectStandardSize(currentVolume);
-            optimizedCartons.add(OptimizedCarton(
-              lengthCm: size['length']!,
-              widthCm: size['width']!,
-              heightCm: size['height']!,
-              weightKg: currentWeight,
-              itemTypes: [itemType],
-            ));
+            optimizedCartons.add(
+              OptimizedCarton(
+                lengthCm: size['length']!,
+                widthCm: size['width']!,
+                heightCm: size['height']!,
+                weightKg: currentWeight,
+                itemTypes: [itemType],
+              ),
+            );
           }
 
           // Start new carton
@@ -144,13 +146,15 @@ class PackOptimizer {
       // Add last carton
       if (currentCarton.isNotEmpty) {
         final size = _selectStandardSize(currentVolume);
-        optimizedCartons.add(OptimizedCarton(
-          lengthCm: size['length']!,
-          widthCm: size['width']!,
-          heightCm: size['height']!,
-          weightKg: currentWeight,
-          itemTypes: [itemType],
-        ));
+        optimizedCartons.add(
+          OptimizedCarton(
+            lengthCm: size['length']!,
+            widthCm: size['width']!,
+            heightCm: size['height']!,
+            weightKg: currentWeight,
+            itemTypes: [itemType],
+          ),
+        );
       }
     }
 
@@ -164,8 +168,10 @@ class PackOptimizer {
       (sum, carton) => sum + carton.chargeableWeight,
     );
 
-    final volumeSavingsPct = ((originalVolume - optimizedVolume) / originalVolume * 100)
-        .clamp(0, 100);
+    final volumeSavingsPct =
+        ((originalVolume - optimizedVolume) / originalVolume * 100)
+            .clamp(0, 100)
+            .toDouble();
 
     return OptimizationResult(
       optimizedCartons: optimizedCartons,
