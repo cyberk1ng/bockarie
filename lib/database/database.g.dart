@@ -51,6 +51,30 @@ class $ShipmentsTable extends Shipments
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _originCountryMeta = const VerificationMeta(
+    'originCountry',
+  );
+  @override
+  late final GeneratedColumn<String> originCountry = GeneratedColumn<String>(
+    'origin_country',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _originStateMeta = const VerificationMeta(
+    'originState',
+  );
+  @override
+  late final GeneratedColumn<String> originState = GeneratedColumn<String>(
+    'origin_state',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
   static const VerificationMeta _destCityMeta = const VerificationMeta(
     'destCity',
   );
@@ -72,6 +96,30 @@ class $ShipmentsTable extends Shipments
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
+  );
+  static const VerificationMeta _destCountryMeta = const VerificationMeta(
+    'destCountry',
+  );
+  @override
+  late final GeneratedColumn<String> destCountry = GeneratedColumn<String>(
+    'dest_country',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _destStateMeta = const VerificationMeta(
+    'destState',
+  );
+  @override
+  late final GeneratedColumn<String> destState = GeneratedColumn<String>(
+    'dest_state',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
   );
   static const VerificationMeta _deadlineDaysMeta = const VerificationMeta(
     'deadlineDays',
@@ -99,8 +147,12 @@ class $ShipmentsTable extends Shipments
     createdAt,
     originCity,
     originPostal,
+    originCountry,
+    originState,
     destCity,
     destPostal,
+    destCountry,
+    destState,
     deadlineDays,
     notes,
   ];
@@ -148,6 +200,24 @@ class $ShipmentsTable extends Shipments
     } else if (isInserting) {
       context.missing(_originPostalMeta);
     }
+    if (data.containsKey('origin_country')) {
+      context.handle(
+        _originCountryMeta,
+        originCountry.isAcceptableOrUnknown(
+          data['origin_country']!,
+          _originCountryMeta,
+        ),
+      );
+    }
+    if (data.containsKey('origin_state')) {
+      context.handle(
+        _originStateMeta,
+        originState.isAcceptableOrUnknown(
+          data['origin_state']!,
+          _originStateMeta,
+        ),
+      );
+    }
     if (data.containsKey('dest_city')) {
       context.handle(
         _destCityMeta,
@@ -163,6 +233,21 @@ class $ShipmentsTable extends Shipments
       );
     } else if (isInserting) {
       context.missing(_destPostalMeta);
+    }
+    if (data.containsKey('dest_country')) {
+      context.handle(
+        _destCountryMeta,
+        destCountry.isAcceptableOrUnknown(
+          data['dest_country']!,
+          _destCountryMeta,
+        ),
+      );
+    }
+    if (data.containsKey('dest_state')) {
+      context.handle(
+        _destStateMeta,
+        destState.isAcceptableOrUnknown(data['dest_state']!, _destStateMeta),
+      );
     }
     if (data.containsKey('deadline_days')) {
       context.handle(
@@ -204,6 +289,14 @@ class $ShipmentsTable extends Shipments
         DriftSqlType.string,
         data['${effectivePrefix}origin_postal'],
       )!,
+      originCountry: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}origin_country'],
+      )!,
+      originState: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}origin_state'],
+      )!,
       destCity: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}dest_city'],
@@ -211,6 +304,14 @@ class $ShipmentsTable extends Shipments
       destPostal: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}dest_postal'],
+      )!,
+      destCountry: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}dest_country'],
+      )!,
+      destState: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}dest_state'],
       )!,
       deadlineDays: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -234,8 +335,12 @@ class Shipment extends DataClass implements Insertable<Shipment> {
   final DateTime createdAt;
   final String originCity;
   final String originPostal;
+  final String originCountry;
+  final String originState;
   final String destCity;
   final String destPostal;
+  final String destCountry;
+  final String destState;
   final int? deadlineDays;
   final String? notes;
   const Shipment({
@@ -243,8 +348,12 @@ class Shipment extends DataClass implements Insertable<Shipment> {
     required this.createdAt,
     required this.originCity,
     required this.originPostal,
+    required this.originCountry,
+    required this.originState,
     required this.destCity,
     required this.destPostal,
+    required this.destCountry,
+    required this.destState,
     this.deadlineDays,
     this.notes,
   });
@@ -255,8 +364,12 @@ class Shipment extends DataClass implements Insertable<Shipment> {
     map['created_at'] = Variable<DateTime>(createdAt);
     map['origin_city'] = Variable<String>(originCity);
     map['origin_postal'] = Variable<String>(originPostal);
+    map['origin_country'] = Variable<String>(originCountry);
+    map['origin_state'] = Variable<String>(originState);
     map['dest_city'] = Variable<String>(destCity);
     map['dest_postal'] = Variable<String>(destPostal);
+    map['dest_country'] = Variable<String>(destCountry);
+    map['dest_state'] = Variable<String>(destState);
     if (!nullToAbsent || deadlineDays != null) {
       map['deadline_days'] = Variable<int>(deadlineDays);
     }
@@ -272,8 +385,12 @@ class Shipment extends DataClass implements Insertable<Shipment> {
       createdAt: Value(createdAt),
       originCity: Value(originCity),
       originPostal: Value(originPostal),
+      originCountry: Value(originCountry),
+      originState: Value(originState),
       destCity: Value(destCity),
       destPostal: Value(destPostal),
+      destCountry: Value(destCountry),
+      destState: Value(destState),
       deadlineDays: deadlineDays == null && nullToAbsent
           ? const Value.absent()
           : Value(deadlineDays),
@@ -293,8 +410,12 @@ class Shipment extends DataClass implements Insertable<Shipment> {
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       originCity: serializer.fromJson<String>(json['originCity']),
       originPostal: serializer.fromJson<String>(json['originPostal']),
+      originCountry: serializer.fromJson<String>(json['originCountry']),
+      originState: serializer.fromJson<String>(json['originState']),
       destCity: serializer.fromJson<String>(json['destCity']),
       destPostal: serializer.fromJson<String>(json['destPostal']),
+      destCountry: serializer.fromJson<String>(json['destCountry']),
+      destState: serializer.fromJson<String>(json['destState']),
       deadlineDays: serializer.fromJson<int?>(json['deadlineDays']),
       notes: serializer.fromJson<String?>(json['notes']),
     );
@@ -307,8 +428,12 @@ class Shipment extends DataClass implements Insertable<Shipment> {
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'originCity': serializer.toJson<String>(originCity),
       'originPostal': serializer.toJson<String>(originPostal),
+      'originCountry': serializer.toJson<String>(originCountry),
+      'originState': serializer.toJson<String>(originState),
       'destCity': serializer.toJson<String>(destCity),
       'destPostal': serializer.toJson<String>(destPostal),
+      'destCountry': serializer.toJson<String>(destCountry),
+      'destState': serializer.toJson<String>(destState),
       'deadlineDays': serializer.toJson<int?>(deadlineDays),
       'notes': serializer.toJson<String?>(notes),
     };
@@ -319,8 +444,12 @@ class Shipment extends DataClass implements Insertable<Shipment> {
     DateTime? createdAt,
     String? originCity,
     String? originPostal,
+    String? originCountry,
+    String? originState,
     String? destCity,
     String? destPostal,
+    String? destCountry,
+    String? destState,
     Value<int?> deadlineDays = const Value.absent(),
     Value<String?> notes = const Value.absent(),
   }) => Shipment(
@@ -328,8 +457,12 @@ class Shipment extends DataClass implements Insertable<Shipment> {
     createdAt: createdAt ?? this.createdAt,
     originCity: originCity ?? this.originCity,
     originPostal: originPostal ?? this.originPostal,
+    originCountry: originCountry ?? this.originCountry,
+    originState: originState ?? this.originState,
     destCity: destCity ?? this.destCity,
     destPostal: destPostal ?? this.destPostal,
+    destCountry: destCountry ?? this.destCountry,
+    destState: destState ?? this.destState,
     deadlineDays: deadlineDays.present ? deadlineDays.value : this.deadlineDays,
     notes: notes.present ? notes.value : this.notes,
   );
@@ -343,10 +476,20 @@ class Shipment extends DataClass implements Insertable<Shipment> {
       originPostal: data.originPostal.present
           ? data.originPostal.value
           : this.originPostal,
+      originCountry: data.originCountry.present
+          ? data.originCountry.value
+          : this.originCountry,
+      originState: data.originState.present
+          ? data.originState.value
+          : this.originState,
       destCity: data.destCity.present ? data.destCity.value : this.destCity,
       destPostal: data.destPostal.present
           ? data.destPostal.value
           : this.destPostal,
+      destCountry: data.destCountry.present
+          ? data.destCountry.value
+          : this.destCountry,
+      destState: data.destState.present ? data.destState.value : this.destState,
       deadlineDays: data.deadlineDays.present
           ? data.deadlineDays.value
           : this.deadlineDays,
@@ -361,8 +504,12 @@ class Shipment extends DataClass implements Insertable<Shipment> {
           ..write('createdAt: $createdAt, ')
           ..write('originCity: $originCity, ')
           ..write('originPostal: $originPostal, ')
+          ..write('originCountry: $originCountry, ')
+          ..write('originState: $originState, ')
           ..write('destCity: $destCity, ')
           ..write('destPostal: $destPostal, ')
+          ..write('destCountry: $destCountry, ')
+          ..write('destState: $destState, ')
           ..write('deadlineDays: $deadlineDays, ')
           ..write('notes: $notes')
           ..write(')'))
@@ -375,8 +522,12 @@ class Shipment extends DataClass implements Insertable<Shipment> {
     createdAt,
     originCity,
     originPostal,
+    originCountry,
+    originState,
     destCity,
     destPostal,
+    destCountry,
+    destState,
     deadlineDays,
     notes,
   );
@@ -388,8 +539,12 @@ class Shipment extends DataClass implements Insertable<Shipment> {
           other.createdAt == this.createdAt &&
           other.originCity == this.originCity &&
           other.originPostal == this.originPostal &&
+          other.originCountry == this.originCountry &&
+          other.originState == this.originState &&
           other.destCity == this.destCity &&
           other.destPostal == this.destPostal &&
+          other.destCountry == this.destCountry &&
+          other.destState == this.destState &&
           other.deadlineDays == this.deadlineDays &&
           other.notes == this.notes);
 }
@@ -399,8 +554,12 @@ class ShipmentsCompanion extends UpdateCompanion<Shipment> {
   final Value<DateTime> createdAt;
   final Value<String> originCity;
   final Value<String> originPostal;
+  final Value<String> originCountry;
+  final Value<String> originState;
   final Value<String> destCity;
   final Value<String> destPostal;
+  final Value<String> destCountry;
+  final Value<String> destState;
   final Value<int?> deadlineDays;
   final Value<String?> notes;
   final Value<int> rowid;
@@ -409,8 +568,12 @@ class ShipmentsCompanion extends UpdateCompanion<Shipment> {
     this.createdAt = const Value.absent(),
     this.originCity = const Value.absent(),
     this.originPostal = const Value.absent(),
+    this.originCountry = const Value.absent(),
+    this.originState = const Value.absent(),
     this.destCity = const Value.absent(),
     this.destPostal = const Value.absent(),
+    this.destCountry = const Value.absent(),
+    this.destState = const Value.absent(),
     this.deadlineDays = const Value.absent(),
     this.notes = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -420,8 +583,12 @@ class ShipmentsCompanion extends UpdateCompanion<Shipment> {
     required DateTime createdAt,
     required String originCity,
     required String originPostal,
+    this.originCountry = const Value.absent(),
+    this.originState = const Value.absent(),
     required String destCity,
     required String destPostal,
+    this.destCountry = const Value.absent(),
+    this.destState = const Value.absent(),
     this.deadlineDays = const Value.absent(),
     this.notes = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -436,8 +603,12 @@ class ShipmentsCompanion extends UpdateCompanion<Shipment> {
     Expression<DateTime>? createdAt,
     Expression<String>? originCity,
     Expression<String>? originPostal,
+    Expression<String>? originCountry,
+    Expression<String>? originState,
     Expression<String>? destCity,
     Expression<String>? destPostal,
+    Expression<String>? destCountry,
+    Expression<String>? destState,
     Expression<int>? deadlineDays,
     Expression<String>? notes,
     Expression<int>? rowid,
@@ -447,8 +618,12 @@ class ShipmentsCompanion extends UpdateCompanion<Shipment> {
       if (createdAt != null) 'created_at': createdAt,
       if (originCity != null) 'origin_city': originCity,
       if (originPostal != null) 'origin_postal': originPostal,
+      if (originCountry != null) 'origin_country': originCountry,
+      if (originState != null) 'origin_state': originState,
       if (destCity != null) 'dest_city': destCity,
       if (destPostal != null) 'dest_postal': destPostal,
+      if (destCountry != null) 'dest_country': destCountry,
+      if (destState != null) 'dest_state': destState,
       if (deadlineDays != null) 'deadline_days': deadlineDays,
       if (notes != null) 'notes': notes,
       if (rowid != null) 'rowid': rowid,
@@ -460,8 +635,12 @@ class ShipmentsCompanion extends UpdateCompanion<Shipment> {
     Value<DateTime>? createdAt,
     Value<String>? originCity,
     Value<String>? originPostal,
+    Value<String>? originCountry,
+    Value<String>? originState,
     Value<String>? destCity,
     Value<String>? destPostal,
+    Value<String>? destCountry,
+    Value<String>? destState,
     Value<int?>? deadlineDays,
     Value<String?>? notes,
     Value<int>? rowid,
@@ -471,8 +650,12 @@ class ShipmentsCompanion extends UpdateCompanion<Shipment> {
       createdAt: createdAt ?? this.createdAt,
       originCity: originCity ?? this.originCity,
       originPostal: originPostal ?? this.originPostal,
+      originCountry: originCountry ?? this.originCountry,
+      originState: originState ?? this.originState,
       destCity: destCity ?? this.destCity,
       destPostal: destPostal ?? this.destPostal,
+      destCountry: destCountry ?? this.destCountry,
+      destState: destState ?? this.destState,
       deadlineDays: deadlineDays ?? this.deadlineDays,
       notes: notes ?? this.notes,
       rowid: rowid ?? this.rowid,
@@ -494,11 +677,23 @@ class ShipmentsCompanion extends UpdateCompanion<Shipment> {
     if (originPostal.present) {
       map['origin_postal'] = Variable<String>(originPostal.value);
     }
+    if (originCountry.present) {
+      map['origin_country'] = Variable<String>(originCountry.value);
+    }
+    if (originState.present) {
+      map['origin_state'] = Variable<String>(originState.value);
+    }
     if (destCity.present) {
       map['dest_city'] = Variable<String>(destCity.value);
     }
     if (destPostal.present) {
       map['dest_postal'] = Variable<String>(destPostal.value);
+    }
+    if (destCountry.present) {
+      map['dest_country'] = Variable<String>(destCountry.value);
+    }
+    if (destState.present) {
+      map['dest_state'] = Variable<String>(destState.value);
     }
     if (deadlineDays.present) {
       map['deadline_days'] = Variable<int>(deadlineDays.value);
@@ -519,8 +714,12 @@ class ShipmentsCompanion extends UpdateCompanion<Shipment> {
           ..write('createdAt: $createdAt, ')
           ..write('originCity: $originCity, ')
           ..write('originPostal: $originPostal, ')
+          ..write('originCountry: $originCountry, ')
+          ..write('originState: $originState, ')
           ..write('destCity: $destCity, ')
           ..write('destPostal: $destPostal, ')
+          ..write('destCountry: $destCountry, ')
+          ..write('destState: $destState, ')
           ..write('deadlineDays: $deadlineDays, ')
           ..write('notes: $notes, ')
           ..write('rowid: $rowid')
@@ -3035,8 +3234,12 @@ typedef $$ShipmentsTableCreateCompanionBuilder =
       required DateTime createdAt,
       required String originCity,
       required String originPostal,
+      Value<String> originCountry,
+      Value<String> originState,
       required String destCity,
       required String destPostal,
+      Value<String> destCountry,
+      Value<String> destState,
       Value<int?> deadlineDays,
       Value<String?> notes,
       Value<int> rowid,
@@ -3047,8 +3250,12 @@ typedef $$ShipmentsTableUpdateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<String> originCity,
       Value<String> originPostal,
+      Value<String> originCountry,
+      Value<String> originState,
       Value<String> destCity,
       Value<String> destPostal,
+      Value<String> destCountry,
+      Value<String> destState,
       Value<int?> deadlineDays,
       Value<String?> notes,
       Value<int> rowid,
@@ -3126,6 +3333,16 @@ class $$ShipmentsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get originCountry => $composableBuilder(
+    column: $table.originCountry,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get originState => $composableBuilder(
+    column: $table.originState,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get destCity => $composableBuilder(
     column: $table.destCity,
     builder: (column) => ColumnFilters(column),
@@ -3133,6 +3350,16 @@ class $$ShipmentsTableFilterComposer
 
   ColumnFilters<String> get destPostal => $composableBuilder(
     column: $table.destPostal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get destCountry => $composableBuilder(
+    column: $table.destCountry,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get destState => $composableBuilder(
+    column: $table.destState,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3226,6 +3453,16 @@ class $$ShipmentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get originCountry => $composableBuilder(
+    column: $table.originCountry,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get originState => $composableBuilder(
+    column: $table.originState,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get destCity => $composableBuilder(
     column: $table.destCity,
     builder: (column) => ColumnOrderings(column),
@@ -3233,6 +3470,16 @@ class $$ShipmentsTableOrderingComposer
 
   ColumnOrderings<String> get destPostal => $composableBuilder(
     column: $table.destPostal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get destCountry => $composableBuilder(
+    column: $table.destCountry,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get destState => $composableBuilder(
+    column: $table.destState,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -3272,6 +3519,16 @@ class $$ShipmentsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get originCountry => $composableBuilder(
+    column: $table.originCountry,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get originState => $composableBuilder(
+    column: $table.originState,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get destCity =>
       $composableBuilder(column: $table.destCity, builder: (column) => column);
 
@@ -3279,6 +3536,14 @@ class $$ShipmentsTableAnnotationComposer
     column: $table.destPostal,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get destCountry => $composableBuilder(
+    column: $table.destCountry,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get destState =>
+      $composableBuilder(column: $table.destState, builder: (column) => column);
 
   GeneratedColumn<int> get deadlineDays => $composableBuilder(
     column: $table.deadlineDays,
@@ -3371,8 +3636,12 @@ class $$ShipmentsTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<String> originCity = const Value.absent(),
                 Value<String> originPostal = const Value.absent(),
+                Value<String> originCountry = const Value.absent(),
+                Value<String> originState = const Value.absent(),
                 Value<String> destCity = const Value.absent(),
                 Value<String> destPostal = const Value.absent(),
+                Value<String> destCountry = const Value.absent(),
+                Value<String> destState = const Value.absent(),
                 Value<int?> deadlineDays = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -3381,8 +3650,12 @@ class $$ShipmentsTableTableManager
                 createdAt: createdAt,
                 originCity: originCity,
                 originPostal: originPostal,
+                originCountry: originCountry,
+                originState: originState,
                 destCity: destCity,
                 destPostal: destPostal,
+                destCountry: destCountry,
+                destState: destState,
                 deadlineDays: deadlineDays,
                 notes: notes,
                 rowid: rowid,
@@ -3393,8 +3666,12 @@ class $$ShipmentsTableTableManager
                 required DateTime createdAt,
                 required String originCity,
                 required String originPostal,
+                Value<String> originCountry = const Value.absent(),
+                Value<String> originState = const Value.absent(),
                 required String destCity,
                 required String destPostal,
+                Value<String> destCountry = const Value.absent(),
+                Value<String> destState = const Value.absent(),
                 Value<int?> deadlineDays = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -3403,8 +3680,12 @@ class $$ShipmentsTableTableManager
                 createdAt: createdAt,
                 originCity: originCity,
                 originPostal: originPostal,
+                originCountry: originCountry,
+                originState: originState,
                 destCity: destCity,
                 destPostal: destPostal,
+                destCountry: destCountry,
+                destState: destState,
                 deadlineDays: deadlineDays,
                 notes: notes,
                 rowid: rowid,

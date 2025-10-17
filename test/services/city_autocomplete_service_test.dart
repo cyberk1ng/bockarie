@@ -70,6 +70,88 @@ void main() {
       expect(result.effectivePostalCode, '20095');
     });
 
+    test('effectivePostalCode uses US city+state fallback', () {
+      const result = CityResult(
+        city: 'Atlanta',
+        postalCode: null,
+        country: 'United States',
+        countryCode: 'US',
+        state: 'GA',
+        displayName: 'Atlanta, GA, USA',
+      );
+
+      expect(result.effectivePostalCode, '30303');
+    });
+
+    test('effectivePostalCode uses US fallback for Miami', () {
+      const result = CityResult(
+        city: 'Miami',
+        postalCode: null,
+        country: 'United States',
+        countryCode: 'US',
+        state: 'FL',
+        displayName: 'Miami, FL, USA',
+      );
+
+      expect(result.effectivePostalCode, '33101');
+    });
+
+    test('effectivePostalCode is case insensitive for US city+state', () {
+      const result = CityResult(
+        city: 'ATLANTA',
+        postalCode: null,
+        country: 'United States',
+        countryCode: 'US',
+        state: 'ga',
+        displayName: 'ATLANTA, GA, USA',
+      );
+
+      expect(result.effectivePostalCode, '30303');
+    });
+
+    test('effectivePostalCode prioritizes API postal over US fallback', () {
+      const result = CityResult(
+        city: 'Atlanta',
+        postalCode: '30301', // Different from fallback 30303
+        country: 'United States',
+        countryCode: 'US',
+        state: 'GA',
+        displayName: 'Atlanta, GA, USA',
+      );
+
+      // Should use API value, not fallback
+      expect(result.effectivePostalCode, '30301');
+    });
+
+    test('effectivePostalCode tries US fallback before general fallback', () {
+      // Hamburg is in general fallback, but if it had a US state,
+      // it should try US fallback first
+      const result = CityResult(
+        city: 'San Francisco',
+        postalCode: null,
+        country: 'United States',
+        countryCode: 'US',
+        state: 'CA',
+        displayName: 'San Francisco, CA, USA',
+      );
+
+      expect(result.effectivePostalCode, '94101');
+    });
+
+    test('effectivePostalCode returns null for US city without state', () {
+      const result = CityResult(
+        city: 'Atlanta',
+        postalCode: null,
+        country: 'United States',
+        countryCode: 'US',
+        state: null, // No state
+        displayName: 'Atlanta, USA',
+      );
+
+      // Without state, can't use US fallback, and Atlanta isn't in general fallback
+      expect(result.effectivePostalCode, null);
+    });
+
     test('toString includes effective postal code', () {
       const result = CityResult(
         city: 'Hamburg',
@@ -132,19 +214,22 @@ void main() {
 
       await provider.searchCities('Hamburg');
 
-      verify(
-        () => mockDio.get(
-          '/search',
-          queryParameters: {
-            'q': 'Hamburg',
-            'format': 'json',
-            'limit': '20',
-            'countrycodes': 'de,cn',
-            'addressdetails': '1',
-            'accept-language': 'en',
-          },
-        ),
-      ).called(1);
+      final captured =
+          verify(
+                () => mockDio.get(
+                  '/search',
+                  queryParameters: captureAny(named: 'queryParameters'),
+                ),
+              ).captured.first
+              as Map<String, dynamic>;
+
+      // Should NOT contain 'countrycodes' parameter (country restriction removed)
+      expect(captured.containsKey('countrycodes'), false);
+      expect(captured['q'], 'Hamburg');
+      expect(captured['format'], 'json');
+      expect(captured['limit'], '20');
+      expect(captured['addressdetails'], '1');
+      expect(captured['accept-language'], 'en');
     });
 
     test('searchCities parses API response correctly', () async {
@@ -175,7 +260,7 @@ void main() {
       expect(results[0].city, 'Hamburg');
       expect(results[0].postalCode, '20095');
       expect(results[0].country, 'Germany');
-      expect(results[0].countryCode, 'de');
+      expect(results[0].countryCode, 'DE');
     });
 
     test('searchCities filters results containing query', () async {
@@ -383,6 +468,103 @@ void main() {
       expect(results.any((r) => r.city == 'VillageName'), true);
       expect(results.any((r) => r.city == 'MunicipalityName'), true);
     });
+
+    test('searchCities returns major cities for country name', () async {
+      final results = await provider.searchCities('germany');
+
+      expect(results.isNotEmpty, true);
+      expect(results.any((r) => r.city == 'Berlin'), true);
+      expect(results.any((r) => r.city == 'Hamburg'), true);
+      expect(results.any((r) => r.city == 'Munich'), true);
+      expect(results[0].postalCode, isNotNull); // Should have postal codes
+      expect(results[0].countryCode, 'DE');
+    });
+
+    test('searchCities returns major cities for China', () async {
+      final results = await provider.searchCities('china');
+
+      expect(results.isNotEmpty, true);
+      expect(results.any((r) => r.city == 'Shanghai'), true);
+      expect(results.any((r) => r.city == 'Beijing'), true);
+      expect(results.any((r) => r.city == 'Guangzhou'), true);
+      expect(results[0].postalCode, isNotNull);
+      expect(results[0].countryCode, 'CN');
+    });
+
+    test('searchCities returns major cities for USA', () async {
+      final results = await provider.searchCities('usa');
+
+      expect(results.isNotEmpty, true);
+      expect(results.any((r) => r.city == 'New York'), true);
+      expect(results.any((r) => r.city == 'Los Angeles'), true);
+      expect(results.any((r) => r.city == 'Chicago'), true);
+      expect(results[0].postalCode, isNotNull);
+      expect(results[0].countryCode, 'US');
+      expect(results[0].state, isNotNull); // US cities have state codes
+    });
+
+    test('searchCities is case insensitive for country names', () async {
+      final results1 = await provider.searchCities('CHINA');
+      final results2 = await provider.searchCities('china');
+      final results3 = await provider.searchCities('China');
+
+      expect(results1.length, results2.length);
+      expect(results1.length, results3.length);
+      expect(results1[0].city, results2[0].city);
+    });
+
+    test('searchCities does not match partial country names', () async {
+      // "german" should not match "germany"
+      when(
+        () =>
+            mockDio.get(any(), queryParameters: any(named: 'queryParameters')),
+      ).thenAnswer(
+        (_) async => Response(
+          requestOptions: RequestOptions(),
+          statusCode: 200,
+          data: [],
+        ),
+      );
+
+      await provider.searchCities('german');
+
+      // Should call API (not return major cities)
+      verify(
+        () => mockDio.get(
+          '/search',
+          queryParameters: any(named: 'queryParameters'),
+        ),
+      ).called(1);
+    });
+
+    test('searchCities extracts US state from ISO3166-2-lvl4', () async {
+      when(
+        () =>
+            mockDio.get(any(), queryParameters: any(named: 'queryParameters')),
+      ).thenAnswer(
+        (_) async => Response(
+          requestOptions: RequestOptions(),
+          statusCode: 200,
+          data: [
+            {
+              'display_name': 'Atlanta, GA, USA',
+              'address': {
+                'city': 'Atlanta',
+                'country': 'United States',
+                'country_code': 'us',
+                'ISO3166-2-lvl4': 'US-GA',
+              },
+            },
+          ],
+        ),
+      );
+
+      final results = await provider.searchCities('Atlanta');
+
+      expect(results, hasLength(1));
+      expect(results[0].city, 'Atlanta');
+      expect(results[0].state, 'GA');
+    });
   });
 
   group('CityAutocompleteService', () {
@@ -455,6 +637,100 @@ void main() {
       service.dispose();
       // Should not throw
     });
+
+    test('searchCities bypasses debounce for country queries', () async {
+      const expectedResults = [
+        CityResult(
+          city: 'Berlin',
+          postalCode: '10115',
+          country: 'Germany',
+          countryCode: 'DE',
+          displayName: 'Berlin, Germany',
+        ),
+      ];
+
+      when(
+        () => mockProvider.searchCities('germany'),
+      ).thenAnswer((_) async => expectedResults);
+
+      List<CityResult>? callbackResults;
+      final startTime = DateTime.now();
+
+      // Should return immediately without debounce
+      await service.searchCities('germany', (results) {
+        callbackResults = results;
+      });
+
+      final endTime = DateTime.now();
+      final duration = endTime.difference(startTime);
+
+      // Should complete before debounce delay (100ms)
+      expect(duration.inMilliseconds, lessThan(50));
+      expect(callbackResults, expectedResults);
+      verify(() => mockProvider.searchCities('germany')).called(1);
+    });
+
+    test('searchCities uses debounce for regular queries', () async {
+      when(() => mockProvider.searchCities(any())).thenAnswer((_) async => []);
+
+      service.searchCities('ham', (_) {}); // Triggers debounce
+      await Future.delayed(const Duration(milliseconds: 50));
+
+      // Should not have called provider yet (within debounce period)
+      verifyNever(() => mockProvider.searchCities('ham'));
+
+      // Wait for debounce to complete
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // Now should have called provider
+      verify(() => mockProvider.searchCities('ham')).called(1);
+    });
+
+    test('searchCities bypasses debounce for country aliases', () async {
+      const expectedResults = [
+        CityResult(
+          city: 'New York',
+          postalCode: '10001',
+          country: 'United States',
+          countryCode: 'US',
+          state: 'NY',
+          displayName: 'New York, NY, USA',
+        ),
+      ];
+
+      when(
+        () => mockProvider.searchCities('usa'),
+      ).thenAnswer((_) async => expectedResults);
+
+      List<CityResult>? callbackResults;
+      final startTime = DateTime.now();
+
+      await service.searchCities('usa', (results) {
+        callbackResults = results;
+      });
+
+      final endTime = DateTime.now();
+      final duration = endTime.difference(startTime);
+
+      expect(duration.inMilliseconds, lessThan(50));
+      expect(callbackResults, expectedResults);
+    });
+
+    test(
+      'searchCities is case insensitive for country debounce bypass',
+      () async {
+        when(
+          () => mockProvider.searchCities(any()),
+        ).thenAnswer((_) async => []);
+
+        final startTime = DateTime.now();
+        await service.searchCities('GERMANY', (_) {});
+        final endTime = DateTime.now();
+
+        // Should bypass debounce even with uppercase
+        expect(endTime.difference(startTime).inMilliseconds, lessThan(50));
+      },
+    );
   });
 }
 

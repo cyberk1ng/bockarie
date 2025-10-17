@@ -437,7 +437,7 @@ class _CartonModelsProviderElement
   String get shipmentId => (origin as CartonModelsProvider).shipmentId;
 }
 
-String _$quotesHash() => r'7c8e386833e6a7b289f084c212cf7778ed0e314a';
+String _$quotesHash() => r'c4e50c8fb3fd9ff7bed44b1f3bb8dadae9e3dfb4';
 
 /// Provider for fetching all quotes for a shipment
 ///
@@ -484,7 +484,7 @@ class QuotesFamily extends Family<AsyncValue<List<Quote>>> {
 /// Provider for fetching all quotes for a shipment
 ///
 /// Copied from [quotes].
-class QuotesProvider extends AutoDisposeFutureProvider<List<Quote>> {
+class QuotesProvider extends AutoDisposeStreamProvider<List<Quote>> {
   /// Provider for fetching all quotes for a shipment
   ///
   /// Copied from [quotes].
@@ -515,7 +515,7 @@ class QuotesProvider extends AutoDisposeFutureProvider<List<Quote>> {
 
   @override
   Override overrideWith(
-    FutureOr<List<Quote>> Function(QuotesRef provider) create,
+    Stream<List<Quote>> Function(QuotesRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -532,7 +532,7 @@ class QuotesProvider extends AutoDisposeFutureProvider<List<Quote>> {
   }
 
   @override
-  AutoDisposeFutureProviderElement<List<Quote>> createElement() {
+  AutoDisposeStreamProviderElement<List<Quote>> createElement() {
     return _QuotesProviderElement(this);
   }
 
@@ -552,13 +552,13 @@ class QuotesProvider extends AutoDisposeFutureProvider<List<Quote>> {
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin QuotesRef on AutoDisposeFutureProviderRef<List<Quote>> {
+mixin QuotesRef on AutoDisposeStreamProviderRef<List<Quote>> {
   /// The parameter `shipmentId` of this provider.
   String get shipmentId;
 }
 
 class _QuotesProviderElement
-    extends AutoDisposeFutureProviderElement<List<Quote>>
+    extends AutoDisposeStreamProviderElement<List<Quote>>
     with QuotesRef {
   _QuotesProviderElement(super.provider);
 

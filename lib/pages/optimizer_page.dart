@@ -445,11 +445,25 @@ class _OptimizationSuggestionCardState
 
           final totals = CalculationService.calculateTotals(cartonModels);
 
+          // Fetch shipment to get address information
+          final shipment = await (db.select(
+            db.shipments,
+          )..where((s) => s.id.equals(widget.shipmentId))).getSingle();
+
           // Regenerate quotes with new dimensions
-          final quoteService = QuoteCalculatorService(db);
+          final quoteService = getIt<QuoteCalculatorService>();
           final newQuotes = await quoteService.calculateAllQuotes(
             chargeableKg: totals.chargeableKg,
             isOversized: totals.isOversized,
+            originCity: shipment.originCity,
+            originPostal: shipment.originPostal,
+            originCountry: shipment.originCountry,
+            originState: shipment.originState,
+            destCity: shipment.destCity,
+            destPostal: shipment.destPostal,
+            destCountry: shipment.destCountry,
+            destState: shipment.destState,
+            cartons: updatedCartons,
           );
 
           // Delete old quotes

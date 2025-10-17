@@ -1,11 +1,16 @@
 import 'package:bockaire/database/database.dart';
 import 'package:bockaire/classes/rate_table.dart' as models;
+import 'package:bockaire/services/shippo_service.dart';
+import 'package:bockaire/config/shippo_config.dart';
+import 'package:logger/logger.dart';
 
 /// Service for calculating shipping quotes from rate tables
 class QuoteCalculatorService {
   final AppDatabase _database;
+  final ShippoService _shippoService;
+  final Logger _logger = Logger();
 
-  QuoteCalculatorService(this._database);
+  QuoteCalculatorService(this._database, this._shippoService);
 
   /// Calculate quote from a rate table
   /// Formula: total = (base + perKg × chargeable) × (1 + fuel%) + oversize_fee
@@ -40,11 +45,72 @@ class QuoteCalculatorService {
     );
   }
 
-  /// Calculate all quotes from available rate tables
+  /// Calculate all quotes from Shippo API
   Future<List<ShippingQuote>> calculateAllQuotes({
     required double chargeableKg,
     required bool isOversized,
+    String? originCity,
+    String? originPostal,
+    String? originCountry,
+    String? originState,
+    String? destCity,
+    String? destPostal,
+    String? destCountry,
+    String? destState,
+    List<Carton>? cartons,
+    bool useShippoApi = true,
   }) async {
+    // If we have all the required information and should use Shippo API, get real rates
+    if (useShippoApi &&
+        originCity != null &&
+        originPostal != null &&
+        destCity != null &&
+        destPostal != null &&
+        cartons != null &&
+        cartons.isNotEmpty) {
+      try {
+        _logger.i('Fetching real rates from Shippo API');
+
+        final shippoRates = await _shippoService.getRates(
+          originCity: originCity,
+          originPostal: originPostal,
+          originCountry: originCountry ?? 'CN', // Default to China
+          originState: originState ?? '',
+          destCity: destCity,
+          destPostal: destPostal,
+          destCountry: destCountry ?? 'DE', // Default to Germany
+          destState: destState ?? '',
+          cartons: cartons,
+        );
+
+        _logger.i('Received ${shippoRates.length} rates from Shippo');
+
+        // Convert Shippo rates to ShippingQuote objects
+        return shippoRates.map((rate) {
+          final priceEur = rate.toPriceEur(ShippoConfig.usdToEurRate);
+
+          return ShippingQuote(
+            carrier: rate.provider,
+            service: rate.servicelevel.name,
+            subtotal: priceEur,
+            fuelSurcharge: 0.0, // Shippo includes this in the total
+            oversizeFee: 0.0, // Shippo includes this in the total
+            total: priceEur,
+            chargeableKg: chargeableKg,
+            notes: rate.estimatedDays != null
+                ? 'ETA: ${rate.estimatedDays} days'
+                : null,
+          );
+        }).toList();
+      } catch (e) {
+        _logger.e('Error fetching rates from Shippo', error: e);
+        _logger.w('Falling back to local rate tables');
+        // Fall back to local rate tables if Shippo fails
+      }
+    }
+
+    // Fall back to local rate tables
+    _logger.i('Using local rate tables');
     final rates = await _database.select(_database.rateTables).get();
 
     return rates.map((rateRow) {
