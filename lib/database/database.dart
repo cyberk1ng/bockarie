@@ -15,6 +15,7 @@ class Shipments extends Table {
   TextColumn get originPostal => text()();
   TextColumn get destCity => text()();
   TextColumn get destPostal => text()();
+  IntColumn get deadlineDays => integer().nullable()();
   TextColumn get notes => text().nullable()();
 
   @override
@@ -45,6 +46,8 @@ class RateTables extends Table {
   RealColumn get breakpointKg => real()();
   RealColumn get fuelPct => real()();
   RealColumn get oversizeFee => real()();
+  IntColumn get etaMin => integer()();
+  IntColumn get etaMax => integer()();
   TextColumn get notes => text().nullable()();
 
   @override
@@ -65,12 +68,52 @@ class Quotes extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [Shipments, Cartons, RateTables, Quotes])
+class CompanyInfo extends Table {
+  TextColumn get id => text()();
+  TextColumn get companyName => text()();
+  TextColumn get address => text()();
+  TextColumn get city => text()();
+  TextColumn get postalCode => text()();
+  TextColumn get country => text()();
+  TextColumn get vatNumber => text().nullable()();
+  TextColumn get eoriNumber => text().nullable()();
+  TextColumn get contactName => text().nullable()();
+  TextColumn get contactEmail => text().nullable()();
+  TextColumn get contactPhone => text().nullable()();
+  TextColumn get defaultHsCodes =>
+      text().nullable()(); // JSON string for common HS codes
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DriftDatabase(tables: [Shipments, Cartons, RateTables, Quotes, CompanyInfo])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (Migrator m) async {
+      await m.createAll();
+    },
+    onUpgrade: (Migrator m, int from, int to) async {
+      if (from < 2) {
+        // Migration from version 1 to 2
+        // Add deadlineDays column to Shipments table
+        await m.addColumn(shipments, shipments.deadlineDays);
+
+        // Add etaMin and etaMax columns to RateTables table
+        await m.addColumn(rateTables, rateTables.etaMin);
+        await m.addColumn(rateTables, rateTables.etaMax);
+
+        // Create CompanyInfo table
+        await m.createTable(companyInfo);
+      }
+    },
+  );
 
   static LazyDatabase _openConnection() {
     return LazyDatabase(() async {

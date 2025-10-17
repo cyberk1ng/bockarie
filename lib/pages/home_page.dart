@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:bockaire/widgets/modal/modal_utils.dart';
+import 'package:bockaire/pages/new_shipment_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
+
+  void _openNewShipmentModal(BuildContext context) {
+    ModalUtils.showSinglePageModal(
+      context: context,
+      title: 'New Shipment',
+      builder: (modalContext) => const NewShipmentContent(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bockaire - Shipping Optimizer'),
+        title: const Text('Bockaire'),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -39,18 +49,12 @@ class HomePage extends StatelessWidget {
                     const SizedBox(height: 16),
                     Text(
                       'No shipments yet',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 18, color: Colors.grey[600]),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'Create your first shipment to get started',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[500],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                     ),
                   ],
                 ),
@@ -60,7 +64,7 @@ class HomePage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/new-shipment'),
+        onPressed: () => _openNewShipmentModal(context),
         icon: const Icon(Icons.add),
         label: const Text('New Shipment'),
       ),

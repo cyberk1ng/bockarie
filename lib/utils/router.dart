@@ -8,10 +8,7 @@ import 'package:bockaire/pages/settings_page.dart';
 final router = GoRouter(
   initialLocation: '/',
   routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const HomePage(),
-    ),
+    GoRoute(path: '/', builder: (context, state) => const HomePage()),
     GoRoute(
       path: '/new-shipment',
       builder: (context, state) => const NewShipmentPage(),

@@ -73,6 +73,17 @@ class $ShipmentsTable extends Shipments
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _deadlineDaysMeta = const VerificationMeta(
+    'deadlineDays',
+  );
+  @override
+  late final GeneratedColumn<int> deadlineDays = GeneratedColumn<int>(
+    'deadline_days',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
@@ -90,6 +101,7 @@ class $ShipmentsTable extends Shipments
     originPostal,
     destCity,
     destPostal,
+    deadlineDays,
     notes,
   ];
   @override
@@ -152,6 +164,15 @@ class $ShipmentsTable extends Shipments
     } else if (isInserting) {
       context.missing(_destPostalMeta);
     }
+    if (data.containsKey('deadline_days')) {
+      context.handle(
+        _deadlineDaysMeta,
+        deadlineDays.isAcceptableOrUnknown(
+          data['deadline_days']!,
+          _deadlineDaysMeta,
+        ),
+      );
+    }
     if (data.containsKey('notes')) {
       context.handle(
         _notesMeta,
@@ -191,6 +212,10 @@ class $ShipmentsTable extends Shipments
         DriftSqlType.string,
         data['${effectivePrefix}dest_postal'],
       )!,
+      deadlineDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deadline_days'],
+      ),
       notes: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
@@ -211,6 +236,7 @@ class Shipment extends DataClass implements Insertable<Shipment> {
   final String originPostal;
   final String destCity;
   final String destPostal;
+  final int? deadlineDays;
   final String? notes;
   const Shipment({
     required this.id,
@@ -219,6 +245,7 @@ class Shipment extends DataClass implements Insertable<Shipment> {
     required this.originPostal,
     required this.destCity,
     required this.destPostal,
+    this.deadlineDays,
     this.notes,
   });
   @override
@@ -230,6 +257,9 @@ class Shipment extends DataClass implements Insertable<Shipment> {
     map['origin_postal'] = Variable<String>(originPostal);
     map['dest_city'] = Variable<String>(destCity);
     map['dest_postal'] = Variable<String>(destPostal);
+    if (!nullToAbsent || deadlineDays != null) {
+      map['deadline_days'] = Variable<int>(deadlineDays);
+    }
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
@@ -244,6 +274,9 @@ class Shipment extends DataClass implements Insertable<Shipment> {
       originPostal: Value(originPostal),
       destCity: Value(destCity),
       destPostal: Value(destPostal),
+      deadlineDays: deadlineDays == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deadlineDays),
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
@@ -262,6 +295,7 @@ class Shipment extends DataClass implements Insertable<Shipment> {
       originPostal: serializer.fromJson<String>(json['originPostal']),
       destCity: serializer.fromJson<String>(json['destCity']),
       destPostal: serializer.fromJson<String>(json['destPostal']),
+      deadlineDays: serializer.fromJson<int?>(json['deadlineDays']),
       notes: serializer.fromJson<String?>(json['notes']),
     );
   }
@@ -275,6 +309,7 @@ class Shipment extends DataClass implements Insertable<Shipment> {
       'originPostal': serializer.toJson<String>(originPostal),
       'destCity': serializer.toJson<String>(destCity),
       'destPostal': serializer.toJson<String>(destPostal),
+      'deadlineDays': serializer.toJson<int?>(deadlineDays),
       'notes': serializer.toJson<String?>(notes),
     };
   }
@@ -286,6 +321,7 @@ class Shipment extends DataClass implements Insertable<Shipment> {
     String? originPostal,
     String? destCity,
     String? destPostal,
+    Value<int?> deadlineDays = const Value.absent(),
     Value<String?> notes = const Value.absent(),
   }) => Shipment(
     id: id ?? this.id,
@@ -294,6 +330,7 @@ class Shipment extends DataClass implements Insertable<Shipment> {
     originPostal: originPostal ?? this.originPostal,
     destCity: destCity ?? this.destCity,
     destPostal: destPostal ?? this.destPostal,
+    deadlineDays: deadlineDays.present ? deadlineDays.value : this.deadlineDays,
     notes: notes.present ? notes.value : this.notes,
   );
   Shipment copyWithCompanion(ShipmentsCompanion data) {
@@ -310,6 +347,9 @@ class Shipment extends DataClass implements Insertable<Shipment> {
       destPostal: data.destPostal.present
           ? data.destPostal.value
           : this.destPostal,
+      deadlineDays: data.deadlineDays.present
+          ? data.deadlineDays.value
+          : this.deadlineDays,
       notes: data.notes.present ? data.notes.value : this.notes,
     );
   }
@@ -323,6 +363,7 @@ class Shipment extends DataClass implements Insertable<Shipment> {
           ..write('originPostal: $originPostal, ')
           ..write('destCity: $destCity, ')
           ..write('destPostal: $destPostal, ')
+          ..write('deadlineDays: $deadlineDays, ')
           ..write('notes: $notes')
           ..write(')'))
         .toString();
@@ -336,6 +377,7 @@ class Shipment extends DataClass implements Insertable<Shipment> {
     originPostal,
     destCity,
     destPostal,
+    deadlineDays,
     notes,
   );
   @override
@@ -348,6 +390,7 @@ class Shipment extends DataClass implements Insertable<Shipment> {
           other.originPostal == this.originPostal &&
           other.destCity == this.destCity &&
           other.destPostal == this.destPostal &&
+          other.deadlineDays == this.deadlineDays &&
           other.notes == this.notes);
 }
 
@@ -358,6 +401,7 @@ class ShipmentsCompanion extends UpdateCompanion<Shipment> {
   final Value<String> originPostal;
   final Value<String> destCity;
   final Value<String> destPostal;
+  final Value<int?> deadlineDays;
   final Value<String?> notes;
   final Value<int> rowid;
   const ShipmentsCompanion({
@@ -367,6 +411,7 @@ class ShipmentsCompanion extends UpdateCompanion<Shipment> {
     this.originPostal = const Value.absent(),
     this.destCity = const Value.absent(),
     this.destPostal = const Value.absent(),
+    this.deadlineDays = const Value.absent(),
     this.notes = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -377,6 +422,7 @@ class ShipmentsCompanion extends UpdateCompanion<Shipment> {
     required String originPostal,
     required String destCity,
     required String destPostal,
+    this.deadlineDays = const Value.absent(),
     this.notes = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -392,6 +438,7 @@ class ShipmentsCompanion extends UpdateCompanion<Shipment> {
     Expression<String>? originPostal,
     Expression<String>? destCity,
     Expression<String>? destPostal,
+    Expression<int>? deadlineDays,
     Expression<String>? notes,
     Expression<int>? rowid,
   }) {
@@ -402,6 +449,7 @@ class ShipmentsCompanion extends UpdateCompanion<Shipment> {
       if (originPostal != null) 'origin_postal': originPostal,
       if (destCity != null) 'dest_city': destCity,
       if (destPostal != null) 'dest_postal': destPostal,
+      if (deadlineDays != null) 'deadline_days': deadlineDays,
       if (notes != null) 'notes': notes,
       if (rowid != null) 'rowid': rowid,
     });
@@ -414,6 +462,7 @@ class ShipmentsCompanion extends UpdateCompanion<Shipment> {
     Value<String>? originPostal,
     Value<String>? destCity,
     Value<String>? destPostal,
+    Value<int?>? deadlineDays,
     Value<String?>? notes,
     Value<int>? rowid,
   }) {
@@ -424,6 +473,7 @@ class ShipmentsCompanion extends UpdateCompanion<Shipment> {
       originPostal: originPostal ?? this.originPostal,
       destCity: destCity ?? this.destCity,
       destPostal: destPostal ?? this.destPostal,
+      deadlineDays: deadlineDays ?? this.deadlineDays,
       notes: notes ?? this.notes,
       rowid: rowid ?? this.rowid,
     );
@@ -450,6 +500,9 @@ class ShipmentsCompanion extends UpdateCompanion<Shipment> {
     if (destPostal.present) {
       map['dest_postal'] = Variable<String>(destPostal.value);
     }
+    if (deadlineDays.present) {
+      map['deadline_days'] = Variable<int>(deadlineDays.value);
+    }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
@@ -468,6 +521,7 @@ class ShipmentsCompanion extends UpdateCompanion<Shipment> {
           ..write('originPostal: $originPostal, ')
           ..write('destCity: $destCity, ')
           ..write('destPostal: $destPostal, ')
+          ..write('deadlineDays: $deadlineDays, ')
           ..write('notes: $notes, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -1092,6 +1146,24 @@ class $RateTablesTable extends RateTables
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _etaMinMeta = const VerificationMeta('etaMin');
+  @override
+  late final GeneratedColumn<int> etaMin = GeneratedColumn<int>(
+    'eta_min',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _etaMaxMeta = const VerificationMeta('etaMax');
+  @override
+  late final GeneratedColumn<int> etaMax = GeneratedColumn<int>(
+    'eta_max',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
@@ -1112,6 +1184,8 @@ class $RateTablesTable extends RateTables
     breakpointKg,
     fuelPct,
     oversizeFee,
+    etaMin,
+    etaMax,
     notes,
   ];
   @override
@@ -1201,6 +1275,22 @@ class $RateTablesTable extends RateTables
     } else if (isInserting) {
       context.missing(_oversizeFeeMeta);
     }
+    if (data.containsKey('eta_min')) {
+      context.handle(
+        _etaMinMeta,
+        etaMin.isAcceptableOrUnknown(data['eta_min']!, _etaMinMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_etaMinMeta);
+    }
+    if (data.containsKey('eta_max')) {
+      context.handle(
+        _etaMaxMeta,
+        etaMax.isAcceptableOrUnknown(data['eta_max']!, _etaMaxMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_etaMaxMeta);
+    }
     if (data.containsKey('notes')) {
       context.handle(
         _notesMeta,
@@ -1252,6 +1342,14 @@ class $RateTablesTable extends RateTables
         DriftSqlType.double,
         data['${effectivePrefix}oversize_fee'],
       )!,
+      etaMin: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}eta_min'],
+      )!,
+      etaMax: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}eta_max'],
+      )!,
       notes: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
@@ -1275,6 +1373,8 @@ class RateTable extends DataClass implements Insertable<RateTable> {
   final double breakpointKg;
   final double fuelPct;
   final double oversizeFee;
+  final int etaMin;
+  final int etaMax;
   final String? notes;
   const RateTable({
     required this.id,
@@ -1286,6 +1386,8 @@ class RateTable extends DataClass implements Insertable<RateTable> {
     required this.breakpointKg,
     required this.fuelPct,
     required this.oversizeFee,
+    required this.etaMin,
+    required this.etaMax,
     this.notes,
   });
   @override
@@ -1300,6 +1402,8 @@ class RateTable extends DataClass implements Insertable<RateTable> {
     map['breakpoint_kg'] = Variable<double>(breakpointKg);
     map['fuel_pct'] = Variable<double>(fuelPct);
     map['oversize_fee'] = Variable<double>(oversizeFee);
+    map['eta_min'] = Variable<int>(etaMin);
+    map['eta_max'] = Variable<int>(etaMax);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
@@ -1317,6 +1421,8 @@ class RateTable extends DataClass implements Insertable<RateTable> {
       breakpointKg: Value(breakpointKg),
       fuelPct: Value(fuelPct),
       oversizeFee: Value(oversizeFee),
+      etaMin: Value(etaMin),
+      etaMax: Value(etaMax),
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
@@ -1338,6 +1444,8 @@ class RateTable extends DataClass implements Insertable<RateTable> {
       breakpointKg: serializer.fromJson<double>(json['breakpointKg']),
       fuelPct: serializer.fromJson<double>(json['fuelPct']),
       oversizeFee: serializer.fromJson<double>(json['oversizeFee']),
+      etaMin: serializer.fromJson<int>(json['etaMin']),
+      etaMax: serializer.fromJson<int>(json['etaMax']),
       notes: serializer.fromJson<String?>(json['notes']),
     );
   }
@@ -1354,6 +1462,8 @@ class RateTable extends DataClass implements Insertable<RateTable> {
       'breakpointKg': serializer.toJson<double>(breakpointKg),
       'fuelPct': serializer.toJson<double>(fuelPct),
       'oversizeFee': serializer.toJson<double>(oversizeFee),
+      'etaMin': serializer.toJson<int>(etaMin),
+      'etaMax': serializer.toJson<int>(etaMax),
       'notes': serializer.toJson<String?>(notes),
     };
   }
@@ -1368,6 +1478,8 @@ class RateTable extends DataClass implements Insertable<RateTable> {
     double? breakpointKg,
     double? fuelPct,
     double? oversizeFee,
+    int? etaMin,
+    int? etaMax,
     Value<String?> notes = const Value.absent(),
   }) => RateTable(
     id: id ?? this.id,
@@ -1379,6 +1491,8 @@ class RateTable extends DataClass implements Insertable<RateTable> {
     breakpointKg: breakpointKg ?? this.breakpointKg,
     fuelPct: fuelPct ?? this.fuelPct,
     oversizeFee: oversizeFee ?? this.oversizeFee,
+    etaMin: etaMin ?? this.etaMin,
+    etaMax: etaMax ?? this.etaMax,
     notes: notes.present ? notes.value : this.notes,
   );
   RateTable copyWithCompanion(RateTablesCompanion data) {
@@ -1396,6 +1510,8 @@ class RateTable extends DataClass implements Insertable<RateTable> {
       oversizeFee: data.oversizeFee.present
           ? data.oversizeFee.value
           : this.oversizeFee,
+      etaMin: data.etaMin.present ? data.etaMin.value : this.etaMin,
+      etaMax: data.etaMax.present ? data.etaMax.value : this.etaMax,
       notes: data.notes.present ? data.notes.value : this.notes,
     );
   }
@@ -1412,6 +1528,8 @@ class RateTable extends DataClass implements Insertable<RateTable> {
           ..write('breakpointKg: $breakpointKg, ')
           ..write('fuelPct: $fuelPct, ')
           ..write('oversizeFee: $oversizeFee, ')
+          ..write('etaMin: $etaMin, ')
+          ..write('etaMax: $etaMax, ')
           ..write('notes: $notes')
           ..write(')'))
         .toString();
@@ -1428,6 +1546,8 @@ class RateTable extends DataClass implements Insertable<RateTable> {
     breakpointKg,
     fuelPct,
     oversizeFee,
+    etaMin,
+    etaMax,
     notes,
   );
   @override
@@ -1443,6 +1563,8 @@ class RateTable extends DataClass implements Insertable<RateTable> {
           other.breakpointKg == this.breakpointKg &&
           other.fuelPct == this.fuelPct &&
           other.oversizeFee == this.oversizeFee &&
+          other.etaMin == this.etaMin &&
+          other.etaMax == this.etaMax &&
           other.notes == this.notes);
 }
 
@@ -1456,6 +1578,8 @@ class RateTablesCompanion extends UpdateCompanion<RateTable> {
   final Value<double> breakpointKg;
   final Value<double> fuelPct;
   final Value<double> oversizeFee;
+  final Value<int> etaMin;
+  final Value<int> etaMax;
   final Value<String?> notes;
   final Value<int> rowid;
   const RateTablesCompanion({
@@ -1468,6 +1592,8 @@ class RateTablesCompanion extends UpdateCompanion<RateTable> {
     this.breakpointKg = const Value.absent(),
     this.fuelPct = const Value.absent(),
     this.oversizeFee = const Value.absent(),
+    this.etaMin = const Value.absent(),
+    this.etaMax = const Value.absent(),
     this.notes = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1481,6 +1607,8 @@ class RateTablesCompanion extends UpdateCompanion<RateTable> {
     required double breakpointKg,
     required double fuelPct,
     required double oversizeFee,
+    required int etaMin,
+    required int etaMax,
     this.notes = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -1491,7 +1619,9 @@ class RateTablesCompanion extends UpdateCompanion<RateTable> {
        perKgHigh = Value(perKgHigh),
        breakpointKg = Value(breakpointKg),
        fuelPct = Value(fuelPct),
-       oversizeFee = Value(oversizeFee);
+       oversizeFee = Value(oversizeFee),
+       etaMin = Value(etaMin),
+       etaMax = Value(etaMax);
   static Insertable<RateTable> custom({
     Expression<String>? id,
     Expression<String>? carrier,
@@ -1502,6 +1632,8 @@ class RateTablesCompanion extends UpdateCompanion<RateTable> {
     Expression<double>? breakpointKg,
     Expression<double>? fuelPct,
     Expression<double>? oversizeFee,
+    Expression<int>? etaMin,
+    Expression<int>? etaMax,
     Expression<String>? notes,
     Expression<int>? rowid,
   }) {
@@ -1515,6 +1647,8 @@ class RateTablesCompanion extends UpdateCompanion<RateTable> {
       if (breakpointKg != null) 'breakpoint_kg': breakpointKg,
       if (fuelPct != null) 'fuel_pct': fuelPct,
       if (oversizeFee != null) 'oversize_fee': oversizeFee,
+      if (etaMin != null) 'eta_min': etaMin,
+      if (etaMax != null) 'eta_max': etaMax,
       if (notes != null) 'notes': notes,
       if (rowid != null) 'rowid': rowid,
     });
@@ -1530,6 +1664,8 @@ class RateTablesCompanion extends UpdateCompanion<RateTable> {
     Value<double>? breakpointKg,
     Value<double>? fuelPct,
     Value<double>? oversizeFee,
+    Value<int>? etaMin,
+    Value<int>? etaMax,
     Value<String?>? notes,
     Value<int>? rowid,
   }) {
@@ -1543,6 +1679,8 @@ class RateTablesCompanion extends UpdateCompanion<RateTable> {
       breakpointKg: breakpointKg ?? this.breakpointKg,
       fuelPct: fuelPct ?? this.fuelPct,
       oversizeFee: oversizeFee ?? this.oversizeFee,
+      etaMin: etaMin ?? this.etaMin,
+      etaMax: etaMax ?? this.etaMax,
       notes: notes ?? this.notes,
       rowid: rowid ?? this.rowid,
     );
@@ -1578,6 +1716,12 @@ class RateTablesCompanion extends UpdateCompanion<RateTable> {
     if (oversizeFee.present) {
       map['oversize_fee'] = Variable<double>(oversizeFee.value);
     }
+    if (etaMin.present) {
+      map['eta_min'] = Variable<int>(etaMin.value);
+    }
+    if (etaMax.present) {
+      map['eta_max'] = Variable<int>(etaMax.value);
+    }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
@@ -1599,6 +1743,8 @@ class RateTablesCompanion extends UpdateCompanion<RateTable> {
           ..write('breakpointKg: $breakpointKg, ')
           ..write('fuelPct: $fuelPct, ')
           ..write('oversizeFee: $oversizeFee, ')
+          ..write('etaMin: $etaMin, ')
+          ..write('etaMax: $etaMax, ')
           ..write('notes: $notes, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -2123,6 +2269,745 @@ class QuotesCompanion extends UpdateCompanion<Quote> {
   }
 }
 
+class $CompanyInfoTable extends CompanyInfo
+    with TableInfo<$CompanyInfoTable, CompanyInfoData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CompanyInfoTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _companyNameMeta = const VerificationMeta(
+    'companyName',
+  );
+  @override
+  late final GeneratedColumn<String> companyName = GeneratedColumn<String>(
+    'company_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _addressMeta = const VerificationMeta(
+    'address',
+  );
+  @override
+  late final GeneratedColumn<String> address = GeneratedColumn<String>(
+    'address',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _cityMeta = const VerificationMeta('city');
+  @override
+  late final GeneratedColumn<String> city = GeneratedColumn<String>(
+    'city',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _postalCodeMeta = const VerificationMeta(
+    'postalCode',
+  );
+  @override
+  late final GeneratedColumn<String> postalCode = GeneratedColumn<String>(
+    'postal_code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _countryMeta = const VerificationMeta(
+    'country',
+  );
+  @override
+  late final GeneratedColumn<String> country = GeneratedColumn<String>(
+    'country',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _vatNumberMeta = const VerificationMeta(
+    'vatNumber',
+  );
+  @override
+  late final GeneratedColumn<String> vatNumber = GeneratedColumn<String>(
+    'vat_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _eoriNumberMeta = const VerificationMeta(
+    'eoriNumber',
+  );
+  @override
+  late final GeneratedColumn<String> eoriNumber = GeneratedColumn<String>(
+    'eori_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _contactNameMeta = const VerificationMeta(
+    'contactName',
+  );
+  @override
+  late final GeneratedColumn<String> contactName = GeneratedColumn<String>(
+    'contact_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _contactEmailMeta = const VerificationMeta(
+    'contactEmail',
+  );
+  @override
+  late final GeneratedColumn<String> contactEmail = GeneratedColumn<String>(
+    'contact_email',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _contactPhoneMeta = const VerificationMeta(
+    'contactPhone',
+  );
+  @override
+  late final GeneratedColumn<String> contactPhone = GeneratedColumn<String>(
+    'contact_phone',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _defaultHsCodesMeta = const VerificationMeta(
+    'defaultHsCodes',
+  );
+  @override
+  late final GeneratedColumn<String> defaultHsCodes = GeneratedColumn<String>(
+    'default_hs_codes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    companyName,
+    address,
+    city,
+    postalCode,
+    country,
+    vatNumber,
+    eoriNumber,
+    contactName,
+    contactEmail,
+    contactPhone,
+    defaultHsCodes,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'company_info';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CompanyInfoData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('company_name')) {
+      context.handle(
+        _companyNameMeta,
+        companyName.isAcceptableOrUnknown(
+          data['company_name']!,
+          _companyNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_companyNameMeta);
+    }
+    if (data.containsKey('address')) {
+      context.handle(
+        _addressMeta,
+        address.isAcceptableOrUnknown(data['address']!, _addressMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_addressMeta);
+    }
+    if (data.containsKey('city')) {
+      context.handle(
+        _cityMeta,
+        city.isAcceptableOrUnknown(data['city']!, _cityMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cityMeta);
+    }
+    if (data.containsKey('postal_code')) {
+      context.handle(
+        _postalCodeMeta,
+        postalCode.isAcceptableOrUnknown(data['postal_code']!, _postalCodeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_postalCodeMeta);
+    }
+    if (data.containsKey('country')) {
+      context.handle(
+        _countryMeta,
+        country.isAcceptableOrUnknown(data['country']!, _countryMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_countryMeta);
+    }
+    if (data.containsKey('vat_number')) {
+      context.handle(
+        _vatNumberMeta,
+        vatNumber.isAcceptableOrUnknown(data['vat_number']!, _vatNumberMeta),
+      );
+    }
+    if (data.containsKey('eori_number')) {
+      context.handle(
+        _eoriNumberMeta,
+        eoriNumber.isAcceptableOrUnknown(data['eori_number']!, _eoriNumberMeta),
+      );
+    }
+    if (data.containsKey('contact_name')) {
+      context.handle(
+        _contactNameMeta,
+        contactName.isAcceptableOrUnknown(
+          data['contact_name']!,
+          _contactNameMeta,
+        ),
+      );
+    }
+    if (data.containsKey('contact_email')) {
+      context.handle(
+        _contactEmailMeta,
+        contactEmail.isAcceptableOrUnknown(
+          data['contact_email']!,
+          _contactEmailMeta,
+        ),
+      );
+    }
+    if (data.containsKey('contact_phone')) {
+      context.handle(
+        _contactPhoneMeta,
+        contactPhone.isAcceptableOrUnknown(
+          data['contact_phone']!,
+          _contactPhoneMeta,
+        ),
+      );
+    }
+    if (data.containsKey('default_hs_codes')) {
+      context.handle(
+        _defaultHsCodesMeta,
+        defaultHsCodes.isAcceptableOrUnknown(
+          data['default_hs_codes']!,
+          _defaultHsCodesMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CompanyInfoData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CompanyInfoData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      companyName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}company_name'],
+      )!,
+      address: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}address'],
+      )!,
+      city: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}city'],
+      )!,
+      postalCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}postal_code'],
+      )!,
+      country: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}country'],
+      )!,
+      vatNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}vat_number'],
+      ),
+      eoriNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}eori_number'],
+      ),
+      contactName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contact_name'],
+      ),
+      contactEmail: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contact_email'],
+      ),
+      contactPhone: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contact_phone'],
+      ),
+      defaultHsCodes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}default_hs_codes'],
+      ),
+    );
+  }
+
+  @override
+  $CompanyInfoTable createAlias(String alias) {
+    return $CompanyInfoTable(attachedDatabase, alias);
+  }
+}
+
+class CompanyInfoData extends DataClass implements Insertable<CompanyInfoData> {
+  final String id;
+  final String companyName;
+  final String address;
+  final String city;
+  final String postalCode;
+  final String country;
+  final String? vatNumber;
+  final String? eoriNumber;
+  final String? contactName;
+  final String? contactEmail;
+  final String? contactPhone;
+  final String? defaultHsCodes;
+  const CompanyInfoData({
+    required this.id,
+    required this.companyName,
+    required this.address,
+    required this.city,
+    required this.postalCode,
+    required this.country,
+    this.vatNumber,
+    this.eoriNumber,
+    this.contactName,
+    this.contactEmail,
+    this.contactPhone,
+    this.defaultHsCodes,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['company_name'] = Variable<String>(companyName);
+    map['address'] = Variable<String>(address);
+    map['city'] = Variable<String>(city);
+    map['postal_code'] = Variable<String>(postalCode);
+    map['country'] = Variable<String>(country);
+    if (!nullToAbsent || vatNumber != null) {
+      map['vat_number'] = Variable<String>(vatNumber);
+    }
+    if (!nullToAbsent || eoriNumber != null) {
+      map['eori_number'] = Variable<String>(eoriNumber);
+    }
+    if (!nullToAbsent || contactName != null) {
+      map['contact_name'] = Variable<String>(contactName);
+    }
+    if (!nullToAbsent || contactEmail != null) {
+      map['contact_email'] = Variable<String>(contactEmail);
+    }
+    if (!nullToAbsent || contactPhone != null) {
+      map['contact_phone'] = Variable<String>(contactPhone);
+    }
+    if (!nullToAbsent || defaultHsCodes != null) {
+      map['default_hs_codes'] = Variable<String>(defaultHsCodes);
+    }
+    return map;
+  }
+
+  CompanyInfoCompanion toCompanion(bool nullToAbsent) {
+    return CompanyInfoCompanion(
+      id: Value(id),
+      companyName: Value(companyName),
+      address: Value(address),
+      city: Value(city),
+      postalCode: Value(postalCode),
+      country: Value(country),
+      vatNumber: vatNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vatNumber),
+      eoriNumber: eoriNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(eoriNumber),
+      contactName: contactName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contactName),
+      contactEmail: contactEmail == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contactEmail),
+      contactPhone: contactPhone == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contactPhone),
+      defaultHsCodes: defaultHsCodes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(defaultHsCodes),
+    );
+  }
+
+  factory CompanyInfoData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CompanyInfoData(
+      id: serializer.fromJson<String>(json['id']),
+      companyName: serializer.fromJson<String>(json['companyName']),
+      address: serializer.fromJson<String>(json['address']),
+      city: serializer.fromJson<String>(json['city']),
+      postalCode: serializer.fromJson<String>(json['postalCode']),
+      country: serializer.fromJson<String>(json['country']),
+      vatNumber: serializer.fromJson<String?>(json['vatNumber']),
+      eoriNumber: serializer.fromJson<String?>(json['eoriNumber']),
+      contactName: serializer.fromJson<String?>(json['contactName']),
+      contactEmail: serializer.fromJson<String?>(json['contactEmail']),
+      contactPhone: serializer.fromJson<String?>(json['contactPhone']),
+      defaultHsCodes: serializer.fromJson<String?>(json['defaultHsCodes']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'companyName': serializer.toJson<String>(companyName),
+      'address': serializer.toJson<String>(address),
+      'city': serializer.toJson<String>(city),
+      'postalCode': serializer.toJson<String>(postalCode),
+      'country': serializer.toJson<String>(country),
+      'vatNumber': serializer.toJson<String?>(vatNumber),
+      'eoriNumber': serializer.toJson<String?>(eoriNumber),
+      'contactName': serializer.toJson<String?>(contactName),
+      'contactEmail': serializer.toJson<String?>(contactEmail),
+      'contactPhone': serializer.toJson<String?>(contactPhone),
+      'defaultHsCodes': serializer.toJson<String?>(defaultHsCodes),
+    };
+  }
+
+  CompanyInfoData copyWith({
+    String? id,
+    String? companyName,
+    String? address,
+    String? city,
+    String? postalCode,
+    String? country,
+    Value<String?> vatNumber = const Value.absent(),
+    Value<String?> eoriNumber = const Value.absent(),
+    Value<String?> contactName = const Value.absent(),
+    Value<String?> contactEmail = const Value.absent(),
+    Value<String?> contactPhone = const Value.absent(),
+    Value<String?> defaultHsCodes = const Value.absent(),
+  }) => CompanyInfoData(
+    id: id ?? this.id,
+    companyName: companyName ?? this.companyName,
+    address: address ?? this.address,
+    city: city ?? this.city,
+    postalCode: postalCode ?? this.postalCode,
+    country: country ?? this.country,
+    vatNumber: vatNumber.present ? vatNumber.value : this.vatNumber,
+    eoriNumber: eoriNumber.present ? eoriNumber.value : this.eoriNumber,
+    contactName: contactName.present ? contactName.value : this.contactName,
+    contactEmail: contactEmail.present ? contactEmail.value : this.contactEmail,
+    contactPhone: contactPhone.present ? contactPhone.value : this.contactPhone,
+    defaultHsCodes: defaultHsCodes.present
+        ? defaultHsCodes.value
+        : this.defaultHsCodes,
+  );
+  CompanyInfoData copyWithCompanion(CompanyInfoCompanion data) {
+    return CompanyInfoData(
+      id: data.id.present ? data.id.value : this.id,
+      companyName: data.companyName.present
+          ? data.companyName.value
+          : this.companyName,
+      address: data.address.present ? data.address.value : this.address,
+      city: data.city.present ? data.city.value : this.city,
+      postalCode: data.postalCode.present
+          ? data.postalCode.value
+          : this.postalCode,
+      country: data.country.present ? data.country.value : this.country,
+      vatNumber: data.vatNumber.present ? data.vatNumber.value : this.vatNumber,
+      eoriNumber: data.eoriNumber.present
+          ? data.eoriNumber.value
+          : this.eoriNumber,
+      contactName: data.contactName.present
+          ? data.contactName.value
+          : this.contactName,
+      contactEmail: data.contactEmail.present
+          ? data.contactEmail.value
+          : this.contactEmail,
+      contactPhone: data.contactPhone.present
+          ? data.contactPhone.value
+          : this.contactPhone,
+      defaultHsCodes: data.defaultHsCodes.present
+          ? data.defaultHsCodes.value
+          : this.defaultHsCodes,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CompanyInfoData(')
+          ..write('id: $id, ')
+          ..write('companyName: $companyName, ')
+          ..write('address: $address, ')
+          ..write('city: $city, ')
+          ..write('postalCode: $postalCode, ')
+          ..write('country: $country, ')
+          ..write('vatNumber: $vatNumber, ')
+          ..write('eoriNumber: $eoriNumber, ')
+          ..write('contactName: $contactName, ')
+          ..write('contactEmail: $contactEmail, ')
+          ..write('contactPhone: $contactPhone, ')
+          ..write('defaultHsCodes: $defaultHsCodes')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    companyName,
+    address,
+    city,
+    postalCode,
+    country,
+    vatNumber,
+    eoriNumber,
+    contactName,
+    contactEmail,
+    contactPhone,
+    defaultHsCodes,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CompanyInfoData &&
+          other.id == this.id &&
+          other.companyName == this.companyName &&
+          other.address == this.address &&
+          other.city == this.city &&
+          other.postalCode == this.postalCode &&
+          other.country == this.country &&
+          other.vatNumber == this.vatNumber &&
+          other.eoriNumber == this.eoriNumber &&
+          other.contactName == this.contactName &&
+          other.contactEmail == this.contactEmail &&
+          other.contactPhone == this.contactPhone &&
+          other.defaultHsCodes == this.defaultHsCodes);
+}
+
+class CompanyInfoCompanion extends UpdateCompanion<CompanyInfoData> {
+  final Value<String> id;
+  final Value<String> companyName;
+  final Value<String> address;
+  final Value<String> city;
+  final Value<String> postalCode;
+  final Value<String> country;
+  final Value<String?> vatNumber;
+  final Value<String?> eoriNumber;
+  final Value<String?> contactName;
+  final Value<String?> contactEmail;
+  final Value<String?> contactPhone;
+  final Value<String?> defaultHsCodes;
+  final Value<int> rowid;
+  const CompanyInfoCompanion({
+    this.id = const Value.absent(),
+    this.companyName = const Value.absent(),
+    this.address = const Value.absent(),
+    this.city = const Value.absent(),
+    this.postalCode = const Value.absent(),
+    this.country = const Value.absent(),
+    this.vatNumber = const Value.absent(),
+    this.eoriNumber = const Value.absent(),
+    this.contactName = const Value.absent(),
+    this.contactEmail = const Value.absent(),
+    this.contactPhone = const Value.absent(),
+    this.defaultHsCodes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CompanyInfoCompanion.insert({
+    required String id,
+    required String companyName,
+    required String address,
+    required String city,
+    required String postalCode,
+    required String country,
+    this.vatNumber = const Value.absent(),
+    this.eoriNumber = const Value.absent(),
+    this.contactName = const Value.absent(),
+    this.contactEmail = const Value.absent(),
+    this.contactPhone = const Value.absent(),
+    this.defaultHsCodes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       companyName = Value(companyName),
+       address = Value(address),
+       city = Value(city),
+       postalCode = Value(postalCode),
+       country = Value(country);
+  static Insertable<CompanyInfoData> custom({
+    Expression<String>? id,
+    Expression<String>? companyName,
+    Expression<String>? address,
+    Expression<String>? city,
+    Expression<String>? postalCode,
+    Expression<String>? country,
+    Expression<String>? vatNumber,
+    Expression<String>? eoriNumber,
+    Expression<String>? contactName,
+    Expression<String>? contactEmail,
+    Expression<String>? contactPhone,
+    Expression<String>? defaultHsCodes,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (companyName != null) 'company_name': companyName,
+      if (address != null) 'address': address,
+      if (city != null) 'city': city,
+      if (postalCode != null) 'postal_code': postalCode,
+      if (country != null) 'country': country,
+      if (vatNumber != null) 'vat_number': vatNumber,
+      if (eoriNumber != null) 'eori_number': eoriNumber,
+      if (contactName != null) 'contact_name': contactName,
+      if (contactEmail != null) 'contact_email': contactEmail,
+      if (contactPhone != null) 'contact_phone': contactPhone,
+      if (defaultHsCodes != null) 'default_hs_codes': defaultHsCodes,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CompanyInfoCompanion copyWith({
+    Value<String>? id,
+    Value<String>? companyName,
+    Value<String>? address,
+    Value<String>? city,
+    Value<String>? postalCode,
+    Value<String>? country,
+    Value<String?>? vatNumber,
+    Value<String?>? eoriNumber,
+    Value<String?>? contactName,
+    Value<String?>? contactEmail,
+    Value<String?>? contactPhone,
+    Value<String?>? defaultHsCodes,
+    Value<int>? rowid,
+  }) {
+    return CompanyInfoCompanion(
+      id: id ?? this.id,
+      companyName: companyName ?? this.companyName,
+      address: address ?? this.address,
+      city: city ?? this.city,
+      postalCode: postalCode ?? this.postalCode,
+      country: country ?? this.country,
+      vatNumber: vatNumber ?? this.vatNumber,
+      eoriNumber: eoriNumber ?? this.eoriNumber,
+      contactName: contactName ?? this.contactName,
+      contactEmail: contactEmail ?? this.contactEmail,
+      contactPhone: contactPhone ?? this.contactPhone,
+      defaultHsCodes: defaultHsCodes ?? this.defaultHsCodes,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (companyName.present) {
+      map['company_name'] = Variable<String>(companyName.value);
+    }
+    if (address.present) {
+      map['address'] = Variable<String>(address.value);
+    }
+    if (city.present) {
+      map['city'] = Variable<String>(city.value);
+    }
+    if (postalCode.present) {
+      map['postal_code'] = Variable<String>(postalCode.value);
+    }
+    if (country.present) {
+      map['country'] = Variable<String>(country.value);
+    }
+    if (vatNumber.present) {
+      map['vat_number'] = Variable<String>(vatNumber.value);
+    }
+    if (eoriNumber.present) {
+      map['eori_number'] = Variable<String>(eoriNumber.value);
+    }
+    if (contactName.present) {
+      map['contact_name'] = Variable<String>(contactName.value);
+    }
+    if (contactEmail.present) {
+      map['contact_email'] = Variable<String>(contactEmail.value);
+    }
+    if (contactPhone.present) {
+      map['contact_phone'] = Variable<String>(contactPhone.value);
+    }
+    if (defaultHsCodes.present) {
+      map['default_hs_codes'] = Variable<String>(defaultHsCodes.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CompanyInfoCompanion(')
+          ..write('id: $id, ')
+          ..write('companyName: $companyName, ')
+          ..write('address: $address, ')
+          ..write('city: $city, ')
+          ..write('postalCode: $postalCode, ')
+          ..write('country: $country, ')
+          ..write('vatNumber: $vatNumber, ')
+          ..write('eoriNumber: $eoriNumber, ')
+          ..write('contactName: $contactName, ')
+          ..write('contactEmail: $contactEmail, ')
+          ..write('contactPhone: $contactPhone, ')
+          ..write('defaultHsCodes: $defaultHsCodes, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2130,6 +3015,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CartonsTable cartons = $CartonsTable(this);
   late final $RateTablesTable rateTables = $RateTablesTable(this);
   late final $QuotesTable quotes = $QuotesTable(this);
+  late final $CompanyInfoTable companyInfo = $CompanyInfoTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2139,6 +3025,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     cartons,
     rateTables,
     quotes,
+    companyInfo,
   ];
 }
 
@@ -2150,6 +3037,7 @@ typedef $$ShipmentsTableCreateCompanionBuilder =
       required String originPostal,
       required String destCity,
       required String destPostal,
+      Value<int?> deadlineDays,
       Value<String?> notes,
       Value<int> rowid,
     });
@@ -2161,6 +3049,7 @@ typedef $$ShipmentsTableUpdateCompanionBuilder =
       Value<String> originPostal,
       Value<String> destCity,
       Value<String> destPostal,
+      Value<int?> deadlineDays,
       Value<String?> notes,
       Value<int> rowid,
     });
@@ -2244,6 +3133,11 @@ class $$ShipmentsTableFilterComposer
 
   ColumnFilters<String> get destPostal => $composableBuilder(
     column: $table.destPostal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get deadlineDays => $composableBuilder(
+    column: $table.deadlineDays,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2342,6 +3236,11 @@ class $$ShipmentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get deadlineDays => $composableBuilder(
+    column: $table.deadlineDays,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get notes => $composableBuilder(
     column: $table.notes,
     builder: (column) => ColumnOrderings(column),
@@ -2378,6 +3277,11 @@ class $$ShipmentsTableAnnotationComposer
 
   GeneratedColumn<String> get destPostal => $composableBuilder(
     column: $table.destPostal,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get deadlineDays => $composableBuilder(
+    column: $table.deadlineDays,
     builder: (column) => column,
   );
 
@@ -2469,6 +3373,7 @@ class $$ShipmentsTableTableManager
                 Value<String> originPostal = const Value.absent(),
                 Value<String> destCity = const Value.absent(),
                 Value<String> destPostal = const Value.absent(),
+                Value<int?> deadlineDays = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ShipmentsCompanion(
@@ -2478,6 +3383,7 @@ class $$ShipmentsTableTableManager
                 originPostal: originPostal,
                 destCity: destCity,
                 destPostal: destPostal,
+                deadlineDays: deadlineDays,
                 notes: notes,
                 rowid: rowid,
               ),
@@ -2489,6 +3395,7 @@ class $$ShipmentsTableTableManager
                 required String originPostal,
                 required String destCity,
                 required String destPostal,
+                Value<int?> deadlineDays = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ShipmentsCompanion.insert(
@@ -2498,6 +3405,7 @@ class $$ShipmentsTableTableManager
                 originPostal: originPostal,
                 destCity: destCity,
                 destPostal: destPostal,
+                deadlineDays: deadlineDays,
                 notes: notes,
                 rowid: rowid,
               ),
@@ -2954,6 +3862,8 @@ typedef $$RateTablesTableCreateCompanionBuilder =
       required double breakpointKg,
       required double fuelPct,
       required double oversizeFee,
+      required int etaMin,
+      required int etaMax,
       Value<String?> notes,
       Value<int> rowid,
     });
@@ -2968,6 +3878,8 @@ typedef $$RateTablesTableUpdateCompanionBuilder =
       Value<double> breakpointKg,
       Value<double> fuelPct,
       Value<double> oversizeFee,
+      Value<int> etaMin,
+      Value<int> etaMax,
       Value<String?> notes,
       Value<int> rowid,
     });
@@ -3023,6 +3935,16 @@ class $$RateTablesTableFilterComposer
 
   ColumnFilters<double> get oversizeFee => $composableBuilder(
     column: $table.oversizeFee,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get etaMin => $composableBuilder(
+    column: $table.etaMin,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get etaMax => $composableBuilder(
+    column: $table.etaMax,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3086,6 +4008,16 @@ class $$RateTablesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get etaMin => $composableBuilder(
+    column: $table.etaMin,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get etaMax => $composableBuilder(
+    column: $table.etaMax,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get notes => $composableBuilder(
     column: $table.notes,
     builder: (column) => ColumnOrderings(column),
@@ -3132,6 +4064,12 @@ class $$RateTablesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<int> get etaMin =>
+      $composableBuilder(column: $table.etaMin, builder: (column) => column);
+
+  GeneratedColumn<int> get etaMax =>
+      $composableBuilder(column: $table.etaMax, builder: (column) => column);
+
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
 }
@@ -3176,6 +4114,8 @@ class $$RateTablesTableTableManager
                 Value<double> breakpointKg = const Value.absent(),
                 Value<double> fuelPct = const Value.absent(),
                 Value<double> oversizeFee = const Value.absent(),
+                Value<int> etaMin = const Value.absent(),
+                Value<int> etaMax = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RateTablesCompanion(
@@ -3188,6 +4128,8 @@ class $$RateTablesTableTableManager
                 breakpointKg: breakpointKg,
                 fuelPct: fuelPct,
                 oversizeFee: oversizeFee,
+                etaMin: etaMin,
+                etaMax: etaMax,
                 notes: notes,
                 rowid: rowid,
               ),
@@ -3202,6 +4144,8 @@ class $$RateTablesTableTableManager
                 required double breakpointKg,
                 required double fuelPct,
                 required double oversizeFee,
+                required int etaMin,
+                required int etaMax,
                 Value<String?> notes = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RateTablesCompanion.insert(
@@ -3214,6 +4158,8 @@ class $$RateTablesTableTableManager
                 breakpointKg: breakpointKg,
                 fuelPct: fuelPct,
                 oversizeFee: oversizeFee,
+                etaMin: etaMin,
+                etaMax: etaMax,
                 notes: notes,
                 rowid: rowid,
               ),
@@ -3613,6 +4559,353 @@ typedef $$QuotesTableProcessedTableManager =
       Quote,
       PrefetchHooks Function({bool shipmentId})
     >;
+typedef $$CompanyInfoTableCreateCompanionBuilder =
+    CompanyInfoCompanion Function({
+      required String id,
+      required String companyName,
+      required String address,
+      required String city,
+      required String postalCode,
+      required String country,
+      Value<String?> vatNumber,
+      Value<String?> eoriNumber,
+      Value<String?> contactName,
+      Value<String?> contactEmail,
+      Value<String?> contactPhone,
+      Value<String?> defaultHsCodes,
+      Value<int> rowid,
+    });
+typedef $$CompanyInfoTableUpdateCompanionBuilder =
+    CompanyInfoCompanion Function({
+      Value<String> id,
+      Value<String> companyName,
+      Value<String> address,
+      Value<String> city,
+      Value<String> postalCode,
+      Value<String> country,
+      Value<String?> vatNumber,
+      Value<String?> eoriNumber,
+      Value<String?> contactName,
+      Value<String?> contactEmail,
+      Value<String?> contactPhone,
+      Value<String?> defaultHsCodes,
+      Value<int> rowid,
+    });
+
+class $$CompanyInfoTableFilterComposer
+    extends Composer<_$AppDatabase, $CompanyInfoTable> {
+  $$CompanyInfoTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get companyName => $composableBuilder(
+    column: $table.companyName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get address => $composableBuilder(
+    column: $table.address,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get city => $composableBuilder(
+    column: $table.city,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get postalCode => $composableBuilder(
+    column: $table.postalCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get country => $composableBuilder(
+    column: $table.country,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get vatNumber => $composableBuilder(
+    column: $table.vatNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get eoriNumber => $composableBuilder(
+    column: $table.eoriNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contactName => $composableBuilder(
+    column: $table.contactName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contactEmail => $composableBuilder(
+    column: $table.contactEmail,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contactPhone => $composableBuilder(
+    column: $table.contactPhone,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get defaultHsCodes => $composableBuilder(
+    column: $table.defaultHsCodes,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CompanyInfoTableOrderingComposer
+    extends Composer<_$AppDatabase, $CompanyInfoTable> {
+  $$CompanyInfoTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get companyName => $composableBuilder(
+    column: $table.companyName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get address => $composableBuilder(
+    column: $table.address,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get city => $composableBuilder(
+    column: $table.city,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get postalCode => $composableBuilder(
+    column: $table.postalCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get country => $composableBuilder(
+    column: $table.country,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get vatNumber => $composableBuilder(
+    column: $table.vatNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get eoriNumber => $composableBuilder(
+    column: $table.eoriNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contactName => $composableBuilder(
+    column: $table.contactName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contactEmail => $composableBuilder(
+    column: $table.contactEmail,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contactPhone => $composableBuilder(
+    column: $table.contactPhone,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get defaultHsCodes => $composableBuilder(
+    column: $table.defaultHsCodes,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CompanyInfoTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CompanyInfoTable> {
+  $$CompanyInfoTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get companyName => $composableBuilder(
+    column: $table.companyName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get address =>
+      $composableBuilder(column: $table.address, builder: (column) => column);
+
+  GeneratedColumn<String> get city =>
+      $composableBuilder(column: $table.city, builder: (column) => column);
+
+  GeneratedColumn<String> get postalCode => $composableBuilder(
+    column: $table.postalCode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get country =>
+      $composableBuilder(column: $table.country, builder: (column) => column);
+
+  GeneratedColumn<String> get vatNumber =>
+      $composableBuilder(column: $table.vatNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get eoriNumber => $composableBuilder(
+    column: $table.eoriNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get contactName => $composableBuilder(
+    column: $table.contactName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get contactEmail => $composableBuilder(
+    column: $table.contactEmail,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get contactPhone => $composableBuilder(
+    column: $table.contactPhone,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get defaultHsCodes => $composableBuilder(
+    column: $table.defaultHsCodes,
+    builder: (column) => column,
+  );
+}
+
+class $$CompanyInfoTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CompanyInfoTable,
+          CompanyInfoData,
+          $$CompanyInfoTableFilterComposer,
+          $$CompanyInfoTableOrderingComposer,
+          $$CompanyInfoTableAnnotationComposer,
+          $$CompanyInfoTableCreateCompanionBuilder,
+          $$CompanyInfoTableUpdateCompanionBuilder,
+          (
+            CompanyInfoData,
+            BaseReferences<_$AppDatabase, $CompanyInfoTable, CompanyInfoData>,
+          ),
+          CompanyInfoData,
+          PrefetchHooks Function()
+        > {
+  $$CompanyInfoTableTableManager(_$AppDatabase db, $CompanyInfoTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CompanyInfoTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CompanyInfoTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CompanyInfoTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> companyName = const Value.absent(),
+                Value<String> address = const Value.absent(),
+                Value<String> city = const Value.absent(),
+                Value<String> postalCode = const Value.absent(),
+                Value<String> country = const Value.absent(),
+                Value<String?> vatNumber = const Value.absent(),
+                Value<String?> eoriNumber = const Value.absent(),
+                Value<String?> contactName = const Value.absent(),
+                Value<String?> contactEmail = const Value.absent(),
+                Value<String?> contactPhone = const Value.absent(),
+                Value<String?> defaultHsCodes = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CompanyInfoCompanion(
+                id: id,
+                companyName: companyName,
+                address: address,
+                city: city,
+                postalCode: postalCode,
+                country: country,
+                vatNumber: vatNumber,
+                eoriNumber: eoriNumber,
+                contactName: contactName,
+                contactEmail: contactEmail,
+                contactPhone: contactPhone,
+                defaultHsCodes: defaultHsCodes,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String companyName,
+                required String address,
+                required String city,
+                required String postalCode,
+                required String country,
+                Value<String?> vatNumber = const Value.absent(),
+                Value<String?> eoriNumber = const Value.absent(),
+                Value<String?> contactName = const Value.absent(),
+                Value<String?> contactEmail = const Value.absent(),
+                Value<String?> contactPhone = const Value.absent(),
+                Value<String?> defaultHsCodes = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CompanyInfoCompanion.insert(
+                id: id,
+                companyName: companyName,
+                address: address,
+                city: city,
+                postalCode: postalCode,
+                country: country,
+                vatNumber: vatNumber,
+                eoriNumber: eoriNumber,
+                contactName: contactName,
+                contactEmail: contactEmail,
+                contactPhone: contactPhone,
+                defaultHsCodes: defaultHsCodes,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CompanyInfoTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CompanyInfoTable,
+      CompanyInfoData,
+      $$CompanyInfoTableFilterComposer,
+      $$CompanyInfoTableOrderingComposer,
+      $$CompanyInfoTableAnnotationComposer,
+      $$CompanyInfoTableCreateCompanionBuilder,
+      $$CompanyInfoTableUpdateCompanionBuilder,
+      (
+        CompanyInfoData,
+        BaseReferences<_$AppDatabase, $CompanyInfoTable, CompanyInfoData>,
+      ),
+      CompanyInfoData,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3625,4 +4918,6 @@ class $AppDatabaseManager {
       $$RateTablesTableTableManager(_db, _db.rateTables);
   $$QuotesTableTableManager get quotes =>
       $$QuotesTableTableManager(_db, _db.quotes);
+  $$CompanyInfoTableTableManager get companyInfo =>
+      $$CompanyInfoTableTableManager(_db, _db.companyInfo);
 }
