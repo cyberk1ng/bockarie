@@ -9,9 +9,10 @@ void main() {
 
     // Build our app and trigger a frame
     await tester.pumpWidget(const BockaireApp());
+    await tester.pumpAndSettle();
 
     // Verify home page loads
-    expect(find.text('Bockaire - Shipping Optimizer'), findsOneWidget);
+    expect(find.text('Bockaire'), findsOneWidget);
     expect(find.text('Recent Shipments'), findsOneWidget);
   });
 }

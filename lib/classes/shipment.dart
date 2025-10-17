@@ -7,6 +7,7 @@ class Shipment extends Equatable {
   final String originPostal;
   final String destCity;
   final String destPostal;
+  final int? deadlineDays;
   final String? notes;
 
   const Shipment({
@@ -16,6 +17,7 @@ class Shipment extends Equatable {
     required this.originPostal,
     required this.destCity,
     required this.destPostal,
+    this.deadlineDays,
     this.notes,
   });
 
@@ -27,6 +29,7 @@ class Shipment extends Equatable {
     originPostal,
     destCity,
     destPostal,
+    deadlineDays,
     notes,
   ];
 
@@ -37,6 +40,7 @@ class Shipment extends Equatable {
     String? originPostal,
     String? destCity,
     String? destPostal,
+    int? deadlineDays,
     String? notes,
   }) {
     return Shipment(
@@ -46,6 +50,7 @@ class Shipment extends Equatable {
       originPostal: originPostal ?? this.originPostal,
       destCity: destCity ?? this.destCity,
       destPostal: destPostal ?? this.destPostal,
+      deadlineDays: deadlineDays ?? this.deadlineDays,
       notes: notes ?? this.notes,
     );
   }

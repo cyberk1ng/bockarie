@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bockaire/get_it.dart';
 import 'package:bockaire/utils/router.dart';
 import 'package:bockaire/themes/theme.dart';
+import 'package:bockaire/database/seeder.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setupGetIt();
-  runApp(const BockaireApp());
+
+  // Seed the database with initial data
+  final seeder = DatabaseSeeder(getIt.get());
+  await seeder.seedAll();
+
+  runApp(const ProviderScope(child: BockaireApp()));
 }
 
 class BockaireApp extends StatelessWidget {

@@ -10,6 +10,8 @@ class RateTable extends Equatable {
   final double breakpointKg;
   final double fuelPct;
   final double oversizeFee;
+  final int etaMin;
+  final int etaMax;
   final String? notes;
 
   const RateTable({
@@ -22,6 +24,8 @@ class RateTable extends Equatable {
     required this.breakpointKg,
     required this.fuelPct,
     required this.oversizeFee,
+    required this.etaMin,
+    required this.etaMax,
     this.notes,
   });
 
@@ -55,6 +59,8 @@ class RateTable extends Equatable {
     breakpointKg,
     fuelPct,
     oversizeFee,
+    etaMin,
+    etaMax,
     notes,
   ];
 
@@ -68,6 +74,8 @@ class RateTable extends Equatable {
     double? breakpointKg,
     double? fuelPct,
     double? oversizeFee,
+    int? etaMin,
+    int? etaMax,
     String? notes,
   }) {
     return RateTable(
@@ -80,6 +88,8 @@ class RateTable extends Equatable {
       breakpointKg: breakpointKg ?? this.breakpointKg,
       fuelPct: fuelPct ?? this.fuelPct,
       oversizeFee: oversizeFee ?? this.oversizeFee,
+      etaMin: etaMin ?? this.etaMin,
+      etaMax: etaMax ?? this.etaMax,
       notes: notes ?? this.notes,
     );
   }

@@ -15,7 +15,8 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   # State Management
-  flutter_bloc: ^8.1.6
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
   equatable: ^2.0.5
 
   # Routing
@@ -35,7 +36,7 @@ dependencies:
   printing: ^5.13.4
 
   # HTTP & AI
-  http: ^1.2.2
+  dio: ^5.7.0
   google_generative_ai: ^0.4.6
 
   # Utils
@@ -54,9 +55,10 @@ dev_dependencies:
   # Code Generation
   drift_dev: ^2.20.3
   build_runner: ^2.4.13
+  riverpod_generator: ^2.6.1
+  riverpod_lint: ^2.6.2
 
   # Testing
-  bloc_test: ^9.1.7
   mocktail: ^1.0.4
 
 # For information on the generic Dart part of this file, see the

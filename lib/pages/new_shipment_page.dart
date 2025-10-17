@@ -5,6 +5,7 @@ import 'package:bockaire/database/database.dart';
 import 'package:bockaire/get_it.dart';
 import 'package:bockaire/themes/theme.dart';
 import 'package:bockaire/widgets/modal/modal_card.dart';
+import 'package:bockaire/widgets/shipment/city_autocomplete_field.dart';
 import 'package:drift/drift.dart' as drift;
 
 class NewShipmentPage extends StatefulWidget {
@@ -16,10 +17,10 @@ class NewShipmentPage extends StatefulWidget {
 
 class _NewShipmentPageState extends State<NewShipmentPage> {
   final _formKey = GlobalKey<FormState>();
-  final _originCityController = TextEditingController(text: 'Guangzhou');
-  final _originPostalController = TextEditingController(text: '510000');
-  final _destCityController = TextEditingController(text: 'Hamburg');
-  final _destPostalController = TextEditingController(text: '20095');
+  final _originCityController = TextEditingController();
+  final _originPostalController = TextEditingController();
+  final _destCityController = TextEditingController();
+  final _destPostalController = TextEditingController();
   final _notesController = TextEditingController();
 
   final List<CartonInput> _cartons = [];
@@ -134,12 +135,10 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
             Row(
               children: [
                 Expanded(
-                  child: TextFormField(
-                    controller: _originCityController,
-                    decoration: const InputDecoration(
-                      labelText: 'Origin City',
-                      border: OutlineInputBorder(),
-                    ),
+                  child: CityAutocompleteField(
+                    cityController: _originCityController,
+                    postalController: _originPostalController,
+                    label: 'Origin City',
                     validator: (value) =>
                         value?.isEmpty ?? true ? 'Required' : null,
                   ),
@@ -162,12 +161,10 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
             Row(
               children: [
                 Expanded(
-                  child: TextFormField(
-                    controller: _destCityController,
-                    decoration: const InputDecoration(
-                      labelText: 'Destination City',
-                      border: OutlineInputBorder(),
-                    ),
+                  child: CityAutocompleteField(
+                    cityController: _destCityController,
+                    postalController: _destPostalController,
+                    label: 'Destination City',
                     validator: (value) =>
                         value?.isEmpty ?? true ? 'Required' : null,
                   ),
@@ -390,10 +387,10 @@ class NewShipmentContent extends StatefulWidget {
 
 class _NewShipmentContentState extends State<NewShipmentContent> {
   final _formKey = GlobalKey<FormState>();
-  final _originCityController = TextEditingController(text: 'Guangzhou');
-  final _originPostalController = TextEditingController(text: '510000');
-  final _destCityController = TextEditingController(text: 'Hamburg');
-  final _destPostalController = TextEditingController(text: '20095');
+  final _originCityController = TextEditingController();
+  final _originPostalController = TextEditingController();
+  final _destCityController = TextEditingController();
+  final _destPostalController = TextEditingController();
   final _notesController = TextEditingController();
 
   final List<CartonInput> _cartons = [];
@@ -502,11 +499,10 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                   Row(
                     children: [
                       Expanded(
-                        child: TextFormField(
-                          controller: _originCityController,
-                          decoration: const InputDecoration(
-                            labelText: 'Origin City',
-                          ),
+                        child: CityAutocompleteField(
+                          cityController: _originCityController,
+                          postalController: _originPostalController,
+                          label: 'Origin City',
                           validator: (value) =>
                               value?.isEmpty ?? true ? 'Required' : null,
                         ),
@@ -528,11 +524,10 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                   Row(
                     children: [
                       Expanded(
-                        child: TextFormField(
-                          controller: _destCityController,
-                          decoration: const InputDecoration(
-                            labelText: 'Destination City',
-                          ),
+                        child: CityAutocompleteField(
+                          cityController: _destCityController,
+                          postalController: _destPostalController,
+                          label: 'Destination City',
                           validator: (value) =>
                               value?.isEmpty ?? true ? 'Required' : null,
                         ),
