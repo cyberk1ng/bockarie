@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
@@ -6,6 +7,10 @@ import 'package:bockaire/get_it.dart';
 import 'package:bockaire/themes/theme.dart';
 import 'package:bockaire/widgets/modal/modal_card.dart';
 import 'package:bockaire/widgets/shipment/city_autocomplete_field.dart';
+import 'package:bockaire/widgets/shipment/live_totals_card.dart';
+import 'package:bockaire/services/calculation_service.dart';
+import 'package:bockaire/services/quote_calculator_service.dart';
+import 'package:bockaire/classes/carton.dart' as models;
 import 'package:drift/drift.dart' as drift;
 
 class NewShipmentPage extends StatefulWidget {
@@ -394,6 +399,17 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
   final _notesController = TextEditingController();
 
   final List<CartonInput> _cartons = [];
+  ShipmentTotals _totals = const ShipmentTotals(
+    cartonCount: 0,
+    actualKg: 0,
+    dimKg: 0,
+    chargeableKg: 0,
+    largestSideCm: 0,
+    isOversized: false,
+    totalVolumeCm3: 0,
+  );
+
+  Timer? _debounceTimer;
 
   @override
   void dispose() {
@@ -402,18 +418,57 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
     _destCityController.dispose();
     _destPostalController.dispose();
     _notesController.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
   }
 
   void _addCarton() {
     setState(() {
       _cartons.add(CartonInput());
+      _updateTotals();
     });
   }
 
   void _removeCarton(int index) {
     setState(() {
       _cartons.removeAt(index);
+      _updateTotals();
+    });
+  }
+
+  void _onCartonChanged() {
+    // Debounce to avoid too many calculations
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      _updateTotals();
+    });
+  }
+
+  void _updateTotals() {
+    setState(() {
+      final cartonModels = _cartons
+          .where(
+            (c) =>
+                c.lengthCm > 0 &&
+                c.widthCm > 0 &&
+                c.heightCm > 0 &&
+                c.weightKg > 0,
+          )
+          .map(
+            (c) => models.Carton(
+              id: '',
+              shipmentId: '',
+              lengthCm: c.lengthCm,
+              widthCm: c.widthCm,
+              heightCm: c.heightCm,
+              weightKg: c.weightKg,
+              qty: c.qty,
+              itemType: c.itemType,
+            ),
+          )
+          .toList();
+
+      _totals = CalculationService.calculateTotals(cartonModels);
     });
   }
 
@@ -433,6 +488,16 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
     final shipmentId = const Uuid().v4();
 
     try {
+      // Show loading indicator
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Saving shipment and generating quotes...'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+
       // Save shipment
       await db
           .into(db.shipments)
@@ -468,11 +533,45 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
             );
       }
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Shipment saved successfully')),
+      // Generate quotes
+      try {
+        final quoteService = QuoteCalculatorService(db);
+        final quotes = await quoteService.calculateAllQuotes(
+          chargeableKg: _totals.chargeableKg,
+          isOversized: _totals.isOversized,
         );
+
+        // Save quotes to database
+        for (final quote in quotes) {
+          await db
+              .into(db.quotes)
+              .insert(
+                QuotesCompanion(
+                  id: drift.Value(const Uuid().v4()),
+                  shipmentId: drift.Value(shipmentId),
+                  carrier: drift.Value(quote.carrier),
+                  service: drift.Value(quote.service),
+                  etaMin: drift.Value(5), // Default values, will be updated
+                  etaMax: drift.Value(7),
+                  priceEur: drift.Value(quote.total),
+                  chargeableKg: drift.Value(quote.chargeableKg),
+                ),
+              );
+        }
+      } catch (e) {
+        // Continue even if quote generation fails
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Warning: Could not generate quotes: $e')),
+          );
+        }
+      }
+
+      if (mounted) {
+        // Close the modal
         Navigator.of(context).pop();
+        // Navigate to quotes page
+        context.push('/quotes/$shipmentId');
       }
     } catch (e) {
       if (mounted) {
@@ -569,6 +668,11 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
               ],
             ),
             SizedBox(height: AppTheme.spacingMedium),
+            // Live totals card
+            if (_cartons.isNotEmpty) ...[
+              LiveTotalsCard(totals: _totals),
+              SizedBox(height: AppTheme.spacingLarge),
+            ],
             ..._cartons.asMap().entries.map((entry) {
               final index = entry.key;
               final carton = entry.value;
@@ -610,6 +714,7 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                               },
                               onChanged: (value) {
                                 carton.lengthCm = double.tryParse(value) ?? 0.0;
+                                _onCartonChanged();
                               },
                             ),
                           ),
@@ -629,6 +734,7 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                               },
                               onChanged: (value) {
                                 carton.widthCm = double.tryParse(value) ?? 0.0;
+                                _onCartonChanged();
                               },
                             ),
                           ),
@@ -648,6 +754,7 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                               },
                               onChanged: (value) {
                                 carton.heightCm = double.tryParse(value) ?? 0.0;
+                                _onCartonChanged();
                               },
                             ),
                           ),
@@ -671,6 +778,7 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                               },
                               onChanged: (value) {
                                 carton.weightKg = double.tryParse(value) ?? 0.0;
+                                _onCartonChanged();
                               },
                             ),
                           ),
@@ -690,6 +798,7 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                               },
                               onChanged: (value) {
                                 carton.qty = int.tryParse(value) ?? 1;
+                                _onCartonChanged();
                               },
                             ),
                           ),
