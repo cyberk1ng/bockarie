@@ -8,26 +8,29 @@ import 'package:bockaire/providers/shipment_providers.dart';
 import 'package:bockaire/themes/theme.dart';
 import 'package:bockaire/get_it.dart';
 import 'package:bockaire/database/database.dart';
+import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   void _openNewShipmentModal(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     ModalUtils.showSinglePageModal(
       context: context,
-      title: 'New Shipment',
+      title: localizations.titleNewShipment,
       builder: (modalContext) => const NewShipmentContent(),
     );
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final localizations = AppLocalizations.of(context)!;
     final shipmentsAsync = ref.watch(recentShipmentsProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bockaire'),
+        title: Text(localizations.appTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -41,7 +44,7 @@ class HomePage extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Recent Shipments',
+              localizations.titleRecentShipments,
               style: context.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -78,7 +81,7 @@ class HomePage extends ConsumerWidget {
                       ),
                       SizedBox(height: AppTheme.spacingMedium),
                       Text(
-                        'Error loading shipments',
+                        localizations.errorLoadingShipments,
                         style: context.textTheme.titleMedium,
                       ),
                       SizedBox(height: AppTheme.spacingSmall),
@@ -100,12 +103,13 @@ class HomePage extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openNewShipmentModal(context),
         icon: const Icon(Icons.add),
-        label: const Text('New Shipment'),
+        label: Text(localizations.navNewShipment),
       ),
     );
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -117,14 +121,14 @@ class HomePage extends ConsumerWidget {
           ),
           SizedBox(height: AppTheme.spacingMedium),
           Text(
-            'No shipments yet',
+            localizations.emptyStateNoShipments,
             style: context.textTheme.titleMedium?.copyWith(
               color: context.colorScheme.onSurfaceVariant,
             ),
           ),
           SizedBox(height: AppTheme.spacingSmall),
           Text(
-            'Create your first shipment to get started',
+            localizations.emptyStateCreateFirst,
             style: context.textTheme.bodySmall?.copyWith(
               color: context.colorScheme.onSurfaceVariant,
             ),
@@ -139,9 +143,10 @@ class HomePage extends ConsumerWidget {
     WidgetRef ref,
     Shipment shipment,
   ) async {
+    final localizations = AppLocalizations.of(context)!;
     final confirm = await ModalUtils.showSinglePageModal<bool>(
       context: context,
-      title: 'Delete Shipment',
+      title: localizations.deleteShipmentTitle,
       showCloseButton: true,
       barrierDismissible: true,
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
@@ -152,7 +157,7 @@ class HomePage extends ConsumerWidget {
             Expanded(
               child: OutlinedButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
+                child: Text(localizations.buttonCancel),
               ),
             ),
             const SizedBox(width: 12),
@@ -162,7 +167,7 @@ class HomePage extends ConsumerWidget {
                 style: FilledButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.error,
                 ),
-                child: const Text('Delete'),
+                child: Text(localizations.buttonDelete),
               ),
             ),
           ],
@@ -170,7 +175,10 @@ class HomePage extends ConsumerWidget {
       ),
       builder: (modalContext) {
         return Text(
-          'Are you sure you want to delete the shipment from ${shipment.originCity} to ${shipment.destCity}?',
+          localizations.deleteShipmentMessage(
+            shipment.originCity,
+            shipment.destCity,
+          ),
           style: Theme.of(modalContext).textTheme.bodyLarge,
         );
       },
@@ -196,14 +204,19 @@ class HomePage extends ConsumerWidget {
         )..where((s) => s.id.equals(shipment.id))).go();
 
         if (context.mounted) {
+          final localizations = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Shipment deleted successfully')),
+            SnackBar(content: Text(localizations.successShipmentDeleted)),
           );
         }
       } catch (e) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error deleting shipment: $e')),
+            SnackBar(
+              content: Text(
+                '${AppLocalizations.of(context)!.errorDeletingShipment}: $e',
+              ),
+            ),
           );
         }
       }
@@ -282,9 +295,10 @@ class _ShipmentCard extends ConsumerWidget {
                 SizedBox(height: AppTheme.spacingSmall),
                 cheapestQuoteAsync.when(
                   data: (quote) {
+                    final localizations = AppLocalizations.of(context)!;
                     if (quote == null) {
                       return Text(
-                        'Calculating quotes...',
+                        localizations.statusCalculatingQuotes,
                         style: context.textTheme.bodySmall?.copyWith(
                           color: context.colorScheme.onSurfaceVariant,
                         ),
@@ -297,20 +311,23 @@ class _ShipmentCard extends ConsumerWidget {
                     return Row(
                       children: [
                         Text(
-                          '${quote.chargeableKg.toStringAsFixed(1)} kg • from ${currency.format(quote.priceEur)}',
+                          localizations.cheapestPrice(
+                            quote.chargeableKg.toStringAsFixed(1),
+                            currency.format(quote.priceEur),
+                          ),
                           style: context.textTheme.bodyMedium,
                         ),
                       ],
                     );
                   },
                   loading: () => Text(
-                    'Loading...',
+                    AppLocalizations.of(context)!.statusLoading,
                     style: context.textTheme.bodySmall?.copyWith(
                       color: context.colorScheme.onSurfaceVariant,
                     ),
                   ),
                   error: (_, __) => Text(
-                    'No quotes available',
+                    AppLocalizations.of(context)!.statusNoQuotesAvailable,
                     style: context.textTheme.bodySmall?.copyWith(
                       color: context.colorScheme.error,
                     ),
@@ -322,7 +339,9 @@ class _ShipmentCard extends ConsumerWidget {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () => context.push('/quotes/${shipment.id}'),
-                        child: const Text('View Quotes'),
+                        child: Text(
+                          AppLocalizations.of(context)!.buttonViewQuotes,
+                        ),
                       ),
                     ),
                     SizedBox(width: AppTheme.spacingSmall),
@@ -330,7 +349,9 @@ class _ShipmentCard extends ConsumerWidget {
                       child: OutlinedButton(
                         onPressed: () =>
                             context.push('/optimizer/${shipment.id}'),
-                        child: const Text('Optimize'),
+                        child: Text(
+                          AppLocalizations.of(context)!.buttonOptimize,
+                        ),
                       ),
                     ),
                   ],

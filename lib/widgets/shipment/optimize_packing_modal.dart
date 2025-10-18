@@ -5,6 +5,7 @@ import 'package:bockaire/services/calculation_service.dart';
 import 'package:bockaire/themes/theme.dart';
 import 'package:bockaire/widgets/modal/modal_card.dart';
 import 'package:bockaire/widgets/modal/modal_utils.dart';
+import 'package:bockaire/l10n/app_localizations.dart';
 
 /// Show optimize packing modal
 Future<List<Carton>?> showOptimizePackingModal({
@@ -18,9 +19,10 @@ Future<List<Carton>?> showOptimizePackingModal({
     shipmentId: shipmentId,
   );
 
+  final localizations = AppLocalizations.of(context)!;
   return ModalUtils.showSinglePageModal<List<Carton>>(
     context: context,
-    title: 'Optimize Packing',
+    title: localizations.actionOptimizePacking,
     builder: (modalContext) => _OptimizePackingContent(result: result),
   );
 }
@@ -32,6 +34,7 @@ class _OptimizePackingContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final originalTotals = CalculationService.calculateTotals(
       result.originalCartons,
     );
@@ -64,7 +67,7 @@ class _OptimizePackingContent extends StatelessWidget {
                   ),
                   SizedBox(height: AppTheme.spacingSmall),
                   Text(
-                    'Optimization Found!',
+                    localizations.optimizationFoundTitle,
                     style: context.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.green,
@@ -73,12 +76,16 @@ class _OptimizePackingContent extends StatelessWidget {
                   SizedBox(height: AppTheme.spacingSmall),
                   if (result.savings.cartonCountReduction > 0)
                     Text(
-                      '${result.savings.cartonCountReduction} fewer carton(s)',
+                      localizations.fewerCartons(
+                        result.savings.cartonCountReduction,
+                      ),
                       style: context.textTheme.bodyMedium,
                     ),
                   if (result.savings.chargeableKgReduction > 0)
                     Text(
-                      '${result.savings.chargeableKgReduction.toStringAsFixed(1)} kg less chargeable weight',
+                      localizations.lessChargeableWeight(
+                        result.savings.chargeableKgReduction.toStringAsFixed(1),
+                      ),
                       style: context.textTheme.bodyMedium,
                     ),
                 ],
@@ -102,7 +109,7 @@ class _OptimizePackingContent extends StatelessWidget {
                   ),
                   SizedBox(height: AppTheme.spacingSmall),
                   Text(
-                    'Current packing is already optimal',
+                    localizations.currentPackingOptimal,
                     style: context.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -119,7 +126,7 @@ class _OptimizePackingContent extends StatelessWidget {
             children: [
               Expanded(
                 child: _ComparisonColumn(
-                  title: 'Current',
+                  title: localizations.comparisonCurrent,
                   cartons: result.originalCartons,
                   totals: originalTotals,
                   color: Colors.orange,
@@ -133,7 +140,7 @@ class _OptimizePackingContent extends StatelessWidget {
               SizedBox(width: AppTheme.spacingMedium),
               Expanded(
                 child: _ComparisonColumn(
-                  title: 'Optimized',
+                  title: localizations.comparisonOptimized,
                   cartons: result.optimizedCartons,
                   totals: optimizedTotals,
                   color: Colors.green,
@@ -152,7 +159,7 @@ class _OptimizePackingContent extends StatelessWidget {
                 onPressed: () =>
                     Navigator.of(context).pop(result.optimizedCartons),
                 icon: const Icon(Icons.check),
-                label: const Text('Apply Optimization'),
+                label: Text(localizations.buttonApplyOptimization),
               ),
             ),
             SizedBox(height: AppTheme.spacingMedium),
@@ -161,7 +168,11 @@ class _OptimizePackingContent extends StatelessWidget {
             height: AppTheme.buttonHeight,
             child: OutlinedButton(
               onPressed: () => Navigator.of(context).pop(null),
-              child: Text(result.hasImprovement ? 'Keep Original' : 'Close'),
+              child: Text(
+                result.hasImprovement
+                    ? localizations.buttonKeepOriginal
+                    : localizations.buttonClose,
+              ),
             ),
           ),
         ],
@@ -185,6 +196,7 @@ class _ComparisonColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -202,21 +214,21 @@ class _ComparisonColumn extends StatelessWidget {
             children: [
               _buildStat(
                 context,
-                'Cartons',
+                localizations.statCartons,
                 '${totals.cartonCount}',
                 Icons.inventory_2_outlined,
               ),
               SizedBox(height: AppTheme.spacingSmall),
               _buildStat(
                 context,
-                'Chargeable',
+                localizations.statChargeable,
                 '${totals.chargeableKg.toStringAsFixed(1)} kg',
                 Icons.local_shipping_outlined,
               ),
               SizedBox(height: AppTheme.spacingSmall),
               _buildStat(
                 context,
-                'Volume',
+                localizations.statVolume,
                 '${(totals.totalVolumeCm3 / 1000000).toStringAsFixed(2)} m³',
                 Icons.view_in_ar_outlined,
               ),

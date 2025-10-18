@@ -12,6 +12,7 @@ import 'package:bockaire/classes/carton.dart' as models;
 import 'package:bockaire/providers/shipment_providers.dart';
 import 'package:bockaire/models/transport_method.dart';
 import 'package:bockaire/utils/duration_parser.dart';
+import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart' as drift;
 
@@ -22,6 +23,7 @@ class OptimizerPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final localizations = AppLocalizations.of(context)!;
     final cartonModelsAsync = ref.watch(cartonModelsProvider(shipmentId));
 
     return Scaffold(
@@ -29,14 +31,14 @@ class OptimizerPage extends ConsumerWidget {
         leading: IconButton(
           icon: const Icon(Icons.chevron_left_rounded, size: 28),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: 'Back',
+          tooltip: localizations.tooltipBack,
         ),
-        title: const Text('Packing Optimizer'),
+        title: Text(localizations.titlePackingOptimizer),
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: () => _showHelpDialog(context),
-            tooltip: 'Help',
+            tooltip: localizations.tooltipHelp,
           ),
         ],
       ),
@@ -45,7 +47,7 @@ class OptimizerPage extends ConsumerWidget {
         children: [
           // Current Packing
           Text(
-            'Current Packing',
+            localizations.optimizerCurrentPacking,
             style: context.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -72,7 +74,7 @@ class OptimizerPage extends ConsumerWidget {
                             ),
                             SizedBox(width: AppTheme.spacingSmall),
                             Text(
-                              'Packing Summary',
+                              localizations.optimizerPackingSummary,
                               style: context.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -82,25 +84,25 @@ class OptimizerPage extends ConsumerWidget {
                         SizedBox(height: AppTheme.spacingMedium),
                         _buildStatRow(
                           context,
-                          'Total Cartons',
+                          localizations.optimizerTotalCartons,
                           '${totals.cartonCount}',
                         ),
                         SizedBox(height: AppTheme.spacingSmall),
                         _buildStatRow(
                           context,
-                          'Actual Weight',
+                          localizations.optimizerActualWeight,
                           '${totals.actualKg.toStringAsFixed(1)} kg',
                         ),
                         SizedBox(height: AppTheme.spacingSmall),
                         _buildStatRow(
                           context,
-                          'Dimensional Weight',
+                          localizations.optimizerDimensionalWeight,
                           '${totals.dimKg.toStringAsFixed(1)} kg',
                         ),
                         SizedBox(height: AppTheme.spacingSmall),
                         _buildStatRow(
                           context,
-                          'Chargeable Weight',
+                          localizations.optimizerChargeableWeight,
                           '${totals.chargeableKg.toStringAsFixed(1)} kg',
                           isBold: true,
                           color: context.colorScheme.primary,
@@ -108,7 +110,7 @@ class OptimizerPage extends ConsumerWidget {
                         SizedBox(height: AppTheme.spacingSmall),
                         _buildStatRow(
                           context,
-                          'Largest Side',
+                          localizations.optimizerLargestSide,
                           '${totals.largestSideCm.toStringAsFixed(0)} cm',
                         ),
                         if (totals.isOversized) ...[
@@ -134,7 +136,7 @@ class OptimizerPage extends ConsumerWidget {
                                 SizedBox(width: AppTheme.spacingSmall),
                                 Expanded(
                                   child: Text(
-                                    'Oversize detected - extra fees apply',
+                                    localizations.optimizerOversizeWarning,
                                     style: context.textTheme.bodySmall
                                         ?.copyWith(
                                           color: context.colorScheme.error,
@@ -153,7 +155,7 @@ class OptimizerPage extends ConsumerWidget {
 
                   // Optimization Suggestions
                   Text(
-                    'Optimization Suggestions',
+                    localizations.optimizerSuggestions,
                     style: context.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -180,14 +182,14 @@ class OptimizerPage extends ConsumerWidget {
                               ),
                               SizedBox(height: AppTheme.spacingMedium),
                               Text(
-                                'Packing looks optimal!',
+                                localizations.optimizerPackingOptimal,
                                 style: context.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               SizedBox(height: AppTheme.spacingSmall),
                               Text(
-                                'Your current packing is efficient. No optimization suggestions at this time.',
+                                localizations.optimizerNoSuggestions,
                                 style: context.textTheme.bodySmall?.copyWith(
                                   color: context.colorScheme.onSurfaceVariant,
                                 ),
@@ -203,7 +205,7 @@ class OptimizerPage extends ConsumerWidget {
 
                   // Carton List
                   Text(
-                    'Carton Details',
+                    localizations.optimizerCartonDetails,
                     style: context.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -223,7 +225,7 @@ class OptimizerPage extends ConsumerWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'Carton ${index + 1}',
+                                  localizations.labelCartonNumber(index + 1),
                                   style: context.textTheme.titleMedium
                                       ?.copyWith(fontWeight: FontWeight.bold),
                                 ),
@@ -237,17 +239,21 @@ class OptimizerPage extends ConsumerWidget {
                             ),
                             SizedBox(height: AppTheme.spacingSmall),
                             Text(
-                              'Dimensions: ${carton.lengthCm}×${carton.widthCm}×${carton.heightCm} cm',
+                              localizations.optimizerDimensions(
+                                carton.lengthCm,
+                                carton.widthCm,
+                                carton.heightCm,
+                              ),
                               style: context.textTheme.bodyMedium,
                             ),
                             SizedBox(height: AppTheme.spacingXSmall),
                             Text(
-                              'Weight: ${carton.weightKg} kg',
+                              localizations.optimizerWeight(carton.weightKg),
                               style: context.textTheme.bodyMedium,
                             ),
                             SizedBox(height: AppTheme.spacingXSmall),
                             Text(
-                              'Item: ${carton.itemType}',
+                              localizations.optimizerItem(carton.itemType),
                               style: context.textTheme.bodySmall?.copyWith(
                                 color: context.colorScheme.onSurfaceVariant,
                               ),
@@ -261,15 +267,19 @@ class OptimizerPage extends ConsumerWidget {
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) =>
-                Center(child: Text('Error loading cartons: $err')),
+            error: (err, stack) {
+              final localizations2 = AppLocalizations.of(context)!;
+              return Center(
+                child: Text('${localizations2.errorLoadingCartons}: $err'),
+              );
+            },
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/quotes/$shipmentId'),
         icon: const Icon(Icons.assessment_outlined),
-        label: const Text('View Quotes'),
+        label: Text(localizations.buttonViewQuotes),
       ),
     );
   }
@@ -302,9 +312,10 @@ class OptimizerPage extends ConsumerWidget {
   }
 
   void _showHelpDialog(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     ModalUtils.showSinglePageModal(
       context: context,
-      title: 'Packing Optimizer',
+      title: localizations.optimizerHelpTitle,
       showCloseButton: true,
       barrierDismissible: true,
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
@@ -312,19 +323,11 @@ class OptimizerPage extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         child: FilledButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Got it'),
+          child: Text(localizations.buttonGotIt),
         ),
       ),
       builder: (modalContext) {
-        return const Text(
-          'The packing optimizer analyzes your cartons and suggests ways to reduce '
-          'shipping costs by optimizing dimensions.\n\n'
-          'Key metrics:\n'
-          '• Actual Weight: Physical weight of items\n'
-          '• Dimensional Weight: Calculated from carton size\n'
-          '• Chargeable Weight: Higher of the two\n\n'
-          'Tip: Reducing carton height often provides the best savings!',
-        );
+        return Text(localizations.optimizerHelpContent);
       },
     );
   }
@@ -352,6 +355,7 @@ class _OptimizationSuggestionCardState
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return ModalCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -376,7 +380,7 @@ class _OptimizationSuggestionCardState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Cost Saving Opportunity',
+                      localizations.optimizerCostSavingOpportunity,
                       style: context.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -400,7 +404,7 @@ class _OptimizationSuggestionCardState
                           width: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Apply Suggestion'),
+                      : Text(localizations.buttonApplySuggestion),
                 ),
               ),
             ],
@@ -515,12 +519,11 @@ class _OptimizationSuggestionCardState
           ref.invalidate(quotesProvider(widget.shipmentId));
 
           if (mounted) {
+            final localizations = AppLocalizations.of(context)!;
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'Optimization applied! Quotes have been recalculated.',
-                ),
-                duration: Duration(seconds: 3),
+              SnackBar(
+                content: Text(localizations.successOptimizationApplied),
+                duration: const Duration(seconds: 3),
               ),
             );
           }
@@ -528,8 +531,9 @@ class _OptimizationSuggestionCardState
       }
     } catch (e) {
       if (mounted) {
+        final localizations = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error applying suggestion: $e')),
+          SnackBar(content: Text('${localizations.errorApplySuggestion}: $e')),
         );
       }
     } finally {

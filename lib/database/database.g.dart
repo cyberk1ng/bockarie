@@ -61,7 +61,7 @@ class $ShipmentsTable extends Shipments
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
-    defaultValue: const Constant(''),
+    defaultValue: const Constant(DatabaseConstants.defaultEmptyString),
   );
   static const VerificationMeta _originStateMeta = const VerificationMeta(
     'originState',
@@ -73,7 +73,7 @@ class $ShipmentsTable extends Shipments
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
-    defaultValue: const Constant(''),
+    defaultValue: const Constant(DatabaseConstants.defaultEmptyString),
   );
   static const VerificationMeta _destCityMeta = const VerificationMeta(
     'destCity',
@@ -107,7 +107,7 @@ class $ShipmentsTable extends Shipments
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
-    defaultValue: const Constant(''),
+    defaultValue: const Constant(DatabaseConstants.defaultEmptyString),
   );
   static const VerificationMeta _destStateMeta = const VerificationMeta(
     'destState',
@@ -119,7 +119,7 @@ class $ShipmentsTable extends Shipments
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
-    defaultValue: const Constant(''),
+    defaultValue: const Constant(DatabaseConstants.defaultEmptyString),
   );
   static const VerificationMeta _deadlineDaysMeta = const VerificationMeta(
     'deadlineDays',

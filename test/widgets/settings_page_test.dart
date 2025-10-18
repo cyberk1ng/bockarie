@@ -2,6 +2,7 @@ import 'package:bockaire/database/database.dart';
 import 'package:bockaire/get_it.dart';
 import 'package:bockaire/pages/settings_page.dart';
 import 'package:bockaire/providers/theme_providers.dart';
+import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,7 +34,11 @@ void main() {
   Widget createTestWidget({List<Override>? overrides}) {
     return ProviderScope(
       overrides: overrides ?? [],
-      child: const MaterialApp(home: SettingsPage()),
+      child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const SettingsPage(),
+      ),
     );
   }
 
@@ -87,6 +92,11 @@ void main() {
 
     testWidgets('renders AI Providers list tile', (tester) async {
       await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      // Scroll down to make AI Providers visible
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.pumpAndSettle();
 
       expect(find.text('AI Providers'), findsOneWidget);
       expect(find.text('Configure AI models'), findsOneWidget);
@@ -94,8 +104,11 @@ void main() {
 
     testWidgets('renders About section', (tester) async {
       await tester.pumpWidget(createTestWidget());
-      await tester.pump(const Duration(milliseconds: 100));
-      await tester.pump();
+      await tester.pumpAndSettle();
+
+      // Scroll down to make About section visible
+      await tester.drag(find.byType(ListView), const Offset(0, -400));
+      await tester.pumpAndSettle();
 
       expect(find.text('About'), findsOneWidget);
       // Check that version text contains "Bockaire" (version loads async from package_info_plus)
@@ -363,9 +376,19 @@ void main() {
 
     testWidgets('list tiles have leading icons', (tester) async {
       await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.table_chart), findsOneWidget);
+
+      // Scroll down to make other icons visible
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.pumpAndSettle();
+
       expect(find.byIcon(Icons.psychology), findsOneWidget);
+
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.pumpAndSettle();
+
       expect(find.byIcon(Icons.info_outline), findsOneWidget);
     });
 
