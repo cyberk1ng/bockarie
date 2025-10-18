@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:bockaire/get_it.dart';
 import 'package:bockaire/utils/router.dart';
 import 'package:bockaire/providers/theme_providers.dart';
 import 'package:bockaire/providers/locale_provider.dart';
+import 'package:bockaire/providers/currency_provider.dart';
+import 'package:bockaire/repositories/currency_repository.dart';
 import 'package:bockaire/database/seeder.dart';
 
 void main() async {
@@ -21,7 +24,17 @@ void main() async {
   final seeder = DatabaseSeeder(getIt.get());
   await seeder.seedAll();
 
-  runApp(const ProviderScope(child: BockaireApp()));
+  // Initialize SharedPreferences for currency repository
+  final prefs = await SharedPreferences.getInstance();
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        currencyRepositoryProvider.overrideWithValue(CurrencyRepository(prefs)),
+      ],
+      child: const BockaireApp(),
+    ),
+  );
 }
 
 class BockaireApp extends ConsumerWidget {

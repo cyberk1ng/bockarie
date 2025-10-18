@@ -19,9 +19,9 @@ import 'package:bockaire/config/validation_constants.dart';
 import 'package:bockaire/config/color_constants.dart';
 import 'package:bockaire/config/ui_constants.dart';
 import 'package:bockaire/l10n/app_localizations.dart';
-import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart' as drift;
+import 'package:bockaire/providers/currency_provider.dart';
 
 enum QuoteSortOption { priceLowHigh, priceHighLow, speedFastest, speedSlowest }
 
@@ -1313,7 +1313,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
   }
 }
 
-class _QuoteCard extends StatefulWidget {
+class _QuoteCard extends ConsumerStatefulWidget {
   final Quote quote;
   final bool isCheapest;
   final bool isFastest;
@@ -1331,17 +1331,18 @@ class _QuoteCard extends StatefulWidget {
   });
 
   @override
-  State<_QuoteCard> createState() => _QuoteCardState();
+  ConsumerState<_QuoteCard> createState() => _QuoteCardState();
 }
 
-class _QuoteCardState extends State<_QuoteCard> {
+class _QuoteCardState extends ConsumerState<_QuoteCard> {
   bool _isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     final quote = widget.quote;
-    final currency = NumberFormat.currency(symbol: '€', decimalDigits: 2);
+    final currency = ref.watch(currencyNotifierProvider);
+    final currencyService = ref.watch(currencyServiceProvider);
 
     return ModalCard(
       child: Column(
@@ -1429,7 +1430,10 @@ class _QuoteCardState extends State<_QuoteCard> {
               ),
               // Price
               Text(
-                currency.format(quote.priceEur),
+                currencyService.formatAmount(
+                  amountInEur: quote.priceEur,
+                  currency: currency,
+                ),
                 style: context.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: context.colorScheme.primary,
@@ -1459,7 +1463,10 @@ class _QuoteCardState extends State<_QuoteCard> {
             _buildBreakdownRow(
               context,
               localizations.quoteDetailsTotalPrice,
-              currency.format(quote.priceEur),
+              currencyService.formatAmount(
+                amountInEur: quote.priceEur,
+                currency: currency,
+              ),
               isBold: true,
             ),
           ],
@@ -1751,7 +1758,7 @@ class EditableCarton {
 // _EditableCartonsList Widget
 // ============================================================================
 
-class _EditableCartonsList extends StatefulWidget {
+class _EditableCartonsList extends ConsumerStatefulWidget {
   final String shipmentId;
   final Shipment shipment;
   final List<models.Carton> originalCartons;
@@ -1767,10 +1774,11 @@ class _EditableCartonsList extends StatefulWidget {
   });
 
   @override
-  State<_EditableCartonsList> createState() => _EditableCartonsListState();
+  ConsumerState<_EditableCartonsList> createState() =>
+      _EditableCartonsListState();
 }
 
-class _EditableCartonsListState extends State<_EditableCartonsList> {
+class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
   List<EditableCarton> _editedCartons = [];
   bool _isRecalculating = false;
 
@@ -1882,7 +1890,8 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
     List<models.Carton> newCartonModels,
   ) async {
     final localizations = AppLocalizations.of(context)!;
-    final currency = NumberFormat.currency(symbol: '€', decimalDigits: 2);
+    final selectedCurrency = ref.read(currencyNotifierProvider);
+    final currencyService = ref.read(currencyServiceProvider);
     final oldCheapest = widget.originalQuotes.isEmpty
         ? null
         : widget.originalQuotes.reduce(
@@ -1975,7 +1984,7 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                           ? '-'
                           : savings < 0
                           ? '+'
-                          : ''}${currency.format(savings.abs())}',
+                          : ''}${currencyService.formatAmount(amountInEur: savings.abs(), currency: selectedCurrency)}',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -1989,8 +1998,14 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                     const SizedBox(height: 4),
                     Text(
                       localizations.cheapestPriceChange(
-                        currency.format(oldCheapest.priceEur),
-                        currency.format(newCheapest.total),
+                        currencyService.formatAmount(
+                          amountInEur: oldCheapest.priceEur,
+                          currency: selectedCurrency,
+                        ),
+                        currencyService.formatAmount(
+                          amountInEur: newCheapest.total,
+                          currency: selectedCurrency,
+                        ),
                       ),
                       style: const TextStyle(fontSize: 12),
                     ),
@@ -2127,7 +2142,10 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                         ),
                       ),
                       Text(
-                        currency.format(quote.total),
+                        currencyService.formatAmount(
+                          amountInEur: quote.total,
+                          currency: selectedCurrency,
+                        ),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Theme.of(modalContext).colorScheme.primary,

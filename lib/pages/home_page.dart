@@ -10,6 +10,7 @@ import 'package:bockaire/get_it.dart';
 import 'package:bockaire/database/database.dart';
 import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:bockaire/providers/currency_provider.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -304,16 +305,19 @@ class _ShipmentCard extends ConsumerWidget {
                         ),
                       );
                     }
-                    final currency = NumberFormat.currency(
-                      symbol: '€',
-                      decimalDigits: 0,
+                    final currency = ref.watch(currencyNotifierProvider);
+                    final currencyService = ref.watch(currencyServiceProvider);
+                    final formattedPrice = currencyService.formatAmount(
+                      amountInEur: quote.priceEur,
+                      currency: currency,
+                      decimals: 0,
                     );
                     return Row(
                       children: [
                         Text(
                           localizations.cheapestPrice(
                             quote.chargeableKg.toStringAsFixed(1),
-                            currency.format(quote.priceEur),
+                            formattedPrice,
                           ),
                           style: context.textTheme.bodyMedium,
                         ),

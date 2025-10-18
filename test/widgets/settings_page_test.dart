@@ -2,19 +2,27 @@ import 'package:bockaire/database/database.dart';
 import 'package:bockaire/get_it.dart';
 import 'package:bockaire/pages/settings_page.dart';
 import 'package:bockaire/providers/theme_providers.dart';
+import 'package:bockaire/providers/currency_provider.dart';
+import 'package:bockaire/repositories/currency_repository.dart';
 import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MockAppDatabase extends Mock implements AppDatabase {}
 
 void main() {
   late MockAppDatabase mockDb;
+  late SharedPreferences prefs;
 
-  setUp(() {
+  setUp(() async {
     mockDb = MockAppDatabase();
+
+    // Initialize SharedPreferences for currency repository
+    SharedPreferences.setMockInitialValues({});
+    prefs = await SharedPreferences.getInstance();
 
     // Register mock in GetIt
     if (getIt.isRegistered<AppDatabase>()) {
@@ -33,7 +41,10 @@ void main() {
 
   Widget createTestWidget({List<Override>? overrides}) {
     return ProviderScope(
-      overrides: overrides ?? [],
+      overrides: [
+        currencyRepositoryProvider.overrideWithValue(CurrencyRepository(prefs)),
+        ...?overrides,
+      ],
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
@@ -85,6 +96,11 @@ void main() {
 
     testWidgets('renders Rate Tables list tile', (tester) async {
       await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      // Scroll down to make Rate Tables visible (currency picker pushed it down)
+      await tester.drag(find.byType(ListView), const Offset(0, -300));
+      await tester.pumpAndSettle();
 
       expect(find.text('Rate Tables'), findsOneWidget);
       expect(find.text('Manage carrier rates'), findsOneWidget);
@@ -376,6 +392,10 @@ void main() {
 
     testWidgets('list tiles have leading icons', (tester) async {
       await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      // Scroll down to make table_chart icon visible
+      await tester.drag(find.byType(ListView), const Offset(0, -300));
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.table_chart), findsOneWidget);

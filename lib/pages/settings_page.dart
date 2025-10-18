@@ -9,6 +9,11 @@ import 'package:bockaire/widgets/flags/language_flag.dart';
 import 'package:bockaire/features/settings/ui/widgets/language_selection_modal.dart';
 import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:bockaire/providers/currency_provider.dart';
+import 'package:bockaire/widgets/currency/currency_flag.dart';
+import 'package:bockaire/features/settings/ui/widgets/currency_selection_modal.dart';
+
+import '../classes/supported_currency.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -95,6 +100,56 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 // User explicitly selected system default
                 ref.read(localeNotifierProvider.notifier).setLocale(null);
               }
+            },
+          ),
+
+          // Currency Setting
+          Consumer(
+            builder: (context, ref, child) {
+              final localizations = AppLocalizations.of(context)!;
+              final currentCurrency = ref.watch(currencyNotifierProvider);
+
+              return ListTile(
+                leading: const Icon(Icons.payments),
+                title: Text(localizations.settingsCurrencyTitle),
+                subtitle: Text(localizations.settingsCurrencySubtitle),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 32,
+                      height: 24,
+                      child: buildCurrencyFlag(
+                        currency: currentCurrency,
+                        height: 24,
+                        width: 32,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${currentCurrency.symbol} ${currentCurrency.code}',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.chevron_right),
+                  ],
+                ),
+                onTap: () async {
+                  final selectedCurrency =
+                      await showModalBottomSheet<SupportedCurrency>(
+                        context: context,
+                        builder: (context) => CurrencySelectionModal(
+                          currentCurrency: currentCurrency,
+                        ),
+                      );
+
+                  if (selectedCurrency != null) {
+                    ref
+                        .read(currencyNotifierProvider.notifier)
+                        .setCurrency(selectedCurrency);
+                  }
+                },
+              );
             },
           ),
 

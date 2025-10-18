@@ -154,6 +154,21 @@ class AppLocalizationsEs extends AppLocalizations {
   String get systemDefaultLanguage => 'Predeterminado del Sistema';
 
   @override
+  String get settingsCurrencyTitle => 'Currency';
+
+  @override
+  String get settingsCurrencySubtitle => 'Select display currency';
+
+  @override
+  String get currencyEuro => 'Euro';
+
+  @override
+  String get currencyUsd => 'US Dollar';
+
+  @override
+  String get currencyGbp => 'British Pound';
+
+  @override
   String get searchHint => 'Buscar idiomas...';
 
   @override
