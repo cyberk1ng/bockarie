@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
+import 'package:logger/logger.dart';
 import 'package:bockaire/database/database.dart';
 import 'package:bockaire/get_it.dart';
 import 'package:bockaire/themes/theme.dart';
@@ -24,8 +25,12 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
   final _formKey = GlobalKey<FormState>();
   final _originCityController = TextEditingController();
   final _originPostalController = TextEditingController();
+  final _originCountryController = TextEditingController();
+  final _originStateController = TextEditingController();
   final _destCityController = TextEditingController();
   final _destPostalController = TextEditingController();
+  final _destCountryController = TextEditingController();
+  final _destStateController = TextEditingController();
   final _notesController = TextEditingController();
 
   final List<CartonInput> _cartons = [];
@@ -34,8 +39,12 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
   void dispose() {
     _originCityController.dispose();
     _originPostalController.dispose();
+    _originCountryController.dispose();
+    _originStateController.dispose();
     _destCityController.dispose();
     _destPostalController.dispose();
+    _destCountryController.dispose();
+    _destStateController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -77,8 +86,12 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
               createdAt: drift.Value(DateTime.now()),
               originCity: drift.Value(_originCityController.text),
               originPostal: drift.Value(_originPostalController.text),
+              originCountry: drift.Value(_originCountryController.text),
+              originState: drift.Value(_originStateController.text),
               destCity: drift.Value(_destCityController.text),
               destPostal: drift.Value(_destPostalController.text),
+              destCountry: drift.Value(_destCountryController.text),
+              destState: drift.Value(_destStateController.text),
               notes: drift.Value(
                 _notesController.text.isEmpty ? null : _notesController.text,
               ),
@@ -143,6 +156,8 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
                   child: CityAutocompleteField(
                     cityController: _originCityController,
                     postalController: _originPostalController,
+                    countryController: _originCountryController,
+                    stateController: _originStateController,
                     label: 'Origin City',
                     validator: (value) =>
                         value?.isEmpty ?? true ? 'Required' : null,
@@ -169,6 +184,8 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
                   child: CityAutocompleteField(
                     cityController: _destCityController,
                     postalController: _destPostalController,
+                    countryController: _destCountryController,
+                    stateController: _destStateController,
                     label: 'Destination City',
                     validator: (value) =>
                         value?.isEmpty ?? true ? 'Required' : null,
@@ -391,14 +408,20 @@ class NewShipmentContent extends StatefulWidget {
 }
 
 class _NewShipmentContentState extends State<NewShipmentContent> {
+  final Logger _logger = Logger();
   final _formKey = GlobalKey<FormState>();
   final _originCityController = TextEditingController();
   final _originPostalController = TextEditingController();
+  final _originCountryController = TextEditingController();
+  final _originStateController = TextEditingController();
   final _destCityController = TextEditingController();
   final _destPostalController = TextEditingController();
+  final _destCountryController = TextEditingController();
+  final _destStateController = TextEditingController();
   final _notesController = TextEditingController();
 
   final List<CartonInput> _cartons = [];
+
   ShipmentTotals _totals = const ShipmentTotals(
     cartonCount: 0,
     actualKg: 0,
@@ -415,8 +438,12 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
   void dispose() {
     _originCityController.dispose();
     _originPostalController.dispose();
+    _originCountryController.dispose();
+    _originStateController.dispose();
     _destCityController.dispose();
     _destPostalController.dispose();
+    _destCountryController.dispose();
+    _destStateController.dispose();
     _notesController.dispose();
     _debounceTimer?.cancel();
     super.dispose();
@@ -507,8 +534,12 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
               createdAt: drift.Value(DateTime.now()),
               originCity: drift.Value(_originCityController.text),
               originPostal: drift.Value(_originPostalController.text),
+              originCountry: drift.Value(_originCountryController.text),
+              originState: drift.Value(_originStateController.text),
               destCity: drift.Value(_destCityController.text),
               destPostal: drift.Value(_destPostalController.text),
+              destCountry: drift.Value(_destCountryController.text),
+              destState: drift.Value(_destStateController.text),
               notes: drift.Value(
                 _notesController.text.isEmpty ? null : _notesController.text,
               ),
@@ -535,14 +566,42 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
 
       // Generate quotes
       try {
-        final quoteService = QuoteCalculatorService(db);
+        // Fetch saved cartons for Shippo API
+        final savedCartons = await (db.select(
+          db.cartons,
+        )..where((c) => c.shipmentId.equals(shipmentId))).get();
+
+        _logger.d('Generating quotes for shipment $shipmentId');
+        _logger.d(
+          'Origin: ${_originCityController.text}, ${_originPostalController.text}',
+        );
+        _logger.d(
+          'Dest: ${_destCityController.text}, ${_destPostalController.text}',
+        );
+        _logger.d('Cartons: ${savedCartons.length}');
+
+        final quoteService = getIt<QuoteCalculatorService>();
         final quotes = await quoteService.calculateAllQuotes(
           chargeableKg: _totals.chargeableKg,
           isOversized: _totals.isOversized,
+          originCity: _originCityController.text,
+          originPostal: _originPostalController.text,
+          originCountry: _originCountryController.text,
+          originState: _originStateController.text,
+          destCity: _destCityController.text,
+          destPostal: _destPostalController.text,
+          destCountry: _destCountryController.text,
+          destState: _destStateController.text,
+          cartons: savedCartons,
         );
+
+        _logger.d('Received ${quotes.length} quotes');
 
         // Save quotes to database
         for (final quote in quotes) {
+          _logger.d(
+            'Saving quote: ${quote.carrier} ${quote.service} - €${quote.total}',
+          );
           await db
               .into(db.quotes)
               .insert(
@@ -558,11 +617,24 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                 ),
               );
         }
-      } catch (e) {
+        _logger.d('Successfully saved ${quotes.length} quotes to database');
+
+        // Small delay to ensure database writes are committed
+        await Future.delayed(const Duration(milliseconds: 100));
+      } catch (e, stackTrace) {
         // Continue even if quote generation fails
+        _logger.e(
+          'Failed to generate quotes',
+          error: e,
+          stackTrace: stackTrace,
+        );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Warning: Could not generate quotes: $e')),
+            SnackBar(
+              content: Text('Warning: Could not generate quotes: $e'),
+              duration: const Duration(seconds: 5),
+              backgroundColor: Colors.orange,
+            ),
           );
         }
       }
@@ -601,6 +673,8 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                         child: CityAutocompleteField(
                           cityController: _originCityController,
                           postalController: _originPostalController,
+                          countryController: _originCountryController,
+                          stateController: _originStateController,
                           label: 'Origin City',
                           validator: (value) =>
                               value?.isEmpty ?? true ? 'Required' : null,
@@ -626,6 +700,8 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                         child: CityAutocompleteField(
                           cityController: _destCityController,
                           postalController: _destPostalController,
+                          countryController: _destCountryController,
+                          stateController: _destStateController,
                           label: 'Destination City',
                           validator: (value) =>
                               value?.isEmpty ?? true ? 'Required' : null,

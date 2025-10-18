@@ -13,8 +13,20 @@ class Shipments extends Table {
   DateTimeColumn get createdAt => dateTime()();
   TextColumn get originCity => text()();
   TextColumn get originPostal => text()();
+  TextColumn get originCountry => text().withDefault(
+    const Constant(''),
+  )(); // ISO country code (e.g., "US", "CN", "DE")
+  TextColumn get originState => text().withDefault(
+    const Constant(''),
+  )(); // State/province for US addresses
   TextColumn get destCity => text()();
   TextColumn get destPostal => text()();
+  TextColumn get destCountry => text().withDefault(
+    const Constant(''),
+  )(); // ISO country code (e.g., "US", "CN", "DE")
+  TextColumn get destState => text().withDefault(
+    const Constant(''),
+  )(); // State/province for US addresses
   IntColumn get deadlineDays => integer().nullable()();
   TextColumn get notes => text().nullable()();
 
@@ -92,7 +104,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -111,6 +123,14 @@ class AppDatabase extends _$AppDatabase {
 
         // Create CompanyInfo table
         await m.createTable(companyInfo);
+      }
+      if (from < 3) {
+        // Migration from version 2 to 3
+        // Add country and state columns to Shipments table for Shippo API
+        await m.addColumn(shipments, shipments.originCountry);
+        await m.addColumn(shipments, shipments.originState);
+        await m.addColumn(shipments, shipments.destCountry);
+        await m.addColumn(shipments, shipments.destState);
       }
     },
   );

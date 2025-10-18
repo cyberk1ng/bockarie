@@ -60,14 +60,12 @@ Future<List<models.Carton>> cartonModels(
 /// Provider for fetching all quotes for a shipment
 @riverpod
 // ignore: deprecated_member_use_from_same_package
-Future<List<Quote>> quotes(QuotesRef ref, String shipmentId) async {
+Stream<List<Quote>> quotes(QuotesRef ref, String shipmentId) {
   final db = ref.watch(databaseProvider);
-  final quotesList =
-      await (db.select(db.quotes)
-            ..where((q) => q.shipmentId.equals(shipmentId))
-            ..orderBy([(q) => OrderingTerm.asc(q.priceEur)]))
-          .get();
-  return quotesList;
+  return (db.select(db.quotes)
+        ..where((q) => q.shipmentId.equals(shipmentId))
+        ..orderBy([(q) => OrderingTerm.asc(q.priceEur)]))
+      .watch();
 }
 
 /// Provider for fetching recent shipments (for home page)

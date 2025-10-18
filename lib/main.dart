@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:bockaire/get_it.dart';
 import 'package:bockaire/utils/router.dart';
 import 'package:bockaire/themes/theme.dart';
@@ -7,6 +8,10 @@ import 'package:bockaire/database/seeder.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables
+  await dotenv.load(fileName: '.env');
+
   await setupGetIt();
 
   // Seed the database with initial data
