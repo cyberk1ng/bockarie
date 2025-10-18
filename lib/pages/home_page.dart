@@ -139,27 +139,41 @@ class HomePage extends ConsumerWidget {
     WidgetRef ref,
     Shipment shipment,
   ) async {
-    final confirm = await showDialog<bool>(
+    final confirm = await ModalUtils.showSinglePageModal<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Shipment'),
-        content: Text(
-          'Are you sure you want to delete the shipment from ${shipment.originCity} to ${shipment.destCity}?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: context.colorScheme.error,
+      title: 'Delete Shipment',
+      showCloseButton: true,
+      barrierDismissible: true,
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+      stickyActionBar: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
             ),
-            child: const Text('Delete'),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                ),
+                child: const Text('Delete'),
+              ),
+            ),
+          ],
+        ),
       ),
+      builder: (modalContext) {
+        return Text(
+          'Are you sure you want to delete the shipment from ${shipment.originCity} to ${shipment.destCity}?',
+          style: Theme.of(modalContext).textTheme.bodyLarge,
+        );
+      },
     );
 
     if (confirm == true) {

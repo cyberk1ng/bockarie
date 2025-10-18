@@ -556,6 +556,35 @@ void main() {
         expect(quote.estimatedDays, 35);
         expect(quote.durationTerms, '30-40 days');
       });
+
+      test('defaults source to local', () {
+        const quote = ShippingQuote(
+          carrier: 'DHL',
+          service: 'Express',
+          subtotal: 200.0,
+          fuelSurcharge: 30.0,
+          oversizeFee: 0.0,
+          total: 230.0,
+          chargeableKg: 50.0,
+        );
+
+        expect(quote.source, 'local');
+      });
+
+      test('supports explicit source parameter', () {
+        const quote = ShippingQuote(
+          carrier: 'DHL',
+          service: 'Express',
+          subtotal: 200.0,
+          fuelSurcharge: 30.0,
+          oversizeFee: 0.0,
+          total: 230.0,
+          chargeableKg: 50.0,
+          source: 'shippo',
+        );
+
+        expect(quote.source, 'shippo');
+      });
     });
   });
 }

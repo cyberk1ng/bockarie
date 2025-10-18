@@ -15,6 +15,11 @@ migrate_working_dir/
 # Environment variables
 .env
 
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
 # IntelliJ related
 *.iml
 *.ipr

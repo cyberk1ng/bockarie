@@ -3,13 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bockaire/themes/theme.dart';
 import 'package:bockaire/widgets/modal/modal_card.dart';
+import 'package:bockaire/widgets/modal/modal_utils.dart';
+import 'package:bockaire/widgets/shipment/city_autocomplete_field.dart';
 import 'package:bockaire/services/calculation_service.dart';
 import 'package:bockaire/services/pdf_export_service.dart';
+import 'package:bockaire/services/quote_calculator_service.dart';
 import 'package:bockaire/database/database.dart';
 import 'package:bockaire/classes/carton.dart' as models;
 import 'package:bockaire/providers/shipment_providers.dart';
 import 'package:bockaire/models/transport_method.dart';
+import 'package:bockaire/utils/duration_parser.dart';
+import 'package:bockaire/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
+import 'package:drift/drift.dart' as drift;
 
 enum QuoteSortOption { priceLowHigh, priceHighLow, speedFastest, speedSlowest }
 
@@ -77,7 +84,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
             error: (_, __) => const SizedBox.shrink(),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
 
           // Quotes Section
           quotesAsync.when(
@@ -580,51 +587,115 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              const Spacer(),
+              Text(
+                'Click to edit',
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: context.colorScheme.onSurfaceVariant,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'From',
-                      style: context.textTheme.bodySmall?.copyWith(
-                        color: context.colorScheme.onSurfaceVariant,
+                child: InkWell(
+                  onTap: () =>
+                      _showEditAddressDialog(context, shipment, isOrigin: true),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: context.colorScheme.outlineVariant,
                       ),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${shipment.originCity}, ${shipment.originPostal}',
-                      style: context.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              'From',
+                              style: context.textTheme.bodySmall?.copyWith(
+                                color: context.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const Spacer(),
+                            Icon(
+                              Icons.edit_outlined,
+                              size: 14,
+                              color: context.colorScheme.primary,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${shipment.originCity}, ${shipment.originPostal}',
+                          style: context.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-              Icon(Icons.arrow_forward, color: context.colorScheme.primary),
-              const SizedBox(width: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Icon(
+                  Icons.arrow_forward,
+                  color: context.colorScheme.primary,
+                ),
+              ),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'To',
-                      style: context.textTheme.bodySmall?.copyWith(
-                        color: context.colorScheme.onSurfaceVariant,
+                child: InkWell(
+                  onTap: () => _showEditAddressDialog(
+                    context,
+                    shipment,
+                    isOrigin: false,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: context.colorScheme.outlineVariant,
                       ),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${shipment.destCity}, ${shipment.destPostal}',
-                      style: context.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              'To',
+                              style: context.textTheme.bodySmall?.copyWith(
+                                color: context.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const Spacer(),
+                            Icon(
+                              Icons.edit_outlined,
+                              size: 14,
+                              color: context.colorScheme.primary,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${shipment.destCity}, ${shipment.destPostal}',
+                          style: context.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ],
@@ -635,11 +706,25 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStat(
+              _buildClickableStat(
                 context,
                 icon: Icons.inventory_2_outlined,
                 label: 'Cartons',
                 value: '${totals.cartonCount}',
+                onTap: () async {
+                  final navContext = context;
+                  final quotes = await ref.read(
+                    quotesProvider(widget.shipmentId).future,
+                  );
+                  if (mounted && navContext.mounted) {
+                    _showEditDimensionsDialog(
+                      navContext,
+                      shipment,
+                      cartonList,
+                      quotes,
+                    );
+                  }
+                },
               ),
               _buildStat(
                 context,
@@ -656,6 +741,355 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  void _showEditAddressDialog(
+    BuildContext context,
+    Shipment shipment, {
+    required bool isOrigin,
+  }) {
+    final cityController = TextEditingController(
+      text: isOrigin ? shipment.originCity : shipment.destCity,
+    );
+    final postalController = TextEditingController(
+      text: isOrigin ? shipment.originPostal : shipment.destPostal,
+    );
+    final countryController = TextEditingController(
+      text: isOrigin ? shipment.originCountry : shipment.destCountry,
+    );
+    final stateController = TextEditingController(
+      text: isOrigin ? shipment.originState : shipment.destState,
+    );
+
+    ModalUtils.showSinglePageModal(
+      context: context,
+      title: 'Edit ${isOrigin ? "Origin" : "Destination"}',
+      showCloseButton: true,
+      barrierDismissible: true,
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+      stickyActionBar: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FilledButton(
+                onPressed: () async {
+                  final db = getIt<AppDatabase>();
+
+                  try {
+                    // Update address
+                    if (isOrigin) {
+                      await (db.update(
+                        db.shipments,
+                      )..where((s) => s.id.equals(widget.shipmentId))).write(
+                        ShipmentsCompanion(
+                          originCity: drift.Value(cityController.text),
+                          originPostal: drift.Value(postalController.text),
+                          originCountry: drift.Value(countryController.text),
+                          originState: drift.Value(stateController.text),
+                        ),
+                      );
+                    } else {
+                      await (db.update(
+                        db.shipments,
+                      )..where((s) => s.id.equals(widget.shipmentId))).write(
+                        ShipmentsCompanion(
+                          destCity: drift.Value(cityController.text),
+                          destPostal: drift.Value(postalController.text),
+                          destCountry: drift.Value(countryController.text),
+                          destState: drift.Value(stateController.text),
+                        ),
+                      );
+                    }
+
+                    // Fetch updated shipment and cartons for quote recalculation
+                    final updatedShipment =
+                        await (db.select(db.shipments)
+                              ..where((s) => s.id.equals(widget.shipmentId)))
+                            .getSingle();
+
+                    final cartons =
+                        await (db.select(db.cartons)..where(
+                              (c) => c.shipmentId.equals(widget.shipmentId),
+                            ))
+                            .get();
+
+                    // Convert to model cartons for calculation
+                    final cartonModels = cartons
+                        .map(
+                          (c) => models.Carton(
+                            id: c.id,
+                            shipmentId: c.shipmentId,
+                            lengthCm: c.lengthCm,
+                            widthCm: c.widthCm,
+                            heightCm: c.heightCm,
+                            weightKg: c.weightKg,
+                            qty: c.qty,
+                            itemType: c.itemType,
+                          ),
+                        )
+                        .toList();
+
+                    final totals = CalculationService.calculateTotals(
+                      cartonModels,
+                    );
+
+                    // Regenerate quotes with new address
+                    final quoteService = getIt<QuoteCalculatorService>();
+                    final newQuotes = await quoteService.calculateAllQuotes(
+                      chargeableKg: totals.chargeableKg,
+                      isOversized: totals.isOversized,
+                      originCity: updatedShipment.originCity,
+                      originPostal: updatedShipment.originPostal,
+                      originCountry: updatedShipment.originCountry,
+                      originState: updatedShipment.originState,
+                      destCity: updatedShipment.destCity,
+                      destPostal: updatedShipment.destPostal,
+                      destCountry: updatedShipment.destCountry,
+                      destState: updatedShipment.destState,
+                      cartons: cartons,
+                      useShippoApi: true,
+                      fallbackToLocalRates:
+                          false, // Don't use China-Europe rates for other routes
+                    );
+
+                    // Delete old quotes
+                    await (db.delete(
+                          db.quotes,
+                        )..where((q) => q.shipmentId.equals(widget.shipmentId)))
+                        .go();
+
+                    // Save new quotes
+                    for (final quote in newQuotes) {
+                      final (etaMin, etaMax) = parseDuration(
+                        quote.estimatedDays,
+                        quote.durationTerms,
+                      );
+
+                      final transportMethod = classifyTransportMethod(
+                        quote.carrier,
+                        quote.service,
+                        quote.estimatedDays ?? 5,
+                      );
+
+                      await db
+                          .into(db.quotes)
+                          .insert(
+                            QuotesCompanion(
+                              id: drift.Value(const Uuid().v4()),
+                              shipmentId: drift.Value(widget.shipmentId),
+                              carrier: drift.Value(quote.carrier),
+                              service: drift.Value(quote.service),
+                              etaMin: drift.Value(etaMin),
+                              etaMax: drift.Value(etaMax),
+                              priceEur: drift.Value(quote.total),
+                              chargeableKg: drift.Value(quote.chargeableKg),
+                              transportMethod: drift.Value(
+                                transportMethod.name,
+                              ),
+                            ),
+                          );
+                    }
+
+                    // Invalidate providers to refresh UI
+                    ref.invalidate(shipmentProvider(widget.shipmentId));
+                    ref.invalidate(quotesProvider(widget.shipmentId));
+
+                    if (context.mounted) {
+                      Navigator.pop(context);
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            newQuotes.isNotEmpty
+                                ? 'Address updated! ${newQuotes.length} quotes generated.'
+                                : 'Address updated! No quotes available - configure Shippo carrier accounts for real rates.',
+                          ),
+                          backgroundColor: newQuotes.isNotEmpty
+                              ? Colors.green
+                              : Colors.orange,
+                          duration: Duration(
+                            seconds: newQuotes.isEmpty ? 5 : 3,
+                          ),
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error updating address: $e')),
+                      );
+                    }
+                  }
+                },
+                child: const Text('Save'),
+              ),
+            ),
+          ],
+        ),
+      ),
+      builder: (modalContext) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CityAutocompleteField(
+              cityController: cityController,
+              postalController: postalController,
+              countryController: countryController,
+              stateController: stateController,
+              label: 'City',
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: postalController,
+              decoration: const InputDecoration(
+                labelText: 'Postal Code',
+                border: OutlineInputBorder(),
+              ),
+              readOnly: true,
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: countryController,
+                    decoration: const InputDecoration(
+                      labelText: 'Country',
+                      border: OutlineInputBorder(),
+                    ),
+                    readOnly: true,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextFormField(
+                    controller: stateController,
+                    decoration: const InputDecoration(
+                      labelText: 'State',
+                      border: OutlineInputBorder(),
+                    ),
+                    readOnly: true,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Country, state, and postal code will be auto-filled when you select a city',
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(modalContext).colorScheme.onSurfaceVariant,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showEditDimensionsDialog(
+    BuildContext context,
+    Shipment shipment,
+    List<models.Carton> cartons,
+    List<Quote> originalQuotes,
+  ) {
+    ModalUtils.showSinglePageModal(
+      context: context,
+      title: 'Edit Dimensions',
+      showCloseButton: true,
+      barrierDismissible: true,
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
+      builder: (modalContext) {
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Experiment with different packing configurations',
+                style: Theme.of(modalContext).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(modalContext).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 16),
+              _EditableCartonsList(
+                shipmentId: widget.shipmentId,
+                shipment: shipment,
+                originalCartons: cartons,
+                originalQuotes: originalQuotes,
+                onQuotesUpdated: () {
+                  ref.invalidate(cartonModelsProvider(widget.shipmentId));
+                  ref.invalidate(quotesProvider(widget.shipmentId));
+                  Navigator.pop(modalContext);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildClickableStat(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String value,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: context.colorScheme.primary.withValues(alpha: 0.3),
+          ),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 20, color: context.colorScheme.primary),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.edit_outlined,
+                  size: 14,
+                  color: context.colorScheme.primary,
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: context.textTheme.bodySmall?.copyWith(
+                color: context.colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: context.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: context.colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -689,29 +1123,103 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
 
   Widget _buildEmptyState(BuildContext context) {
     return ModalCard(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            children: [
-              Icon(
-                Icons.info_outline,
-                size: 64,
-                color: context.colorScheme.onSurfaceVariant,
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          children: [
+            Icon(
+              Icons.local_shipping_outlined,
+              size: 72,
+              color: Colors.orange.shade300,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'No Shipping Quotes Available',
+              style: context.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: 16),
-              Text('No quotes available', style: context.textTheme.titleMedium),
-              const SizedBox(height: 8),
-              Text(
-                'Please try again or contact support',
-                style: context.textTheme.bodySmall?.copyWith(
-                  color: context.colorScheme.onSurfaceVariant,
-                ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Shippo\'s free test carrier accounts don\'t support international shipments from China.',
+              style: context.textTheme.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.blue.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
               ),
-            ],
-          ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.lightbulb_outline,
+                        size: 20,
+                        color: Colors.blue.shade700,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'How to get real shipping quotes:',
+                        style: context.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _buildStep(
+                    '1',
+                    'Sign up for carrier accounts (DHL, FedEx, UPS, etc.)',
+                  ),
+                  const SizedBox(height: 8),
+                  _buildStep('2', 'Connect them to your Shippo account'),
+                  const SizedBox(height: 8),
+                  _buildStep('3', 'Update your Shippo API key in app settings'),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStep(String number, String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: Colors.blue.shade700,
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Text(
+              number,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(text, style: const TextStyle(fontSize: 13)),
+          ),
+        ),
+      ],
     );
   }
 
@@ -1071,24 +1579,38 @@ class _QuoteCardState extends State<_QuoteCard> {
   }
 
   Future<void> _bookShipment(BuildContext context) async {
-    final confirm = await showDialog<bool>(
+    final confirm = await ModalUtils.showSinglePageModal<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Book Shipment'),
-        content: Text(
-          'Book shipment with ${widget.quote.carrier} ${widget.quote.service}?',
+      title: 'Book Shipment',
+      showCloseButton: true,
+      barrierDismissible: true,
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+      stickyActionBar: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Book'),
+              ),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Book'),
-          ),
-        ],
       ),
+      builder: (modalContext) {
+        return Text(
+          'Book shipment with ${widget.quote.carrier} ${widget.quote.service}?',
+          style: Theme.of(modalContext).textTheme.bodyLarge,
+        );
+      },
     );
 
     if (confirm == true && context.mounted) {
@@ -1099,5 +1621,869 @@ class _QuoteCardState extends State<_QuoteCard> {
         ),
       );
     }
+  }
+}
+
+// ============================================================================
+// EditableCarton Model
+// ============================================================================
+
+class EditableCarton {
+  final String id;
+  final String shipmentId;
+  double lengthCm;
+  double widthCm;
+  double heightCm;
+  double weightKg;
+  int qty;
+  String itemType;
+
+  EditableCarton({
+    required this.id,
+    required this.shipmentId,
+    required this.lengthCm,
+    required this.widthCm,
+    required this.heightCm,
+    required this.weightKg,
+    required this.qty,
+    required this.itemType,
+  });
+
+  factory EditableCarton.fromCarton(models.Carton carton) {
+    return EditableCarton(
+      id: carton.id,
+      shipmentId: carton.shipmentId,
+      lengthCm: carton.lengthCm,
+      widthCm: carton.widthCm,
+      heightCm: carton.heightCm,
+      weightKg: carton.weightKg,
+      qty: carton.qty,
+      itemType: carton.itemType,
+    );
+  }
+
+  models.Carton toCarton() {
+    return models.Carton(
+      id: id,
+      shipmentId: shipmentId,
+      lengthCm: lengthCm,
+      widthCm: widthCm,
+      heightCm: heightCm,
+      weightKg: weightKg,
+      qty: qty,
+      itemType: itemType,
+    );
+  }
+
+  EditableCarton copyWith({
+    double? lengthCm,
+    double? widthCm,
+    double? heightCm,
+    double? weightKg,
+    int? qty,
+    String? itemType,
+  }) {
+    return EditableCarton(
+      id: id,
+      shipmentId: shipmentId,
+      lengthCm: lengthCm ?? this.lengthCm,
+      widthCm: widthCm ?? this.widthCm,
+      heightCm: heightCm ?? this.heightCm,
+      weightKg: weightKg ?? this.weightKg,
+      qty: qty ?? this.qty,
+      itemType: itemType ?? this.itemType,
+    );
+  }
+}
+
+// ============================================================================
+// _EditableCartonsList Widget
+// ============================================================================
+
+class _EditableCartonsList extends StatefulWidget {
+  final String shipmentId;
+  final Shipment shipment;
+  final List<models.Carton> originalCartons;
+  final List<Quote> originalQuotes;
+  final VoidCallback onQuotesUpdated;
+
+  const _EditableCartonsList({
+    required this.shipmentId,
+    required this.shipment,
+    required this.originalCartons,
+    required this.originalQuotes,
+    required this.onQuotesUpdated,
+  });
+
+  @override
+  State<_EditableCartonsList> createState() => _EditableCartonsListState();
+}
+
+class _EditableCartonsListState extends State<_EditableCartonsList> {
+  List<EditableCarton> _editedCartons = [];
+  bool _isRecalculating = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOriginalCartons();
+  }
+
+  void _loadOriginalCartons() {
+    setState(() {
+      _editedCartons = widget.originalCartons
+          .map((c) => EditableCarton.fromCarton(c))
+          .toList();
+    });
+  }
+
+  void _resetToOriginal() {
+    setState(() {
+      _editedCartons = widget.originalCartons
+          .map((c) => EditableCarton.fromCarton(c))
+          .toList();
+    });
+  }
+
+  Future<void> _recalculateQuotes() async {
+    setState(() => _isRecalculating = true);
+
+    try {
+      // Convert edited cartons to Carton models
+      final cartonModels = _editedCartons.map((e) => e.toCarton()).toList();
+
+      // Calculate new totals
+      final totals = CalculationService.calculateTotals(cartonModels);
+
+      // Create Carton objects with the edited dimensions for API call
+      final editedDbCartons = _editedCartons
+          .map(
+            (e) => Carton(
+              id: e.id,
+              shipmentId: e.shipmentId,
+              lengthCm: e.lengthCm,
+              widthCm: e.widthCm,
+              heightCm: e.heightCm,
+              weightKg: e.weightKg,
+              qty: e.qty,
+              itemType: e.itemType,
+            ),
+          )
+          .toList();
+
+      // Debug logging (commented out for production)
+      // print('DEBUG: Recalculating quotes with ${editedDbCartons.length} cartons');
+      // for (var i = 0; i < editedDbCartons.length; i++) {
+      //   final c = editedDbCartons[i];
+      //   final dimWeight = (c.lengthCm * c.widthCm * c.heightCm) / 5000;
+      //   print('DEBUG: Carton $i: ${c.lengthCm}x${c.widthCm}x${c.heightCm}cm, actual=${c.weightKg}kg, dim=${dimWeight.toStringAsFixed(2)}kg, qty=${c.qty}');
+      // }
+      // print('DEBUG: Totals - Actual: ${totals.actualKg.toStringAsFixed(2)}kg, Dim: ${totals.dimKg.toStringAsFixed(2)}kg, Chargeable: ${totals.chargeableKg.toStringAsFixed(2)}kg');
+      // print('DEBUG: Origin: ${widget.shipment.originCity}, ${widget.shipment.originPostal}, ${widget.shipment.originCountry}');
+      // print('DEBUG: Dest: ${widget.shipment.destCity}, ${widget.shipment.destPostal}, ${widget.shipment.destCountry}');
+
+      // Call Shippo API with new dimensions
+      final quoteService = getIt<QuoteCalculatorService>();
+      final shippingQuotes = await quoteService.calculateAllQuotes(
+        chargeableKg: totals.chargeableKg,
+        isOversized: totals.isOversized,
+        originCity: widget.shipment.originCity,
+        originPostal: widget.shipment.originPostal,
+        originCountry: widget.shipment.originCountry,
+        originState: widget.shipment.originState,
+        destCity: widget.shipment.destCity,
+        destPostal: widget.shipment.destPostal,
+        destCountry: widget.shipment.destCountry,
+        destState: widget.shipment.destState,
+        cartons: editedDbCartons,
+        useShippoApi: true,
+        fallbackToLocalRates:
+            false, // Don't use China-Europe rates for other routes
+      );
+
+      // print('DEBUG: Received ${shippingQuotes.length} quotes from API');
+
+      // No notification needed - the comparison dialog will show the empty state
+
+      if (mounted) {
+        await _showQuoteComparisonDialog(shippingQuotes, cartonModels);
+      }
+    } catch (e) {
+      // print('DEBUG ERROR: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error recalculating quotes: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isRecalculating = false);
+      }
+    }
+  }
+
+  Future<void> _showQuoteComparisonDialog(
+    List<ShippingQuote> newShippingQuotes,
+    List<models.Carton> newCartonModels,
+  ) async {
+    final currency = NumberFormat.currency(symbol: '€', decimalDigits: 2);
+    final oldCheapest = widget.originalQuotes.isEmpty
+        ? null
+        : widget.originalQuotes.reduce(
+            (a, b) => a.priceEur < b.priceEur ? a : b,
+          );
+    final newCheapest = newShippingQuotes.isEmpty
+        ? null
+        : newShippingQuotes.reduce((a, b) => a.total < b.total ? a : b);
+    final savings = oldCheapest != null && newCheapest != null
+        ? oldCheapest.priceEur - newCheapest.total
+        : 0.0;
+
+    final result = await ModalUtils.showSinglePageModal<bool>(
+      context: context,
+      title: 'Updated Quotes',
+      showCloseButton: true,
+      barrierDismissible: true,
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+      stickyActionBar: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Discard'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Save Changes'),
+              ),
+            ),
+          ],
+        ),
+      ),
+      builder: (modalContext) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Comparison summary
+            if (oldCheapest != null && newCheapest != null)
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: savings > 0
+                      ? Colors.green.withValues(alpha: 0.1)
+                      : savings < 0
+                      ? Colors.red.withValues(alpha: 0.1)
+                      : Colors.grey.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: savings > 0
+                        ? Colors.green.withValues(alpha: 0.3)
+                        : savings < 0
+                        ? Colors.red.withValues(alpha: 0.3)
+                        : Colors.grey.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      savings > 0
+                          ? 'Potential Savings!'
+                          : savings < 0
+                          ? 'Cost Increase'
+                          : 'No Change',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${savings > 0
+                          ? '-'
+                          : savings < 0
+                          ? '+'
+                          : ''}${currency.format(savings.abs())}',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: savings > 0
+                            ? Colors.green
+                            : savings < 0
+                            ? Colors.red
+                            : Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Cheapest: ${currency.format(oldCheapest.priceEur)} → ${currency.format(newCheapest.total)}',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 16),
+            Text(
+              newShippingQuotes.isEmpty
+                  ? 'No Quotes Available'
+                  : 'Available Quotes (${newShippingQuotes.length})',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            if (newShippingQuotes.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                    width: 2,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      color: Colors.orange.shade700,
+                      size: 56,
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'No Shipping Quotes Available',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Shippo test API keys don\'t support this shipping route.\n\n'
+                      'Test carrier accounts typically only work for US domestic or China-to-US routes.\n\n'
+                      'To get real rates for this route, you need to:\n'
+                      '• Switch to live Shippo API keys\n'
+                      '• Connect real carrier accounts (UPS, DHL, FedEx, etc.)',
+                      style: TextStyle(fontSize: 14),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                size: 16,
+                                color: Colors.blue.shade700,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'To get real shipping quotes:',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            '1. Sign up for carrier accounts (DHL, FedEx, UPS)\n'
+                            '2. Connect them to your Shippo account\n'
+                            '3. Update your API key in the app settings',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ...newShippingQuotes.map((quote) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey.withValues(alpha: 0.3),
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${quote.carrier} ${quote.service}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (quote.estimatedDays != null)
+                              Text(
+                                '${quote.estimatedDays} days',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(
+                                    modalContext,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        currency.format(quote.total),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(modalContext).colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ],
+        );
+      },
+    );
+
+    if (result == true && mounted) {
+      await _saveChanges(newShippingQuotes, newCartonModels);
+    }
+  }
+
+  Future<void> _saveChanges(
+    List<ShippingQuote> newShippingQuotes,
+    List<models.Carton> newCartonModels,
+  ) async {
+    final db = getIt<AppDatabase>();
+    final uuid = const Uuid();
+
+    try {
+      // 1. Update cartons in database
+      for (final editedCarton in _editedCartons) {
+        await (db.update(
+          db.cartons,
+        )..where((c) => c.id.equals(editedCarton.id))).write(
+          CartonsCompanion(
+            lengthCm: drift.Value(editedCarton.lengthCm),
+            widthCm: drift.Value(editedCarton.widthCm),
+            heightCm: drift.Value(editedCarton.heightCm),
+            weightKg: drift.Value(editedCarton.weightKg),
+            qty: drift.Value(editedCarton.qty),
+            itemType: drift.Value(editedCarton.itemType),
+          ),
+        );
+      }
+
+      // 2. Delete old quotes
+      await (db.delete(
+        db.quotes,
+      )..where((q) => q.shipmentId.equals(widget.shipmentId))).go();
+
+      // 3. Save new quotes
+      // print('DEBUG: Saving ${newShippingQuotes.length} new quotes');
+      for (final shippingQuote in newShippingQuotes) {
+        // print('DEBUG: Saving quote: ${shippingQuote.carrier} ${shippingQuote.service} - €${shippingQuote.total.toStringAsFixed(2)}, chargeableKg=${shippingQuote.chargeableKg.toStringAsFixed(2)}');
+        await db
+            .into(db.quotes)
+            .insert(
+              QuotesCompanion.insert(
+                id: uuid.v4(),
+                shipmentId: widget.shipmentId,
+                carrier: shippingQuote.carrier,
+                service: shippingQuote.service,
+                etaMin: shippingQuote.estimatedDays ?? 0,
+                etaMax: shippingQuote.estimatedDays ?? 0,
+                priceEur: shippingQuote.total,
+                chargeableKg: shippingQuote.chargeableKg,
+                transportMethod: drift.Value(
+                  _determineTransportMethod(shippingQuote).name,
+                ),
+              ),
+            );
+      }
+
+      // 4. Notify parent to refresh
+      widget.onQuotesUpdated();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Changes saved! Quotes updated.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error saving changes: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  TransportMethod _determineTransportMethod(ShippingQuote quote) {
+    final serviceLower = quote.service.toLowerCase();
+    final carrierLower = quote.carrier.toLowerCase();
+
+    if (serviceLower.contains('express') || carrierLower.contains('express')) {
+      return TransportMethod.expressAir;
+    } else if (serviceLower.contains('air')) {
+      return TransportMethod.airFreight;
+    } else if (serviceLower.contains('sea') || serviceLower.contains('ocean')) {
+      return TransportMethod.seaFreightLCL;
+    } else if (serviceLower.contains('road') ||
+        serviceLower.contains('truck')) {
+      return TransportMethod.roadFreight;
+    }
+    return TransportMethod.standardAir;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Live totals preview
+        _buildLiveTotalsPreview(),
+
+        const SizedBox(height: 16),
+
+        // Editable carton fields
+        ..._editedCartons.asMap().entries.map((entry) {
+          final index = entry.key;
+          final carton = entry.value;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _buildEditableCartonCard(index, carton),
+          );
+        }),
+
+        const SizedBox(height: 16),
+
+        // Action buttons
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Reset to Original'),
+                onPressed: _resetToOriginal,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: FilledButton.icon(
+                icon: _isRecalculating
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.calculate_rounded),
+                label: const Text('Recalculate Quotes'),
+                onPressed: _isRecalculating ? null : _recalculateQuotes,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLiveTotalsPreview() {
+    final cartonModels = _editedCartons.map((e) => e.toCarton()).toList();
+    final totals = CalculationService.calculateTotals(cartonModels);
+
+    return ModalCard(
+      child: Column(
+        children: [
+          Text(
+            'Updated Totals (Preview)',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: context.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildStatChip('Cartons', '${totals.cartonCount}'),
+              _buildStatChip(
+                'Actual',
+                '${totals.actualKg.toStringAsFixed(1)} kg',
+              ),
+              _buildStatChip('Dim', '${totals.dimKg.toStringAsFixed(1)} kg'),
+              _buildStatChip(
+                'Chargeable',
+                '${totals.chargeableKg.toStringAsFixed(1)} kg',
+                isPrimary: true,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: context.colorScheme.surfaceContainerHighest.withValues(
+                alpha: 0.3,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: 16,
+                  color: context.colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Dim Weight = (L×W×H)/5000, Chargeable = max(Actual, Dim) × Qty. Click "Recalculate Quotes" to fetch real shipping rates from Shippo API.',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: context.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (totals.isOversized) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    color: Colors.orange,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Oversize - extra fees may apply',
+                    style: TextStyle(fontSize: 12, color: Colors.orange),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatChip(String label, String value, {bool isPrimary = false}) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            color: context.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: isPrimary ? context.colorScheme.primary : null,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEditableCartonCard(int index, EditableCarton carton) {
+    return ModalCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Carton ${index + 1}',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          const SizedBox(height: 12),
+
+          // Dimensions row
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  key: ValueKey('length_$index'),
+                  initialValue: carton.lengthCm.toStringAsFixed(1),
+                  decoration: const InputDecoration(
+                    labelText: 'L (cm)',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 12,
+                    ),
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    final newValue = double.tryParse(value);
+                    if (newValue != null && newValue > 0) {
+                      setState(() {
+                        _editedCartons[index].lengthCm = newValue;
+                      });
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: TextFormField(
+                  key: ValueKey('width_$index'),
+                  initialValue: carton.widthCm.toStringAsFixed(1),
+                  decoration: const InputDecoration(
+                    labelText: 'W (cm)',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 12,
+                    ),
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    final newValue = double.tryParse(value);
+                    if (newValue != null && newValue > 0) {
+                      setState(() {
+                        _editedCartons[index].widthCm = newValue;
+                      });
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: TextFormField(
+                  key: ValueKey('height_$index'),
+                  initialValue: carton.heightCm.toStringAsFixed(1),
+                  decoration: const InputDecoration(
+                    labelText: 'H (cm)',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 12,
+                    ),
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    final newValue = double.tryParse(value);
+                    if (newValue != null && newValue > 0) {
+                      setState(() {
+                        _editedCartons[index].heightCm = newValue;
+                      });
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          // Weight and Quantity row
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: TextFormField(
+                  key: ValueKey('weight_$index'),
+                  initialValue: carton.weightKg.toStringAsFixed(1),
+                  decoration: const InputDecoration(
+                    labelText: 'Weight (kg)',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 12,
+                    ),
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    final newValue = double.tryParse(value);
+                    if (newValue != null && newValue > 0) {
+                      setState(() {
+                        _editedCartons[index].weightKg = newValue;
+                      });
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: TextFormField(
+                  key: ValueKey('qty_$index'),
+                  initialValue: carton.qty.toString(),
+                  decoration: const InputDecoration(
+                    labelText: 'Qty',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 12,
+                    ),
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    final newValue = int.tryParse(value);
+                    if (newValue != null && newValue > 0) {
+                      setState(() {
+                        _editedCartons[index].qty = newValue;
+                      });
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }

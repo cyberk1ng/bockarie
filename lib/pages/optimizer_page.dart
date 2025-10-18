@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bockaire/themes/theme.dart';
 import 'package:bockaire/widgets/modal/modal_card.dart';
+import 'package:bockaire/widgets/modal/modal_utils.dart';
 import 'package:bockaire/services/calculation_service.dart';
 import 'package:bockaire/get_it.dart';
 import 'package:bockaire/database/database.dart';
@@ -301,11 +302,21 @@ class OptimizerPage extends ConsumerWidget {
   }
 
   void _showHelpDialog(BuildContext context) {
-    showDialog(
+    ModalUtils.showSinglePageModal(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Packing Optimizer'),
-        content: const Text(
+      title: 'Packing Optimizer',
+      showCloseButton: true,
+      barrierDismissible: true,
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+      stickyActionBar: Padding(
+        padding: const EdgeInsets.all(16),
+        child: FilledButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Got it'),
+        ),
+      ),
+      builder: (modalContext) {
+        return const Text(
           'The packing optimizer analyzes your cartons and suggests ways to reduce '
           'shipping costs by optimizing dimensions.\n\n'
           'Key metrics:\n'
@@ -313,14 +324,8 @@ class OptimizerPage extends ConsumerWidget {
           '• Dimensional Weight: Calculated from carton size\n'
           '• Chargeable Weight: Higher of the two\n\n'
           'Tip: Reducing carton height often provides the best savings!',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Got it'),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

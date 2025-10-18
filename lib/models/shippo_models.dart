@@ -152,12 +152,14 @@ class ShippoShipmentResponse {
   final String objectState;
   final List<ShippoRate> rates;
   final String? status;
+  final List<ShippoMessage> messages;
 
   ShippoShipmentResponse({
     required this.objectId,
     required this.objectState,
     required this.rates,
     this.status,
+    this.messages = const [],
   });
 
   factory ShippoShipmentResponse.fromJson(Map<String, dynamic> json) {
@@ -170,6 +172,28 @@ class ShippoShipmentResponse {
               .toList() ??
           [],
       status: json['status'] as String?,
+      messages:
+          (json['messages'] as List<dynamic>?)
+              ?.map((m) => ShippoMessage.fromJson(m as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
+}
+
+/// Shippo message model for errors and warnings
+class ShippoMessage {
+  final String text;
+  final String? code;
+  final String? source;
+
+  ShippoMessage({required this.text, this.code, this.source});
+
+  factory ShippoMessage.fromJson(Map<String, dynamic> json) {
+    return ShippoMessage(
+      text: json['text'] as String? ?? json['message'] as String? ?? '',
+      code: json['code'] as String?,
+      source: json['source'] as String?,
     );
   }
 }

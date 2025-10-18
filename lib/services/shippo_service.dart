@@ -102,6 +102,18 @@ class ShippoService {
         );
       }
 
+      // If no rates returned, log warning with shipment status
+      if (shipmentResponse.rates.isEmpty) {
+        _logger.w('No rates returned from Shippo API!');
+        _logger.w('Shipment status: ${shipmentResponse.status}');
+        if (shipmentResponse.messages.isNotEmpty) {
+          _logger.w('Messages from Shippo:');
+          for (final msg in shipmentResponse.messages) {
+            _logger.w('  - ${msg.text} (${msg.code})');
+          }
+        }
+      }
+
       return shipmentResponse.rates;
     } on DioException catch (e) {
       _logger.e('Shippo API error', error: e);
@@ -119,6 +131,10 @@ class ShippoService {
     final parcels = <ShippoParcel>[];
 
     for (final carton in cartons) {
+      _logger.d(
+        'Converting carton: ${carton.lengthCm}x${carton.widthCm}x${carton.heightCm}cm, ${carton.weightKg}kg, qty=${carton.qty}',
+      );
+
       // Create parcels based on quantity
       for (int i = 0; i < carton.qty; i++) {
         parcels.add(
@@ -133,6 +149,10 @@ class ShippoService {
         );
       }
     }
+
+    _logger.i(
+      'Created ${parcels.length} parcels from ${cartons.length} carton entries',
+    );
 
     return parcels;
   }
