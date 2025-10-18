@@ -311,9 +311,47 @@ void main() {
     });
   });
 
+  group('Database Schema v5', () {
+    test('settings table works correctly', () async {
+      // Insert a setting
+      await database.saveSetting('test_key', 'test_value');
+
+      // Retrieve the setting
+      final value = await database.getSetting('test_key');
+      expect(value, 'test_value');
+    });
+
+    test('settings table supports updates', () async {
+      // Insert initial value
+      await database.saveSetting('theme_mode', 'light');
+      expect(await database.getSetting('theme_mode'), 'light');
+
+      // Update the value
+      await database.saveSetting('theme_mode', 'dark');
+      expect(await database.getSetting('theme_mode'), 'dark');
+    });
+
+    test('settings table returns null for non-existent key', () async {
+      final value = await database.getSetting('non_existent_key');
+      expect(value, null);
+    });
+
+    test('settings table stores theme preferences', () async {
+      // Store theme preferences
+      await database.saveSetting('theme_mode', 'system');
+      await database.saveSetting('light_theme_scheme', 'Material');
+      await database.saveSetting('dark_theme_scheme', 'Grey Law');
+
+      // Retrieve theme preferences
+      expect(await database.getSetting('theme_mode'), 'system');
+      expect(await database.getSetting('light_theme_scheme'), 'Material');
+      expect(await database.getSetting('dark_theme_scheme'), 'Grey Law');
+    });
+  });
+
   group('Schema Version', () {
-    test('database is at version 4', () {
-      expect(database.schemaVersion, 4);
+    test('database is at version 5', () {
+      expect(database.schemaVersion, 5);
     });
   });
 }

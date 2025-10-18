@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:bockaire/get_it.dart';
 import 'package:bockaire/utils/router.dart';
-import 'package:bockaire/themes/theme.dart';
+import 'package:bockaire/providers/theme_providers.dart';
 import 'package:bockaire/database/seeder.dart';
 
 void main() async {
@@ -21,15 +21,20 @@ void main() async {
   runApp(const ProviderScope(child: BockaireApp()));
 }
 
-class BockaireApp extends StatelessWidget {
+class BockaireApp extends ConsumerWidget {
   const BockaireApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lightTheme = ref.watch(lightThemeProvider);
+    final darkTheme = ref.watch(darkThemeProvider);
+    final themeMode = ref.watch(themeModeProvider);
+
     return MaterialApp.router(
       title: 'Bockaire - Shipping Optimizer',
-      theme: createAppTheme(brightness: Brightness.light),
-      darkTheme: createAppTheme(brightness: Brightness.dark),
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: themeMode,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );
