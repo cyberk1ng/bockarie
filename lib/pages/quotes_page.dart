@@ -39,6 +39,24 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
   QuoteSortOption _sortOption = QuoteSortOption.priceLowHigh;
   bool _groupByTransportMethod = false;
 
+  String _getLocalizedTransportMethodName(TransportMethod method) {
+    final localizations = AppLocalizations.of(context)!;
+    switch (method) {
+      case TransportMethod.expressAir:
+        return localizations.transportExpressAir;
+      case TransportMethod.standardAir:
+        return localizations.transportStandardAir;
+      case TransportMethod.airFreight:
+        return localizations.transportAirFreight;
+      case TransportMethod.seaFreightLCL:
+        return localizations.transportSeaFreightLCL;
+      case TransportMethod.seaFreightFCL:
+        return localizations.transportSeaFreightFCL;
+      case TransportMethod.roadFreight:
+        return localizations.transportRoadFreight;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
@@ -186,6 +204,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                 PopupMenuItem(
                   value: QuoteSortOption.priceLowHigh,
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.attach_money_rounded,
@@ -193,7 +212,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                         color: context.colorScheme.onSurface,
                       ),
                       const SizedBox(width: 12),
-                      Text(localizations.sortPriceLowHigh),
+                      Flexible(child: Text(localizations.sortPriceLowHigh)),
                       if (_sortOption == QuoteSortOption.priceLowHigh)
                         const Padding(
                           padding: EdgeInsets.only(left: 8),
@@ -205,6 +224,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                 PopupMenuItem(
                   value: QuoteSortOption.priceHighLow,
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.attach_money_rounded,
@@ -212,7 +232,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                         color: context.colorScheme.onSurface,
                       ),
                       const SizedBox(width: 12),
-                      Text(localizations.sortPriceHighLow),
+                      Flexible(child: Text(localizations.sortPriceHighLow)),
                       if (_sortOption == QuoteSortOption.priceHighLow)
                         const Padding(
                           padding: EdgeInsets.only(left: 8),
@@ -224,6 +244,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                 PopupMenuItem(
                   value: QuoteSortOption.speedFastest,
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.speed_rounded,
@@ -231,7 +252,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                         color: context.colorScheme.onSurface,
                       ),
                       const SizedBox(width: 12),
-                      Text(localizations.sortSpeedFastest),
+                      Flexible(child: Text(localizations.sortSpeedFastest)),
                       if (_sortOption == QuoteSortOption.speedFastest)
                         const Padding(
                           padding: EdgeInsets.only(left: 8),
@@ -243,6 +264,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                 PopupMenuItem(
                   value: QuoteSortOption.speedSlowest,
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.schedule_rounded,
@@ -250,7 +272,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                         color: context.colorScheme.onSurface,
                       ),
                       const SizedBox(width: 12),
-                      Text(localizations.sortSpeedSlowest),
+                      Flexible(child: Text(localizations.sortSpeedSlowest)),
                       if (_sortOption == QuoteSortOption.speedSlowest)
                         const Padding(
                           padding: EdgeInsets.only(left: 8),
@@ -300,7 +322,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                         children: [
                           Text(info.icon),
                           const SizedBox(width: 6),
-                          Text(info.displayName),
+                          Text(_getLocalizedTransportMethodName(method)),
                         ],
                       ),
                       selected: isSelected,
@@ -449,6 +471,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
     required List<Quote> quotes,
     required String cheapestId,
   }) {
+    final localizations = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -475,7 +498,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      info.displayName,
+                      _getLocalizedTransportMethodName(method),
                       style: context.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -483,7 +506,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${info.description} • ${info.minDays}-${info.maxDays} days',
+                      '${info.description} • ${localizations.etaDays(info.minDays, info.maxDays)}',
                       style: context.textTheme.bodySmall?.copyWith(
                         color: Colors.white.withValues(
                           alpha: ColorConstants.alphaVeryHigh,
@@ -1337,6 +1360,24 @@ class _QuoteCard extends ConsumerStatefulWidget {
 class _QuoteCardState extends ConsumerState<_QuoteCard> {
   bool _isExpanded = false;
 
+  String _getLocalizedTransportMethodName(TransportMethod method) {
+    final localizations = AppLocalizations.of(context)!;
+    switch (method) {
+      case TransportMethod.expressAir:
+        return localizations.transportExpressAir;
+      case TransportMethod.standardAir:
+        return localizations.transportStandardAir;
+      case TransportMethod.airFreight:
+        return localizations.transportAirFreight;
+      case TransportMethod.seaFreightLCL:
+        return localizations.transportSeaFreightLCL;
+      case TransportMethod.seaFreightFCL:
+        return localizations.transportSeaFreightFCL;
+      case TransportMethod.roadFreight:
+        return localizations.transportRoadFreight;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
@@ -1405,7 +1446,7 @@ class _QuoteCardState extends ConsumerState<_QuoteCard> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${quote.etaMin}-${quote.etaMax} days',
+                          localizations.etaDays(quote.etaMin, quote.etaMax),
                           style: context.textTheme.bodySmall?.copyWith(
                             color: context.colorScheme.onSurfaceVariant,
                           ),
@@ -1563,13 +1604,12 @@ class _QuoteCardState extends ConsumerState<_QuoteCard> {
 
     // Default if not found
     methodInfo ??= transportMethods[TransportMethod.standardAir]!;
+    transportMethod ??= TransportMethod.standardAir;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: _getTransportMethodColor(
-          transportMethod ?? TransportMethod.standardAir,
-        ),
+        color: _getTransportMethodColor(transportMethod),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -1578,7 +1618,7 @@ class _QuoteCardState extends ConsumerState<_QuoteCard> {
           Text(methodInfo.icon, style: const TextStyle(fontSize: 12)),
           const SizedBox(width: 4),
           Text(
-            methodInfo.displayName,
+            _getLocalizedTransportMethodName(transportMethod),
             style: context.textTheme.labelSmall?.copyWith(
               fontWeight: FontWeight.bold,
               color: Colors.white,
