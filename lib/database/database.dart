@@ -100,7 +100,17 @@ class CompanyInfo extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [Shipments, Cartons, RateTables, Quotes, CompanyInfo])
+class Settings extends Table {
+  TextColumn get key => text()();
+  TextColumn get value => text()();
+
+  @override
+  Set<Column> get primaryKey => {key};
+}
+
+@DriftDatabase(
+  tables: [Shipments, Cartons, RateTables, Quotes, CompanyInfo, Settings],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -108,7 +118,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -141,6 +151,11 @@ class AppDatabase extends _$AppDatabase {
         // Add transportMethod column to Quotes table
         await m.addColumn(quotes, quotes.transportMethod);
       }
+      if (from < 5) {
+        // Migration from version 4 to 5
+        // Create Settings table for theme preferences
+        await m.createTable(settings);
+      }
     },
   );
 
@@ -150,5 +165,18 @@ class AppDatabase extends _$AppDatabase {
       final file = File(p.join(dbFolder.path, 'bockaire.sqlite'));
       return NativeDatabase(file);
     });
+  }
+
+  // Settings DAO methods
+  Future<String?> getSetting(String key) async {
+    final query = select(settings)..where((s) => s.key.equals(key));
+    final result = await query.getSingleOrNull();
+    return result?.value;
+  }
+
+  Future<void> saveSetting(String key, String value) async {
+    await into(
+      settings,
+    ).insertOnConflictUpdate(SettingsCompanion.insert(key: key, value: value));
   }
 }
