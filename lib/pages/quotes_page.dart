@@ -14,6 +14,11 @@ import 'package:bockaire/providers/shipment_providers.dart';
 import 'package:bockaire/models/transport_method.dart';
 import 'package:bockaire/utils/duration_parser.dart';
 import 'package:bockaire/get_it.dart';
+import 'package:bockaire/config/route_constants.dart';
+import 'package:bockaire/config/validation_constants.dart';
+import 'package:bockaire/config/color_constants.dart';
+import 'package:bockaire/config/ui_constants.dart';
+import 'package:bockaire/config/ui_strings.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart' as drift;
@@ -49,12 +54,12 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
           onPressed: () => Navigator.of(context).pop(),
           tooltip: 'Back',
         ),
-        title: const Text('Shipping Quotes'),
+        title: const Text(UIStrings.titleShippingQuotes),
         actions: [
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
             onPressed: () => _exportPDF(context, ref),
-            tooltip: 'Export PDF',
+            tooltip: UIStrings.actionExportPdf,
           ),
         ],
       ),
@@ -112,9 +117,10 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/optimizer/${widget.shipmentId}'),
+        onPressed: () =>
+            context.push(RouteConstants.optimizerWithId(widget.shipmentId)),
         icon: const Icon(Icons.tune),
-        label: const Text('Optimize Packing'),
+        label: const Text(UIStrings.actionOptimizePacking),
       ),
     );
   }
@@ -143,7 +149,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
         Row(
           children: [
             Text(
-              'Available Quotes',
+              UIStrings.titleAvailableQuotes,
               style: context.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -303,10 +309,10 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                       },
                       backgroundColor: _getTransportMethodColor(
                         method,
-                      ).withValues(alpha: 0.1),
+                      ).withValues(alpha: ColorConstants.alphaLightest),
                       selectedColor: _getTransportMethodColor(
                         method,
-                      ).withValues(alpha: 0.3),
+                      ).withValues(alpha: ColorConstants.alphaMedium),
                     ),
                   );
                 }),
@@ -450,7 +456,9 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                _getTransportMethodColor(method).withValues(alpha: 0.8),
+                _getTransportMethodColor(
+                  method,
+                ).withValues(alpha: ColorConstants.alphaHigh),
                 _getTransportMethodColor(method),
               ],
             ),
@@ -475,7 +483,9 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                     Text(
                       '${info.description} • ${info.minDays}-${info.maxDays} days',
                       style: context.textTheme.bodySmall?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.9),
+                        color: Colors.white.withValues(
+                          alpha: ColorConstants.alphaVeryHigh,
+                        ),
                       ),
                     ),
                   ],
@@ -487,7 +497,9 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Colors.white.withValues(
+                    alpha: ColorConstants.alphaLight,
+                  ),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
@@ -507,7 +519,9 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
         Container(
           decoration: BoxDecoration(
             border: Border.all(
-              color: _getTransportMethodColor(method).withValues(alpha: 0.3),
+              color: _getTransportMethodColor(
+                method,
+              ).withValues(alpha: ColorConstants.alphaMedium),
             ),
             borderRadius: const BorderRadius.vertical(
               bottom: Radius.circular(12),
@@ -523,7 +537,9 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                       ? Border(
                           bottom: BorderSide(
                             color: context.colorScheme.outlineVariant
-                                .withValues(alpha: 0.5),
+                                .withValues(
+                                  alpha: ColorConstants.alphaMediumHigh,
+                                ),
                           ),
                         )
                       : null,
@@ -547,16 +563,16 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
   Color _getTransportMethodColor(TransportMethod method) {
     switch (method) {
       case TransportMethod.expressAir:
-        return Colors.purple;
+        return ColorConstants.transportExpressAir;
       case TransportMethod.standardAir:
-        return Colors.blue;
+        return ColorConstants.transportStandardAir;
       case TransportMethod.airFreight:
-        return Colors.teal;
+        return ColorConstants.transportAirFreight;
       case TransportMethod.seaFreightLCL:
       case TransportMethod.seaFreightFCL:
-        return Colors.indigo;
+        return ColorConstants.transportSeaFreight;
       case TransportMethod.roadFreight:
-        return Colors.orange;
+        return ColorConstants.transportRoadFreight;
     }
   }
 
@@ -582,7 +598,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
               ),
               const SizedBox(width: 8),
               Text(
-                'Shipment Details',
+                UIStrings.titleShipmentDetails,
                 style: context.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -619,7 +635,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                         Row(
                           children: [
                             Text(
-                              'From',
+                              UIStrings.labelFrom,
                               style: context.textTheme.bodySmall?.copyWith(
                                 color: context.colorScheme.onSurfaceVariant,
                               ),
@@ -673,7 +689,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                         Row(
                           children: [
                             Text(
-                              'To',
+                              UIStrings.labelTo,
                               style: context.textTheme.bodySmall?.copyWith(
                                 color: context.colorScheme.onSurfaceVariant,
                               ),
@@ -709,7 +725,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
               _buildClickableStat(
                 context,
                 icon: Icons.inventory_2_outlined,
-                label: 'Cartons',
+                label: UIStrings.labelCartons,
                 value: '${totals.cartonCount}',
                 onTap: () async {
                   final navContext = context;
@@ -729,7 +745,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
               _buildStat(
                 context,
                 icon: Icons.scale_outlined,
-                label: 'Weight',
+                label: UIStrings.labelWeight,
                 value: '${totals.chargeableKg.toStringAsFixed(1)} kg',
               ),
               if (totals.isOversized)
@@ -911,14 +927,18 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                         SnackBar(
                           content: Text(
                             newQuotes.isNotEmpty
-                                ? 'Address updated! ${newQuotes.length} quotes generated.'
+                                ? UIStrings.successAddressUpdated(
+                                    newQuotes.length,
+                                  )
                                 : 'Address updated! No quotes available - configure Shippo carrier accounts for real rates.',
                           ),
                           backgroundColor: newQuotes.isNotEmpty
                               ? Colors.green
                               : Colors.orange,
                           duration: Duration(
-                            seconds: newQuotes.isEmpty ? 5 : 3,
+                            seconds: newQuotes.isEmpty
+                                ? UIConstants.snackBarDurationLong
+                                : UIConstants.snackBarDurationMedium,
                           ),
                         ),
                       );
@@ -926,7 +946,11 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                   } catch (e) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error updating address: $e')),
+                        SnackBar(
+                          content: Text(
+                            '${UIStrings.errorUpdatingAddress}: $e',
+                          ),
+                        ),
                       );
                     }
                   }
@@ -1054,7 +1078,9 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           border: Border.all(
-            color: context.colorScheme.primary.withValues(alpha: 0.3),
+            color: context.colorScheme.primary.withValues(
+              alpha: ColorConstants.alphaMedium,
+            ),
           ),
           borderRadius: BorderRadius.circular(8),
         ),
@@ -1149,9 +1175,15 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.blue.withValues(alpha: 0.1),
+                color: Colors.blue.withValues(
+                  alpha: ColorConstants.alphaLightest,
+                ),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: Colors.blue.withValues(
+                    alpha: ColorConstants.alphaMedium,
+                  ),
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1261,14 +1293,14 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('PDF exported successfully')),
+          const SnackBar(content: Text(UIStrings.successPdfExported)),
         );
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error exporting PDF: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${UIStrings.errorExportingPdf}: $e')),
+        );
       }
     }
   }
@@ -1325,21 +1357,21 @@ class _QuoteCardState extends State<_QuoteCard> {
                             context,
                             icon: Icons.star,
                             label: 'CHEAPEST',
-                            color: Colors.green,
+                            color: ColorConstants.badgeCheapest,
                           ),
                         if (widget.isFastest)
                           _buildBadge(
                             context,
                             icon: Icons.bolt,
                             label: 'FASTEST',
-                            color: Colors.orange,
+                            color: ColorConstants.badgeFastest,
                           ),
                         if (widget.isCheapestInCategory && !widget.isCheapest)
                           _buildBadge(
                             context,
                             icon: Icons.star_half,
                             label: 'BEST IN CATEGORY',
-                            color: Colors.blue,
+                            color: ColorConstants.badgeBest,
                           ),
                         if (widget.showTransportChip)
                           _buildTransportMethodChip(context, quote),
@@ -1468,9 +1500,11 @@ class _QuoteCardState extends State<_QuoteCard> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
+        color: color.withValues(alpha: ColorConstants.alphaLightest),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        border: Border.all(
+          color: color.withValues(alpha: ColorConstants.alphaMedium),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1539,16 +1573,16 @@ class _QuoteCardState extends State<_QuoteCard> {
   Color _getTransportMethodColor(TransportMethod method) {
     switch (method) {
       case TransportMethod.expressAir:
-        return Colors.purple;
+        return ColorConstants.transportExpressAir;
       case TransportMethod.standardAir:
-        return Colors.blue;
+        return ColorConstants.transportStandardAir;
       case TransportMethod.airFreight:
-        return Colors.teal;
+        return ColorConstants.transportAirFreight;
       case TransportMethod.seaFreightLCL:
       case TransportMethod.seaFreightFCL:
-        return Colors.indigo;
+        return ColorConstants.transportSeaFreight;
       case TransportMethod.roadFreight:
-        return Colors.orange;
+        return ColorConstants.transportRoadFreight;
     }
   }
 
@@ -1617,7 +1651,7 @@ class _QuoteCardState extends State<_QuoteCard> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Booking feature coming soon!'),
-          duration: Duration(seconds: 2),
+          duration: Duration(seconds: UIConstants.snackBarDurationShort),
         ),
       );
     }
@@ -1813,7 +1847,7 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error recalculating quotes: $e'),
+            content: Text('${UIStrings.errorRecalculating}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -1844,7 +1878,7 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
 
     final result = await ModalUtils.showSinglePageModal<bool>(
       context: context,
-      title: 'Updated Quotes',
+      title: UIStrings.titleQuoteComparison,
       showCloseButton: true,
       barrierDismissible: true,
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
@@ -1878,17 +1912,29 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: savings > 0
-                      ? Colors.green.withValues(alpha: 0.1)
+                      ? Colors.green.withValues(
+                          alpha: ColorConstants.alphaLightest,
+                        )
                       : savings < 0
-                      ? Colors.red.withValues(alpha: 0.1)
-                      : Colors.grey.withValues(alpha: 0.1),
+                      ? Colors.red.withValues(
+                          alpha: ColorConstants.alphaLightest,
+                        )
+                      : Colors.grey.withValues(
+                          alpha: ColorConstants.alphaLightest,
+                        ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: savings > 0
-                        ? Colors.green.withValues(alpha: 0.3)
+                        ? Colors.green.withValues(
+                            alpha: ColorConstants.alphaMedium,
+                          )
                         : savings < 0
-                        ? Colors.red.withValues(alpha: 0.3)
-                        : Colors.grey.withValues(alpha: 0.3),
+                        ? Colors.red.withValues(
+                            alpha: ColorConstants.alphaMedium,
+                          )
+                        : Colors.grey.withValues(
+                            alpha: ColorConstants.alphaMedium,
+                          ),
                   ),
                 ),
                 child: Column(
@@ -1943,10 +1989,14 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
+                  color: Colors.orange.withValues(
+                    alpha: ColorConstants.alphaLightest,
+                  ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Colors.orange.withValues(alpha: 0.3),
+                    color: Colors.orange.withValues(
+                      alpha: ColorConstants.alphaMedium,
+                    ),
                     width: 2,
                   ),
                 ),
@@ -1967,11 +2017,7 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                     ),
                     const SizedBox(height: 12),
                     const Text(
-                      'Shippo test API keys don\'t support this shipping route.\n\n'
-                      'Test carrier accounts typically only work for US domestic or China-to-US routes.\n\n'
-                      'To get real rates for this route, you need to:\n'
-                      '• Switch to live Shippo API keys\n'
-                      '• Connect real carrier accounts (UPS, DHL, FedEx, etc.)',
+                      UIStrings.errorShippoTestLimitation,
                       style: TextStyle(fontSize: 14),
                       textAlign: TextAlign.center,
                     ),
@@ -1979,7 +2025,9 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.blue.withValues(alpha: 0.1),
+                        color: Colors.blue.withValues(
+                          alpha: ColorConstants.alphaLightest,
+                        ),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Column(
@@ -2022,7 +2070,9 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: Colors.grey.withValues(alpha: 0.3),
+                      color: Colors.grey.withValues(
+                        alpha: ColorConstants.alphaMedium,
+                      ),
                     ),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -2132,7 +2182,7 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Changes saved! Quotes updated.'),
+            content: Text(UIStrings.successChangesSaved),
             backgroundColor: Colors.green,
           ),
         );
@@ -2141,7 +2191,7 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error saving changes: $e'),
+            content: Text('${UIStrings.errorSavingChanges}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -2285,9 +2335,15 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.orange.withValues(alpha: 0.1),
+                color: Colors.orange.withValues(
+                  alpha: ColorConstants.alphaLightest,
+                ),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: Colors.orange.withValues(
+                    alpha: ColorConstants.alphaMedium,
+                  ),
+                ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -2364,7 +2420,8 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final newValue = double.tryParse(value);
-                    if (newValue != null && newValue > 0) {
+                    if (newValue != null &&
+                        newValue >= ValidationConstants.minDimensionCm) {
                       setState(() {
                         _editedCartons[index].lengthCm = newValue;
                       });
@@ -2389,7 +2446,8 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final newValue = double.tryParse(value);
-                    if (newValue != null && newValue > 0) {
+                    if (newValue != null &&
+                        newValue >= ValidationConstants.minDimensionCm) {
                       setState(() {
                         _editedCartons[index].widthCm = newValue;
                       });
@@ -2414,7 +2472,8 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final newValue = double.tryParse(value);
-                    if (newValue != null && newValue > 0) {
+                    if (newValue != null &&
+                        newValue >= ValidationConstants.minDimensionCm) {
                       setState(() {
                         _editedCartons[index].heightCm = newValue;
                       });
@@ -2447,7 +2506,8 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final newValue = double.tryParse(value);
-                    if (newValue != null && newValue > 0) {
+                    if (newValue != null &&
+                        newValue >= ValidationConstants.minWeightKg) {
                       setState(() {
                         _editedCartons[index].weightKg = newValue;
                       });
@@ -2472,7 +2532,8 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final newValue = int.tryParse(value);
-                    if (newValue != null && newValue > 0) {
+                    if (newValue != null &&
+                        newValue >= ValidationConstants.minQuantity) {
                       setState(() {
                         _editedCartons[index].qty = newValue;
                       });

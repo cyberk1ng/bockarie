@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:bockaire/config/shipping_constants.dart';
 
 class Carton extends Equatable {
   final String id;
@@ -22,7 +23,9 @@ class Carton extends Equatable {
   });
 
   /// Calculate dimensional weight: (L×W×H)/5000
-  double get dimensionalWeight => (lengthCm * widthCm * heightCm) / 5000;
+  double get dimensionalWeight =>
+      (lengthCm * widthCm * heightCm) /
+      ShippingConstants.dimensionalWeightDivisor;
 
   /// Chargeable weight per carton: max(actual, dimensional)
   double get chargeableWeight {
@@ -36,7 +39,7 @@ class Carton extends Equatable {
   double get totalChargeableWeight => chargeableWeight * qty;
 
   /// Check if carton is oversize (length > 60cm)
-  bool get isOversize => lengthCm > 60;
+  bool get isOversize => lengthCm > ShippingConstants.oversizeThresholdCm;
 
   /// Total volume in cubic cm
   double get volumeCm3 => lengthCm * widthCm * heightCm * qty;

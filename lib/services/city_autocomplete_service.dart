@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
+import 'package:bockaire/config/api_constants.dart';
+import 'package:bockaire/config/ui_strings.dart';
 
 /// Interface for city autocomplete providers
 abstract class CityAutocompleteProvider {
@@ -8,9 +10,6 @@ abstract class CityAutocompleteProvider {
 
 /// Nominatim/OpenStreetMap implementation
 class NominatimCityProvider implements CityAutocompleteProvider {
-  static const String baseUrl = 'https://nominatim.openstreetmap.org';
-  static const String userAgent = 'Bockaire-Shipping-App/1.0';
-
   final Dio _dio;
 
   NominatimCityProvider({Dio? dio})
@@ -18,10 +17,14 @@ class NominatimCityProvider implements CityAutocompleteProvider {
           dio ??
           Dio(
             BaseOptions(
-              baseUrl: baseUrl,
-              headers: {'User-Agent': userAgent},
-              connectTimeout: const Duration(seconds: 10),
-              receiveTimeout: const Duration(seconds: 10),
+              baseUrl: ApiConstants.nominatimBaseUrl,
+              headers: {'User-Agent': ApiConstants.nominatimUserAgent},
+              connectTimeout: Duration(
+                seconds: ApiConstants.nominatimTimeoutSeconds,
+              ),
+              receiveTimeout: Duration(
+                seconds: ApiConstants.nominatimTimeoutSeconds,
+              ),
             ),
           );
 
@@ -43,7 +46,7 @@ class NominatimCityProvider implements CityAutocompleteProvider {
         queryParameters: {
           'q': query,
           'format': 'json',
-          'limit': '20',
+          'limit': ApiConstants.nominatimSearchLimit.toString(),
           // Removed country restriction - search all countries
           'addressdetails': '1',
           'accept-language': 'en',
@@ -66,7 +69,7 @@ class NominatimCityProvider implements CityAutocompleteProvider {
               return cityLower.contains(queryLower);
             })
             .toSet() // Remove duplicates
-            .take(8)
+            .take(ApiConstants.cityAutocompleteMaxResults)
             .toList();
 
         // Sort: exact matches first, then startsWith, then contains
@@ -91,7 +94,7 @@ class NominatimCityProvider implements CityAutocompleteProvider {
         throw Exception('Failed to search cities: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('City search error: $e');
+      throw Exception('${UIStrings.errorCitySearch}: $e');
     }
   }
 

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import 'package:bockaire/config/shippo_config.dart';
+import 'package:bockaire/config/ui_strings.dart';
 import 'package:bockaire/models/shippo_models.dart';
 import 'package:bockaire/database/database.dart';
 
@@ -163,9 +164,7 @@ class ShippoService {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return ShippoServiceException(
-          'Request timeout. Please check your internet connection.',
-        );
+        return ShippoServiceException(UIStrings.errorRequestTimeout);
 
       case DioExceptionType.badResponse:
         final statusCode = e.response?.statusCode;
