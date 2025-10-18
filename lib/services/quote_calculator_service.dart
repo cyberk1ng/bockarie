@@ -42,6 +42,7 @@ class QuoteCalculatorService {
       total: total,
       chargeableKg: chargeableKg,
       notes: rate.notes,
+      source: 'local',
     );
   }
 
@@ -59,6 +60,7 @@ class QuoteCalculatorService {
     String? destState,
     List<Carton>? cartons,
     bool useShippoApi = true,
+    bool fallbackToLocalRates = false, // Changed default to false
   }) async {
     // If we have all the required information and should use Shippo API, get real rates
     if (useShippoApi &&
@@ -85,34 +87,61 @@ class QuoteCalculatorService {
 
         _logger.i('Received ${shippoRates.length} rates from Shippo');
 
-        // Convert Shippo rates to ShippingQuote objects
-        return shippoRates.map((rate) {
-          final priceEur = rate.toPriceEur(ShippoConfig.usdToEurRate);
+        // If we got rates, convert and return them
+        if (shippoRates.isNotEmpty) {
+          return shippoRates.map((rate) {
+            final priceEur = rate.toPriceEur(ShippoConfig.usdToEurRate);
 
-          return ShippingQuote(
-            carrier: rate.provider,
-            service: rate.servicelevel.name,
-            subtotal: priceEur,
-            fuelSurcharge: 0.0, // Shippo includes this in the total
-            oversizeFee: 0.0, // Shippo includes this in the total
-            total: priceEur,
-            chargeableKg: chargeableKg,
-            notes: rate.estimatedDays != null
-                ? 'ETA: ${rate.estimatedDays} days'
-                : null,
-            estimatedDays: rate.estimatedDays,
-            durationTerms: rate.durationTerms,
+            return ShippingQuote(
+              carrier: rate.provider,
+              service: rate.servicelevel.name,
+              subtotal: priceEur,
+              fuelSurcharge: 0.0, // Shippo includes this in the total
+              oversizeFee: 0.0, // Shippo includes this in the total
+              total: priceEur,
+              chargeableKg: chargeableKg,
+              notes: rate.estimatedDays != null
+                  ? 'ETA: ${rate.estimatedDays} days'
+                  : null,
+              estimatedDays: rate.estimatedDays,
+              durationTerms: rate.durationTerms,
+              source: 'shippo',
+            );
+          }).toList();
+        } else {
+          // No rates from Shippo
+          _logger.w('Shippo returned 0 rates');
+          if (!fallbackToLocalRates) {
+            _logger.i(
+              'Not falling back to local rates (fallbackToLocalRates=false)',
+            );
+            return []; // Return empty list instead of falling back
+          }
+          _logger.w(
+            'Falling back to local rate tables (fallbackToLocalRates=true)',
           );
-        }).toList();
+        }
       } catch (e) {
         _logger.e('Error fetching rates from Shippo', error: e);
-        _logger.w('Falling back to local rate tables');
+        if (!fallbackToLocalRates) {
+          _logger.i(
+            'Not falling back to local rates due to error (fallbackToLocalRates=false)',
+          );
+          return []; // Return empty list instead of falling back
+        }
+        _logger.w('Falling back to local rate tables due to error');
         // Fall back to local rate tables if Shippo fails
       }
     }
 
+    // Only use local rate tables if explicitly requested
+    if (!fallbackToLocalRates) {
+      _logger.i('Skipping local rate tables (fallbackToLocalRates=false)');
+      return [];
+    }
+
     // Fall back to local rate tables
-    _logger.i('Using local rate tables');
+    _logger.i('Using local rate tables (fallbackToLocalRates=true)');
     final rates = await _database.select(_database.rateTables).get();
 
     return rates.map((rateRow) {
@@ -176,6 +205,7 @@ class ShippingQuote {
   final String? notes;
   final int? estimatedDays;
   final String? durationTerms;
+  final String source; // 'shippo' or 'local'
 
   const ShippingQuote({
     required this.carrier,
@@ -188,6 +218,7 @@ class ShippingQuote {
     this.notes,
     this.estimatedDays,
     this.durationTerms,
+    this.source = 'local',
   });
 
   String get displayName => '$carrier $service';

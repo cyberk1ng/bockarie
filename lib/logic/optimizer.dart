@@ -114,9 +114,13 @@ class PackOptimizer {
 
         // Try smallest standard size first, then larger if needed
         final selectedSize = _selectStandardSize(currentVolume + itemVolume);
+        final selectedSizeVolume =
+            selectedSize['length']! *
+            selectedSize['width']! *
+            selectedSize['height']!;
 
         if (currentWeight + itemWeight <= maxWeightPerCartonKg &&
-            currentVolume + itemVolume <= selectedSize['volume']!) {
+            currentVolume + itemVolume <= selectedSizeVolume) {
           // Add to current carton
           currentCarton.add(item);
           currentWeight += itemWeight;
@@ -168,10 +172,11 @@ class PackOptimizer {
       (sum, carton) => sum + carton.chargeableWeight,
     );
 
-    final volumeSavingsPct =
-        ((originalVolume - optimizedVolume) / originalVolume * 100)
-            .clamp(0, 100)
-            .toDouble();
+    final volumeSavingsPct = originalVolume > 0
+        ? ((originalVolume - optimizedVolume) / originalVolume * 100)
+              .clamp(0, 100)
+              .toDouble()
+        : 0.0;
 
     return OptimizationResult(
       optimizedCartons: optimizedCartons,

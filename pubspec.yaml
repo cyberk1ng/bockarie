@@ -2,7 +2,7 @@ name: bockaire
 description: "Shipping Optimizer - Smart China to Germany shipment planning"
 publish_to: 'none'
 
-version: 0.3.1+4
+version: 0.4.1+5
 
 environment:
   sdk: ^3.9.2
@@ -57,12 +57,13 @@ dev_dependencies:
 
   # Code Generation
   drift_dev: ^2.20.3
-  build_runner: ^2.4.13
+  build_runner: ^2.5.4
   riverpod_generator: ^2.6.1
   riverpod_lint: ^2.6.2
 
   # Testing
   mocktail: ^1.0.4
+  mockito: ^5.4.6
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
