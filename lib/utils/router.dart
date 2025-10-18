@@ -4,31 +4,35 @@ import 'package:bockaire/pages/new_shipment_page.dart';
 import 'package:bockaire/pages/optimizer_page.dart';
 import 'package:bockaire/pages/quotes_page.dart';
 import 'package:bockaire/pages/settings_page.dart';
+import 'package:bockaire/config/route_constants.dart';
 
 final router = GoRouter(
-  initialLocation: '/',
+  initialLocation: RouteConstants.home,
   routes: [
-    GoRoute(path: '/', builder: (context, state) => const HomePage()),
     GoRoute(
-      path: '/new-shipment',
+      path: RouteConstants.home,
+      builder: (context, state) => const HomePage(),
+    ),
+    GoRoute(
+      path: RouteConstants.newShipment,
       builder: (context, state) => const NewShipmentPage(),
     ),
     GoRoute(
-      path: '/optimizer/:shipmentId',
+      path: RouteConstants.optimizer,
       builder: (context, state) {
         final shipmentId = state.pathParameters['shipmentId']!;
         return OptimizerPage(shipmentId: shipmentId);
       },
     ),
     GoRoute(
-      path: '/quotes/:shipmentId',
+      path: RouteConstants.quotes,
       builder: (context, state) {
         final shipmentId = state.pathParameters['shipmentId']!;
         return QuotesPage(shipmentId: shipmentId);
       },
     ),
     GoRoute(
-      path: '/settings',
+      path: RouteConstants.settings,
       builder: (context, state) => const SettingsPage(),
     ),
   ],

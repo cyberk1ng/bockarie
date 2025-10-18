@@ -1,4 +1,5 @@
 import 'package:bockaire/classes/carton.dart';
+import 'package:bockaire/config/shipping_constants.dart';
 
 class OptimizedCarton {
   final double lengthCm;
@@ -17,7 +18,9 @@ class OptimizedCarton {
 
   double get volumeCm3 => lengthCm * widthCm * heightCm;
 
-  double get dimensionalWeight => (lengthCm * widthCm * heightCm) / 5000;
+  double get dimensionalWeight =>
+      (lengthCm * widthCm * heightCm) /
+      ShippingConstants.dimensionalWeightDivisor;
 
   double get chargeableWeight {
     if (weightKg > dimensionalWeight) {
@@ -26,7 +29,7 @@ class OptimizedCarton {
     return dimensionalWeight;
   }
 
-  bool get isOversize => lengthCm > 60;
+  bool get isOversize => lengthCm > ShippingConstants.oversizeThresholdCm;
 }
 
 class OptimizationResult {
@@ -50,11 +53,20 @@ class OptimizationResult {
 class PackOptimizer {
   // Standard carton sizes (in cm)
   static const List<Map<String, double>> standardSizes = [
-    {'length': 50, 'width': 40, 'height': 40},
-    {'length': 60, 'width': 40, 'height': 40},
+    {
+      'length': ShippingConstants.standardCartonSmallLength,
+      'width': ShippingConstants.standardCartonSmallWidth,
+      'height': ShippingConstants.standardCartonSmallHeight,
+    },
+    {
+      'length': ShippingConstants.standardCartonLargeLength,
+      'width': ShippingConstants.standardCartonLargeWidth,
+      'height': ShippingConstants.standardCartonLargeHeight,
+    },
   ];
 
-  static const double maxWeightPerCartonKg = 24.0;
+  static const double maxWeightPerCartonKg =
+      ShippingConstants.maxCartonWeightKg;
 
   /// Optimize cartons by repacking into standard sizes
   OptimizationResult optimize(List<Carton> cartons) {

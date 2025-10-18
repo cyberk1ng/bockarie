@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:bockaire/config/database_constants.dart';
 
 part 'database.g.dart';
 
@@ -14,18 +15,18 @@ class Shipments extends Table {
   TextColumn get originCity => text()();
   TextColumn get originPostal => text()();
   TextColumn get originCountry => text().withDefault(
-    const Constant(''),
+    const Constant(DatabaseConstants.defaultEmptyString),
   )(); // ISO country code (e.g., "US", "CN", "DE")
   TextColumn get originState => text().withDefault(
-    const Constant(''),
+    const Constant(DatabaseConstants.defaultEmptyString),
   )(); // State/province for US addresses
   TextColumn get destCity => text()();
   TextColumn get destPostal => text()();
   TextColumn get destCountry => text().withDefault(
-    const Constant(''),
+    const Constant(DatabaseConstants.defaultEmptyString),
   )(); // ISO country code (e.g., "US", "CN", "DE")
   TextColumn get destState => text().withDefault(
-    const Constant(''),
+    const Constant(DatabaseConstants.defaultEmptyString),
   )(); // State/province for US addresses
   IntColumn get deadlineDays => integer().nullable()();
   TextColumn get notes => text().nullable()();
@@ -118,7 +119,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => DatabaseConstants.schemaVersion;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -162,7 +163,9 @@ class AppDatabase extends _$AppDatabase {
   static LazyDatabase _openConnection() {
     return LazyDatabase(() async {
       final dbFolder = await getApplicationDocumentsDirectory();
-      final file = File(p.join(dbFolder.path, 'bockaire.sqlite'));
+      final file = File(
+        p.join(dbFolder.path, DatabaseConstants.databaseFileName),
+      );
       return NativeDatabase(file);
     });
   }

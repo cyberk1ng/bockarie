@@ -1,3 +1,5 @@
+import 'package:bockaire/config/transport_constants.dart';
+
 enum TransportMethod {
   expressAir,
   standardAir,
@@ -31,48 +33,48 @@ const transportMethods = {
     displayName: 'Express Air',
     icon: '✈️',
     description: 'Fastest delivery, premium service',
-    minDays: 1,
-    maxDays: 3,
+    minDays: TransportConstants.expressAirMinDays,
+    maxDays: TransportConstants.expressAirMaxDays,
   ),
   TransportMethod.standardAir: TransportMethodInfo(
     type: TransportMethod.standardAir,
     displayName: 'Standard Air',
     icon: '📦',
     description: 'Fast delivery, good value',
-    minDays: 3,
-    maxDays: 7,
+    minDays: TransportConstants.standardAirMinDays,
+    maxDays: TransportConstants.standardAirMaxDays,
   ),
   TransportMethod.airFreight: TransportMethodInfo(
     type: TransportMethod.airFreight,
     displayName: 'Air Freight',
     icon: '🛫',
     description: 'Economical air shipping',
-    minDays: 7,
-    maxDays: 15,
+    minDays: TransportConstants.airFreightMinDays,
+    maxDays: TransportConstants.airFreightMaxDays,
   ),
   TransportMethod.seaFreightLCL: TransportMethodInfo(
     type: TransportMethod.seaFreightLCL,
     displayName: 'Sea Freight (LCL)',
     icon: '🚢',
     description: 'Cheapest option, shared container',
-    minDays: 25,
-    maxDays: 40,
+    minDays: TransportConstants.seaFreightMinDays,
+    maxDays: TransportConstants.seaFreightMaxDays,
   ),
   TransportMethod.seaFreightFCL: TransportMethodInfo(
     type: TransportMethod.seaFreightFCL,
     displayName: 'Sea Freight (FCL)',
     icon: '🚢',
     description: 'Full container, bulk shipping',
-    minDays: 25,
-    maxDays: 40,
+    minDays: TransportConstants.seaFreightMinDays,
+    maxDays: TransportConstants.seaFreightMaxDays,
   ),
   TransportMethod.roadFreight: TransportMethodInfo(
     type: TransportMethod.roadFreight,
     displayName: 'Road Freight',
     icon: '🚛',
     description: 'Ground transportation',
-    minDays: 1,
-    maxDays: 10,
+    minDays: TransportConstants.roadFreightMinDays,
+    maxDays: TransportConstants.roadFreightMaxDays,
   ),
 };
 
@@ -87,9 +89,10 @@ TransportMethod classifyTransportMethod(
   // Check for specific transport types BEFORE generic keywords like "express"
 
   // Sea freight (highest priority - most specific)
-  if (serviceLower.contains('ocean') ||
-      serviceLower.contains('sea') ||
-      estimatedDays > 20) {
+  if (TransportConstants.seaFreightKeywords.any(
+        (k) => serviceLower.contains(k),
+      ) ||
+      estimatedDays > TransportConstants.seaFreightThresholdDays) {
     if (serviceLower.contains('fcl') || serviceLower.contains('container')) {
       return TransportMethod.seaFreightFCL;
     }
@@ -97,30 +100,27 @@ TransportMethod classifyTransportMethod(
   }
 
   // Road freight (check before express to handle "Ground Express")
-  if (serviceLower.contains('ground') ||
-      serviceLower.contains('road') ||
-      serviceLower.contains('truck')) {
+  if (TransportConstants.roadFreightKeywords.any(
+    (k) => serviceLower.contains(k),
+  )) {
     return TransportMethod.roadFreight;
   }
 
   // Express air services (1-3 days)
-  if (serviceLower.contains('express') ||
-      serviceLower.contains('priority') ||
-      serviceLower.contains('next day') ||
-      serviceLower.contains('overnight') ||
-      serviceLower.contains('worldwide express')) {
+  if (TransportConstants.expressKeywords.any((k) => serviceLower.contains(k))) {
     return TransportMethod.expressAir;
   }
 
   // Air freight (economical)
-  if (serviceLower.contains('freight') ||
-      carrierLower.contains('forwarder') ||
-      estimatedDays > 7) {
+  if (TransportConstants.freightKeywords.any(
+        (k) => serviceLower.contains(k) || carrierLower.contains(k),
+      ) ||
+      estimatedDays > TransportConstants.airFreightThresholdDays) {
     return TransportMethod.airFreight;
   }
 
   // Standard air (default for most services)
-  if (estimatedDays <= 7) {
+  if (estimatedDays <= TransportConstants.airFreightThresholdDays) {
     return TransportMethod.standardAir;
   }
 

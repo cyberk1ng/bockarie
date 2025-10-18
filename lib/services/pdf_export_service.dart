@@ -4,6 +4,8 @@ import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
 import 'package:bockaire/services/calculation_service.dart';
 import 'package:bockaire/classes/carton.dart' as models;
+import 'package:bockaire/config/pdf_constants.dart';
+import 'package:bockaire/config/ui_strings.dart';
 
 /// Service for exporting quotes to PDF
 class PDFExportService {
@@ -22,7 +24,7 @@ class PDFExportService {
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(40),
+        margin: const pw.EdgeInsets.all(PdfConstants.pageMargin),
         build: (context) => [
           // Header
           pw.Header(
@@ -31,17 +33,17 @@ class PDFExportService {
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 pw.Text(
-                  'Shipping Quote Comparison',
+                  UIStrings.pdfTitleComparison,
                   style: pw.TextStyle(
-                    fontSize: 24,
+                    fontSize: PdfConstants.headerFontSize,
                     fontWeight: pw.FontWeight.bold,
                   ),
                 ),
-                pw.SizedBox(height: 8),
+                pw.SizedBox(height: PdfConstants.spacingSmall),
                 pw.Text(
                   'Generated: ${dateFormat.format(DateTime.now())}',
                   style: const pw.TextStyle(
-                    fontSize: 10,
+                    fontSize: PdfConstants.smallFontSize,
                     color: PdfColors.grey700,
                   ),
                 ),
@@ -49,11 +51,11 @@ class PDFExportService {
             ),
           ),
 
-          pw.SizedBox(height: 20),
+          pw.SizedBox(height: PdfConstants.spacingLarge),
 
           // Shipment Details
           pw.Container(
-            padding: const pw.EdgeInsets.all(16),
+            padding: const pw.EdgeInsets.all(PdfConstants.sectionPadding),
             decoration: pw.BoxDecoration(
               border: pw.Border.all(color: PdfColors.grey300),
               borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
@@ -62,13 +64,13 @@ class PDFExportService {
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 pw.Text(
-                  'Shipment Details',
+                  UIStrings.pdfSectionShipment,
                   style: pw.TextStyle(
-                    fontSize: 16,
+                    fontSize: PdfConstants.sectionFontSize,
                     fontWeight: pw.FontWeight.bold,
                   ),
                 ),
-                pw.SizedBox(height: 12),
+                pw.SizedBox(height: PdfConstants.spacingMedium),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
@@ -77,9 +79,9 @@ class PDFExportService {
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
                           pw.Text(
-                            'Origin',
+                            UIStrings.labelOrigin,
                             style: const pw.TextStyle(
-                              fontSize: 10,
+                              fontSize: PdfConstants.smallFontSize,
                               color: PdfColors.grey700,
                             ),
                           ),
@@ -87,22 +89,22 @@ class PDFExportService {
                           pw.Text(
                             '${shipment.originCity}, ${shipment.originPostal}',
                             style: pw.TextStyle(
-                              fontSize: 12,
+                              fontSize: PdfConstants.bodyFontSize,
                               fontWeight: pw.FontWeight.bold,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    pw.SizedBox(width: 20),
+                    pw.SizedBox(width: PdfConstants.spacingLarge),
                     pw.Expanded(
                       child: pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
                           pw.Text(
-                            'Destination',
+                            UIStrings.labelDestination,
                             style: const pw.TextStyle(
-                              fontSize: 10,
+                              fontSize: PdfConstants.smallFontSize,
                               color: PdfColors.grey700,
                             ),
                           ),
@@ -110,7 +112,7 @@ class PDFExportService {
                           pw.Text(
                             '${shipment.destCity}, ${shipment.destPostal}',
                             style: pw.TextStyle(
-                              fontSize: 12,
+                              fontSize: PdfConstants.bodyFontSize,
                               fontWeight: pw.FontWeight.bold,
                             ),
                           ),
@@ -119,15 +121,18 @@ class PDFExportService {
                     ),
                   ],
                 ),
-                pw.SizedBox(height: 12),
+                pw.SizedBox(height: PdfConstants.spacingMedium),
                 pw.Divider(color: PdfColors.grey300),
-                pw.SizedBox(height: 12),
+                pw.SizedBox(height: PdfConstants.spacingMedium),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
                   children: [
-                    _buildPdfStat('Cartons', '${totals.cartonCount}'),
                     _buildPdfStat(
-                      'Weight',
+                      UIStrings.labelCartons,
+                      '${totals.cartonCount}',
+                    ),
+                    _buildPdfStat(
+                      UIStrings.labelWeight,
                       '${totals.chargeableKg.toStringAsFixed(1)} kg',
                     ),
                     _buildPdfStat(
@@ -140,14 +145,17 @@ class PDFExportService {
             ),
           ),
 
-          pw.SizedBox(height: 24),
+          pw.SizedBox(height: PdfConstants.spacingXLarge),
 
           // Quotes Table
           pw.Text(
-            'Quote Comparison',
-            style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+            UIStrings.pdfSectionQuotes,
+            style: pw.TextStyle(
+              fontSize: PdfConstants.sectionFontSize,
+              fontWeight: pw.FontWeight.bold,
+            ),
           ),
-          pw.SizedBox(height: 12),
+          pw.SizedBox(height: PdfConstants.spacingMedium),
 
           pw.Table(
             border: pw.TableBorder.all(color: PdfColors.grey300),
@@ -196,11 +204,11 @@ class PDFExportService {
             ],
           ),
 
-          pw.SizedBox(height: 24),
+          pw.SizedBox(height: PdfConstants.spacingXLarge),
 
           // Summary
           pw.Container(
-            padding: const pw.EdgeInsets.all(16),
+            padding: const pw.EdgeInsets.all(PdfConstants.sectionPadding),
             decoration: pw.BoxDecoration(
               color: PdfColors.grey100,
               borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
@@ -209,9 +217,9 @@ class PDFExportService {
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
               children: [
                 pw.Text(
-                  'Best Option (Lowest Price)',
+                  UIStrings.pdfBestOption,
                   style: pw.TextStyle(
-                    fontSize: 12,
+                    fontSize: PdfConstants.bodyFontSize,
                     fontWeight: pw.FontWeight.bold,
                   ),
                 ),
@@ -219,7 +227,7 @@ class PDFExportService {
                   pw.Text(
                     '${quotes.first.carrier} ${quotes.first.service} - ${currency.format(quotes.first.priceEur)}',
                     style: pw.TextStyle(
-                      fontSize: 12,
+                      fontSize: PdfConstants.bodyFontSize,
                       fontWeight: pw.FontWeight.bold,
                       color: PdfColors.green700,
                     ),
@@ -228,12 +236,15 @@ class PDFExportService {
             ),
           ),
 
-          pw.SizedBox(height: 24),
+          pw.SizedBox(height: PdfConstants.spacingXLarge),
 
           // Footer
           pw.Text(
-            'Note: Prices are estimates and may vary based on actual shipment conditions.',
-            style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey600),
+            UIStrings.pdfNoteEstimates,
+            style: const pw.TextStyle(
+              fontSize: PdfConstants.footerFontSize,
+              color: PdfColors.grey600,
+            ),
           ),
         ],
       ),
@@ -248,12 +259,18 @@ class PDFExportService {
       children: [
         pw.Text(
           label,
-          style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700),
+          style: const pw.TextStyle(
+            fontSize: PdfConstants.smallFontSize,
+            color: PdfColors.grey700,
+          ),
         ),
         pw.SizedBox(height: 4),
         pw.Text(
           value,
-          style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+          style: pw.TextStyle(
+            fontSize: PdfConstants.bodyFontSize,
+            fontWeight: pw.FontWeight.bold,
+          ),
         ),
       ],
     );
@@ -265,11 +282,11 @@ class PDFExportService {
     bool isBold = false,
   }) {
     return pw.Padding(
-      padding: const pw.EdgeInsets.all(8),
+      padding: const pw.EdgeInsets.all(PdfConstants.spacingSmall),
       child: pw.Text(
         text,
         style: pw.TextStyle(
-          fontSize: isHeader ? 10 : 11,
+          fontSize: isHeader ? PdfConstants.smallFontSize : 11,
           fontWeight: (isHeader || isBold)
               ? pw.FontWeight.bold
               : pw.FontWeight.normal,

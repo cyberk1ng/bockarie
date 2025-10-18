@@ -1,3 +1,5 @@
+import 'package:bockaire/config/transport_constants.dart';
+
 /// Parses duration from Shippo API response
 /// Returns a tuple of (etaMin, etaMax)
 (int, int) parseDuration(int? estimatedDays, String? durationTerms) {
@@ -26,5 +28,8 @@
   }
 
   // Fallback to default
-  return (5, 7);
+  return (
+    TransportConstants.defaultEtaMinDays,
+    TransportConstants.defaultEtaMaxDays,
+  );
 }

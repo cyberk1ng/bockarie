@@ -14,6 +14,10 @@ import 'package:bockaire/services/quote_calculator_service.dart';
 import 'package:bockaire/classes/carton.dart' as models;
 import 'package:bockaire/models/transport_method.dart';
 import 'package:bockaire/utils/duration_parser.dart';
+import 'package:bockaire/config/route_constants.dart';
+import 'package:bockaire/config/ui_constants.dart';
+import 'package:bockaire/config/ui_strings.dart';
+import 'package:bockaire/config/validation_constants.dart';
 import 'package:drift/drift.dart' as drift;
 
 class NewShipmentPage extends StatefulWidget {
@@ -69,9 +73,9 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
     }
 
     if (_cartons.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please add at least one carton')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text(UIStrings.errorAddCartons)));
       return;
     }
 
@@ -120,15 +124,15 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Shipment saved successfully')),
+          const SnackBar(content: Text(UIStrings.successShipmentSaved)),
         );
         context.go('/');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error saving shipment: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${UIStrings.errorSavingShipment}: $e')),
+        );
       }
     }
   }
@@ -137,7 +141,7 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('New Shipment'),
+        title: const Text(UIStrings.titleNewShipment),
         actions: [
           IconButton(icon: const Icon(Icons.save), onPressed: _saveShipment),
         ],
@@ -148,7 +152,7 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
           padding: const EdgeInsets.all(16.0),
           children: [
             const Text(
-              'Shipment Details',
+              UIStrings.titleShipmentDetails,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -468,9 +472,12 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
   void _onCartonChanged() {
     // Debounce to avoid too many calculations
     _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
-      _updateTotals();
-    });
+    _debounceTimer = Timer(
+      const Duration(milliseconds: UIConstants.cartonInputDebounceMs),
+      () {
+        _updateTotals();
+      },
+    );
   }
 
   void _updateTotals() {
@@ -478,10 +485,10 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
       final cartonModels = _cartons
           .where(
             (c) =>
-                c.lengthCm > 0 &&
-                c.widthCm > 0 &&
-                c.heightCm > 0 &&
-                c.weightKg > 0,
+                c.lengthCm >= ValidationConstants.minDimensionCm &&
+                c.widthCm >= ValidationConstants.minDimensionCm &&
+                c.heightCm >= ValidationConstants.minDimensionCm &&
+                c.weightKg >= ValidationConstants.minWeightKg,
           )
           .map(
             (c) => models.Carton(
@@ -507,9 +514,9 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
     }
 
     if (_cartons.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please add at least one carton')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text(UIStrings.errorAddCartons)));
       return;
     }
 
@@ -522,7 +529,7 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Saving shipment and generating quotes...'),
-            duration: Duration(seconds: 2),
+            duration: Duration(seconds: UIConstants.snackBarDurationShort),
           ),
         );
       }
@@ -637,7 +644,9 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
         _logger.d('Successfully saved ${quotes.length} quotes to database');
 
         // Small delay to ensure database writes are committed
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future.delayed(
+          const Duration(milliseconds: UIConstants.databaseCommitDelayMs),
+        );
       } catch (e, stackTrace) {
         // Continue even if quote generation fails
         _logger.e(
@@ -649,7 +658,9 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Warning: Could not generate quotes: $e'),
-              duration: const Duration(seconds: 5),
+              duration: const Duration(
+                seconds: UIConstants.snackBarDurationLong,
+              ),
               backgroundColor: Colors.orange,
             ),
           );
@@ -660,13 +671,13 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
         // Close the modal
         Navigator.of(context).pop();
         // Navigate to quotes page
-        context.push('/quotes/$shipmentId');
+        context.push(RouteConstants.quotesWithId(shipmentId));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error saving shipment: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${UIStrings.errorSavingShipment}: $e')),
+        );
       }
     }
   }
@@ -679,7 +690,10 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Shipment Details', style: context.textTheme.titleLarge),
+            Text(
+              UIStrings.titleShipmentDetails,
+              style: context.textTheme.titleLarge,
+            ),
             SizedBox(height: AppTheme.spacingMedium),
             ModalCard(
               child: Column(

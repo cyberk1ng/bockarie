@@ -1,12 +1,15 @@
 import 'package:bockaire/classes/carton.dart';
+import 'package:bockaire/config/shipping_constants.dart';
 
 /// Service for calculating shipping weights and costs
 class CalculationService {
   /// Dimensional weight divisor (standard for air freight)
-  static const double dimWeightDivisor = 5000.0;
+  static const double dimWeightDivisor =
+      ShippingConstants.dimensionalWeightDivisor;
 
   /// Default oversize threshold in cm
-  static const double defaultOversizeThreshold = 60.0;
+  static const double defaultOversizeThreshold =
+      ShippingConstants.oversizeThresholdCm;
 
   /// Calculate dimensional weight for a single carton in kg
   /// Formula: (L × W × H) / 5000
@@ -95,7 +98,7 @@ class CalculationService {
     if (sortedByHeight.isEmpty) return null;
 
     final tallest = sortedByHeight.first;
-    final reduction = 5.0; // 5cm reduction
+    final reduction = ShippingConstants.suggestedDimensionReductionCm;
 
     if (tallest.heightCm <= reduction) return null;
 
