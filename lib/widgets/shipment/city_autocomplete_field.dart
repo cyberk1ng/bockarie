@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:bockaire/services/city_autocomplete_service.dart';
 import 'package:bockaire/themes/theme.dart';
+import 'package:bockaire/l10n/app_localizations.dart';
 
 /// City autocomplete text field with dropdown
 class CityAutocompleteField extends StatefulWidget {
@@ -230,6 +231,7 @@ class _CityAutocompleteFieldState extends State<CityAutocompleteField> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return CompositedTransformTarget(
       link: _layerLink,
       child: TextFormField(
@@ -239,7 +241,7 @@ class _CityAutocompleteFieldState extends State<CityAutocompleteField> {
           labelText: widget.label,
           helperText: _validSelectionMade
               ? null
-              : 'Please select a city from the dropdown',
+              : localizations.helperSelectFromDropdown,
           helperStyle: TextStyle(
             color: context.colorScheme.onSurfaceVariant,
             fontSize: 12,
@@ -287,7 +289,7 @@ class _CityAutocompleteFieldState extends State<CityAutocompleteField> {
           if (widget.countryController != null) {
             final country = widget.countryController!.text;
             if (country.isEmpty) {
-              return 'Please select a city from the dropdown';
+              return localizations.validationSelectFromDropdown;
             }
           }
 

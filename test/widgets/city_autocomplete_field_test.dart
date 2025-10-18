@@ -1,5 +1,6 @@
 import 'package:bockaire/services/city_autocomplete_service.dart';
 import 'package:bockaire/widgets/shipment/city_autocomplete_field.dart';
+import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -32,6 +33,8 @@ void main() {
 
   Widget createTestWidget({String? Function(String?)? validator}) {
     return MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(
         body: CityAutocompleteField(
           cityController: cityController,

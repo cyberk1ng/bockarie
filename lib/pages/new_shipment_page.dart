@@ -18,6 +18,7 @@ import 'package:bockaire/config/route_constants.dart';
 import 'package:bockaire/config/ui_constants.dart';
 import 'package:bockaire/config/ui_strings.dart';
 import 'package:bockaire/config/validation_constants.dart';
+import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:drift/drift.dart' as drift;
 
 class NewShipmentPage extends StatefulWidget {
@@ -139,9 +140,10 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(UIStrings.titleNewShipment),
+        title: Text(localizations.titleNewShipment),
         actions: [
           IconButton(icon: const Icon(Icons.save), onPressed: _saveShipment),
         ],
@@ -151,9 +153,9 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
-            const Text(
-              UIStrings.titleShipmentDetails,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Text(
+              localizations.titleShipmentDetails,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Row(
@@ -164,21 +166,23 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
                     postalController: _originPostalController,
                     countryController: _originCountryController,
                     stateController: _originStateController,
-                    label: 'Origin City',
-                    validator: (value) =>
-                        value?.isEmpty ?? true ? 'Required' : null,
+                    label: localizations.labelOriginCity,
+                    validator: (value) => value?.isEmpty ?? true
+                        ? localizations.validationRequired
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: TextFormField(
                     controller: _originPostalController,
-                    decoration: const InputDecoration(
-                      labelText: 'Origin Postal',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: localizations.labelOriginPostal,
+                      border: const OutlineInputBorder(),
                     ),
-                    validator: (value) =>
-                        value?.isEmpty ?? true ? 'Required' : null,
+                    validator: (value) => value?.isEmpty ?? true
+                        ? localizations.validationRequired
+                        : null,
                   ),
                 ),
               ],
@@ -192,21 +196,23 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
                     postalController: _destPostalController,
                     countryController: _destCountryController,
                     stateController: _destStateController,
-                    label: 'Destination City',
-                    validator: (value) =>
-                        value?.isEmpty ?? true ? 'Required' : null,
+                    label: localizations.labelDestinationCity,
+                    validator: (value) => value?.isEmpty ?? true
+                        ? localizations.validationRequired
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: TextFormField(
                     controller: _destPostalController,
-                    decoration: const InputDecoration(
-                      labelText: 'Destination Postal',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: localizations.labelDestinationPostal,
+                      border: const OutlineInputBorder(),
                     ),
-                    validator: (value) =>
-                        value?.isEmpty ?? true ? 'Required' : null,
+                    validator: (value) => value?.isEmpty ?? true
+                        ? localizations.validationRequired
+                        : null,
                   ),
                 ),
               ],
@@ -214,9 +220,9 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _notesController,
-              decoration: const InputDecoration(
-                labelText: 'Notes (optional)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: localizations.labelNotes,
+                border: const OutlineInputBorder(),
               ),
               maxLines: 3,
             ),
@@ -224,14 +230,17 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Cartons',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                Text(
+                  localizations.labelCartons,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 ElevatedButton.icon(
                   onPressed: _addCarton,
                   icon: const Icon(Icons.add),
-                  label: const Text('Add Carton'),
+                  label: Text(localizations.buttonAddCarton),
                 ),
               ],
             ),
@@ -250,7 +259,7 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Carton ${index + 1}',
+                            localizations.labelCartonNumber(index + 1),
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -267,15 +276,17 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
                         children: [
                           Expanded(
                             child: TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Length (cm)',
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                labelText: localizations.labelLength,
+                                border: const OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.number,
                               validator: (value) {
-                                if (value?.isEmpty ?? true) return 'Required';
+                                if (value?.isEmpty ?? true) {
+                                  return localizations.validationRequired;
+                                }
                                 if (double.tryParse(value!) == null) {
-                                  return 'Invalid';
+                                  return localizations.validationInvalid;
                                 }
                                 return null;
                               },
@@ -287,15 +298,17 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Width (cm)',
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                labelText: localizations.labelWidth,
+                                border: const OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.number,
                               validator: (value) {
-                                if (value?.isEmpty ?? true) return 'Required';
+                                if (value?.isEmpty ?? true) {
+                                  return localizations.validationRequired;
+                                }
                                 if (double.tryParse(value!) == null) {
-                                  return 'Invalid';
+                                  return localizations.validationInvalid;
                                 }
                                 return null;
                               },
@@ -307,15 +320,17 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Height (cm)',
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                labelText: localizations.labelHeight,
+                                border: const OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.number,
                               validator: (value) {
-                                if (value?.isEmpty ?? true) return 'Required';
+                                if (value?.isEmpty ?? true) {
+                                  return localizations.validationRequired;
+                                }
                                 if (double.tryParse(value!) == null) {
-                                  return 'Invalid';
+                                  return localizations.validationInvalid;
                                 }
                                 return null;
                               },
@@ -331,15 +346,17 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
                         children: [
                           Expanded(
                             child: TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Weight (kg)',
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                labelText: localizations.labelWeightKg,
+                                border: const OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.number,
                               validator: (value) {
-                                if (value?.isEmpty ?? true) return 'Required';
+                                if (value?.isEmpty ?? true) {
+                                  return localizations.validationRequired;
+                                }
                                 if (double.tryParse(value!) == null) {
-                                  return 'Invalid';
+                                  return localizations.validationInvalid;
                                 }
                                 return null;
                               },
@@ -351,15 +368,17 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Quantity',
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                labelText: localizations.labelQuantity,
+                                border: const OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.number,
                               validator: (value) {
-                                if (value?.isEmpty ?? true) return 'Required';
+                                if (value?.isEmpty ?? true) {
+                                  return localizations.validationRequired;
+                                }
                                 if (int.tryParse(value!) == null) {
-                                  return 'Invalid';
+                                  return localizations.validationInvalid;
                                 }
                                 return null;
                               },
@@ -371,12 +390,13 @@ class _NewShipmentPageState extends State<NewShipmentPage> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Item Type',
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                labelText: localizations.labelItemType,
+                                border: const OutlineInputBorder(),
                               ),
-                              validator: (value) =>
-                                  value?.isEmpty ?? true ? 'Required' : null,
+                              validator: (value) => value?.isEmpty ?? true
+                                  ? localizations.validationRequired
+                                  : null,
                               onChanged: (value) {
                                 carton.itemType = value;
                               },
@@ -526,10 +546,13 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
     try {
       // Show loading indicator
       if (mounted) {
+        final localizations = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Saving shipment and generating quotes...'),
-            duration: Duration(seconds: UIConstants.snackBarDurationShort),
+          SnackBar(
+            content: Text(localizations.statusSavingShipment),
+            duration: const Duration(
+              seconds: UIConstants.snackBarDurationShort,
+            ),
           ),
         );
       }
@@ -655,9 +678,12 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
           stackTrace: stackTrace,
         );
         if (mounted) {
+          final localizations = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Warning: Could not generate quotes: $e'),
+              content: Text(
+                localizations.warningCouldNotGenerateQuotes(e.toString()),
+              ),
               duration: const Duration(
                 seconds: UIConstants.snackBarDurationLong,
               ),
@@ -684,6 +710,7 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Form(
       key: _formKey,
       child: SingleChildScrollView(
@@ -691,7 +718,7 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              UIStrings.titleShipmentDetails,
+              localizations.titleShipmentDetails,
               style: context.textTheme.titleLarge,
             ),
             SizedBox(height: AppTheme.spacingMedium),
@@ -706,20 +733,22 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                           postalController: _originPostalController,
                           countryController: _originCountryController,
                           stateController: _originStateController,
-                          label: 'Origin City',
-                          validator: (value) =>
-                              value?.isEmpty ?? true ? 'Required' : null,
+                          label: localizations.labelOriginCity,
+                          validator: (value) => value?.isEmpty ?? true
+                              ? localizations.validationRequired
+                              : null,
                         ),
                       ),
                       SizedBox(width: AppTheme.spacingMedium),
                       Expanded(
                         child: TextFormField(
                           controller: _originPostalController,
-                          decoration: const InputDecoration(
-                            labelText: 'Origin Postal',
+                          decoration: InputDecoration(
+                            labelText: localizations.labelOriginPostal,
                           ),
-                          validator: (value) =>
-                              value?.isEmpty ?? true ? 'Required' : null,
+                          validator: (value) => value?.isEmpty ?? true
+                              ? localizations.validationRequired
+                              : null,
                         ),
                       ),
                     ],
@@ -733,20 +762,22 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                           postalController: _destPostalController,
                           countryController: _destCountryController,
                           stateController: _destStateController,
-                          label: 'Destination City',
-                          validator: (value) =>
-                              value?.isEmpty ?? true ? 'Required' : null,
+                          label: localizations.labelDestinationCity,
+                          validator: (value) => value?.isEmpty ?? true
+                              ? localizations.validationRequired
+                              : null,
                         ),
                       ),
                       SizedBox(width: AppTheme.spacingMedium),
                       Expanded(
                         child: TextFormField(
                           controller: _destPostalController,
-                          decoration: const InputDecoration(
-                            labelText: 'Destination Postal',
+                          decoration: InputDecoration(
+                            labelText: localizations.labelDestinationPostal,
                           ),
-                          validator: (value) =>
-                              value?.isEmpty ?? true ? 'Required' : null,
+                          validator: (value) => value?.isEmpty ?? true
+                              ? localizations.validationRequired
+                              : null,
                         ),
                       ),
                     ],
@@ -754,8 +785,8 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                   SizedBox(height: AppTheme.spacingMedium),
                   TextFormField(
                     controller: _notesController,
-                    decoration: const InputDecoration(
-                      labelText: 'Notes (optional)',
+                    decoration: InputDecoration(
+                      labelText: localizations.labelNotes,
                     ),
                     maxLines: 3,
                   ),
@@ -766,11 +797,14 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Cartons', style: context.textTheme.titleLarge),
+                Text(
+                  localizations.labelCartons,
+                  style: context.textTheme.titleLarge,
+                ),
                 ElevatedButton.icon(
                   onPressed: _addCarton,
                   icon: const Icon(Icons.add),
-                  label: const Text('Add Carton'),
+                  label: Text(localizations.buttonAddCarton),
                 ),
               ],
             ),
@@ -793,7 +827,7 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Carton ${index + 1}',
+                            localizations.labelCartonNumber(index + 1),
                             style: context.textTheme.titleMedium,
                           ),
                           IconButton(
@@ -808,14 +842,16 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                         children: [
                           Expanded(
                             child: TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Length (cm)',
+                              decoration: InputDecoration(
+                                labelText: localizations.labelLength,
                               ),
                               keyboardType: TextInputType.number,
                               validator: (value) {
-                                if (value?.isEmpty ?? true) return 'Required';
+                                if (value?.isEmpty ?? true) {
+                                  return localizations.validationRequired;
+                                }
                                 if (double.tryParse(value!) == null) {
-                                  return 'Invalid';
+                                  return localizations.validationInvalid;
                                 }
                                 return null;
                               },
@@ -828,14 +864,16 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                           SizedBox(width: AppTheme.spacingSmall),
                           Expanded(
                             child: TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Width (cm)',
+                              decoration: InputDecoration(
+                                labelText: localizations.labelWidth,
                               ),
                               keyboardType: TextInputType.number,
                               validator: (value) {
-                                if (value?.isEmpty ?? true) return 'Required';
+                                if (value?.isEmpty ?? true) {
+                                  return localizations.validationRequired;
+                                }
                                 if (double.tryParse(value!) == null) {
-                                  return 'Invalid';
+                                  return localizations.validationInvalid;
                                 }
                                 return null;
                               },
@@ -848,14 +886,16 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                           SizedBox(width: AppTheme.spacingSmall),
                           Expanded(
                             child: TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Height (cm)',
+                              decoration: InputDecoration(
+                                labelText: localizations.labelHeight,
                               ),
                               keyboardType: TextInputType.number,
                               validator: (value) {
-                                if (value?.isEmpty ?? true) return 'Required';
+                                if (value?.isEmpty ?? true) {
+                                  return localizations.validationRequired;
+                                }
                                 if (double.tryParse(value!) == null) {
-                                  return 'Invalid';
+                                  return localizations.validationInvalid;
                                 }
                                 return null;
                               },
@@ -872,14 +912,16 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                         children: [
                           Expanded(
                             child: TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Weight (kg)',
+                              decoration: InputDecoration(
+                                labelText: localizations.labelWeightKg,
                               ),
                               keyboardType: TextInputType.number,
                               validator: (value) {
-                                if (value?.isEmpty ?? true) return 'Required';
+                                if (value?.isEmpty ?? true) {
+                                  return localizations.validationRequired;
+                                }
                                 if (double.tryParse(value!) == null) {
-                                  return 'Invalid';
+                                  return localizations.validationInvalid;
                                 }
                                 return null;
                               },
@@ -892,14 +934,16 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                           SizedBox(width: AppTheme.spacingSmall),
                           Expanded(
                             child: TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Quantity',
+                              decoration: InputDecoration(
+                                labelText: localizations.labelQuantity,
                               ),
                               keyboardType: TextInputType.number,
                               validator: (value) {
-                                if (value?.isEmpty ?? true) return 'Required';
+                                if (value?.isEmpty ?? true) {
+                                  return localizations.validationRequired;
+                                }
                                 if (int.tryParse(value!) == null) {
-                                  return 'Invalid';
+                                  return localizations.validationInvalid;
                                 }
                                 return null;
                               },
@@ -912,11 +956,12 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                           SizedBox(width: AppTheme.spacingSmall),
                           Expanded(
                             child: TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Item Type',
+                              decoration: InputDecoration(
+                                labelText: localizations.labelItemType,
                               ),
-                              validator: (value) =>
-                                  value?.isEmpty ?? true ? 'Required' : null,
+                              validator: (value) => value?.isEmpty ?? true
+                                  ? localizations.validationRequired
+                                  : null,
                               onChanged: (value) {
                                 carton.itemType = value;
                               },
@@ -934,7 +979,7 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
               height: AppTheme.buttonHeight,
               child: ElevatedButton(
                 onPressed: _saveShipment,
-                child: const Text('Save Shipment'),
+                child: Text(localizations.buttonSaveShipment),
               ),
             ),
             SizedBox(height: AppTheme.spacingMedium),

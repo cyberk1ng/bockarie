@@ -2,6 +2,7 @@ import 'package:bockaire/database/database.dart';
 import 'package:bockaire/get_it.dart';
 import 'package:bockaire/pages/settings_page.dart';
 import 'package:bockaire/providers/theme_providers.dart';
+import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -30,6 +31,14 @@ void main() {
     await getIt.reset();
   });
 
+  Widget buildTestApp({required Widget child}) {
+    return MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: child,
+    );
+  }
+
   group('Complete Theme Flow', () {
     testWidgets('app loads theme from database on startup', (tester) async {
       when(
@@ -42,7 +51,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: const MaterialApp(home: SettingsPage()),
+          child: buildTestApp(child: const SettingsPage()),
         ),
       );
 
@@ -60,7 +69,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: const MaterialApp(home: SettingsPage()),
+          child: buildTestApp(child: const SettingsPage()),
         ),
       );
       await tester.pump(const Duration(milliseconds: 100));
@@ -80,7 +89,7 @@ void main() {
 
     testWidgets('theme persists across navigation', (tester) async {
       await tester.pumpWidget(
-        const ProviderScope(child: MaterialApp(home: SettingsPage())),
+        ProviderScope(child: buildTestApp(child: const SettingsPage())),
       );
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump();
@@ -96,15 +105,15 @@ void main() {
 
       // Navigate away and back (simulated)
       await tester.pumpWidget(
-        const ProviderScope(
-          child: MaterialApp(home: Scaffold(body: Text('Other Page'))),
+        ProviderScope(
+          child: buildTestApp(child: Scaffold(body: const Text('Other Page'))),
         ),
       );
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump();
 
       await tester.pumpWidget(
-        const ProviderScope(child: MaterialApp(home: SettingsPage())),
+        ProviderScope(child: buildTestApp(child: const SettingsPage())),
       );
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump();
@@ -125,7 +134,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: const MaterialApp(home: SettingsPage()),
+          child: buildTestApp(child: const SettingsPage()),
         ),
       );
       await tester.pump(const Duration(milliseconds: 100));
@@ -161,6 +170,9 @@ void main() {
                   final darkTheme = ref.watch(darkThemeProvider);
 
                   return MaterialApp(
+                    localizationsDelegates:
+                        AppLocalizations.localizationsDelegates,
+                    supportedLocales: AppLocalizations.supportedLocales,
                     theme: lightTheme,
                     darkTheme: darkTheme,
                     themeMode: themeMode,
@@ -198,7 +210,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: const MaterialApp(home: SettingsPage()),
+          child: buildTestApp(child: const SettingsPage()),
         ),
       );
       await tester.pump(const Duration(milliseconds: 100));
@@ -213,8 +225,8 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: const MaterialApp(
-            home: Scaffold(body: Text('Different Page')),
+          child: buildTestApp(
+            child: Scaffold(body: const Text('Different Page')),
           ),
         ),
       );
@@ -229,6 +241,8 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: Column(
                 children: [
@@ -282,7 +296,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: const MaterialApp(home: SettingsPage()),
+          child: buildTestApp(child: const SettingsPage()),
         ),
       );
       await tester.pump(const Duration(milliseconds: 100));
@@ -321,7 +335,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container1,
-          child: const MaterialApp(home: SettingsPage()),
+          child: buildTestApp(child: const SettingsPage()),
         ),
       );
       await tester.pump(const Duration(milliseconds: 100));
@@ -337,7 +351,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container2,
-          child: const MaterialApp(home: SettingsPage()),
+          child: buildTestApp(child: const SettingsPage()),
         ),
       );
 
@@ -363,7 +377,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: const MaterialApp(home: SettingsPage()),
+          child: buildTestApp(child: const SettingsPage()),
         ),
       );
 
@@ -386,7 +400,7 @@ void main() {
       ).thenThrow(Exception('Save failed'));
 
       await tester.pumpWidget(
-        const ProviderScope(child: MaterialApp(home: SettingsPage())),
+        ProviderScope(child: buildTestApp(child: const SettingsPage())),
       );
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump();
@@ -456,7 +470,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        const ProviderScope(child: MaterialApp(home: SettingsPage())),
+        ProviderScope(child: buildTestApp(child: const SettingsPage())),
       );
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump();
@@ -489,7 +503,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        const ProviderScope(child: MaterialApp(home: SettingsPage())),
+        ProviderScope(child: buildTestApp(child: const SettingsPage())),
       );
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump();
@@ -513,7 +527,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        const ProviderScope(child: MaterialApp(home: SettingsPage())),
+        ProviderScope(child: buildTestApp(child: const SettingsPage())),
       );
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump();

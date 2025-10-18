@@ -18,7 +18,7 @@ import 'package:bockaire/config/route_constants.dart';
 import 'package:bockaire/config/validation_constants.dart';
 import 'package:bockaire/config/color_constants.dart';
 import 'package:bockaire/config/ui_constants.dart';
-import 'package:bockaire/config/ui_strings.dart';
+import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart' as drift;
@@ -41,6 +41,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final shipmentAsync = ref.watch(shipmentProvider(widget.shipmentId));
     final quotesAsync = ref.watch(quotesProvider(widget.shipmentId));
     final cartonModelsAsync = ref.watch(
@@ -52,14 +53,14 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
         leading: IconButton(
           icon: const Icon(Icons.chevron_left_rounded, size: 28),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: 'Back',
+          tooltip: localizations.tooltipBack,
         ),
-        title: const Text(UIStrings.titleShippingQuotes),
+        title: Text(localizations.titleShippingQuotes),
         actions: [
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
             onPressed: () => _exportPDF(context, ref),
-            tooltip: UIStrings.actionExportPdf,
+            tooltip: localizations.actionExportPdf,
           ),
         ],
       ),
@@ -120,12 +121,13 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
         onPressed: () =>
             context.push(RouteConstants.optimizerWithId(widget.shipmentId)),
         icon: const Icon(Icons.tune),
-        label: const Text(UIStrings.actionOptimizePacking),
+        label: Text(localizations.actionOptimizePacking),
       ),
     );
   }
 
   Widget _buildFilterSortControls(List<Quote> quotes) {
+    final localizations = AppLocalizations.of(context)!;
     // Get available transport methods from quotes
     final availableTransportMethods = <TransportMethod>{};
     for (final quote in quotes) {
@@ -149,7 +151,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
         Row(
           children: [
             Text(
-              UIStrings.titleAvailableQuotes,
+              localizations.titleAvailableQuotes,
               style: context.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -168,13 +170,13 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                 });
               },
               tooltip: _groupByTransportMethod
-                  ? 'List View'
-                  : 'Group by Transport Method',
+                  ? localizations.tooltipListView
+                  : localizations.tooltipGroupByTransportMethod,
             ),
             // Sort Dropdown
             PopupMenuButton<QuoteSortOption>(
               icon: const Icon(Icons.sort_rounded),
-              tooltip: 'Sort',
+              tooltip: localizations.tooltipSort,
               onSelected: (option) {
                 setState(() {
                   _sortOption = option;
@@ -191,7 +193,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                         color: context.colorScheme.onSurface,
                       ),
                       const SizedBox(width: 12),
-                      const Text('Price: Low to High'),
+                      Text(localizations.sortPriceLowHigh),
                       if (_sortOption == QuoteSortOption.priceLowHigh)
                         const Padding(
                           padding: EdgeInsets.only(left: 8),
@@ -210,7 +212,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                         color: context.colorScheme.onSurface,
                       ),
                       const SizedBox(width: 12),
-                      const Text('Price: High to Low'),
+                      Text(localizations.sortPriceHighLow),
                       if (_sortOption == QuoteSortOption.priceHighLow)
                         const Padding(
                           padding: EdgeInsets.only(left: 8),
@@ -229,7 +231,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                         color: context.colorScheme.onSurface,
                       ),
                       const SizedBox(width: 12),
-                      const Text('Speed: Fastest First'),
+                      Text(localizations.sortSpeedFastest),
                       if (_sortOption == QuoteSortOption.speedFastest)
                         const Padding(
                           padding: EdgeInsets.only(left: 8),
@@ -248,7 +250,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                         color: context.colorScheme.onSurface,
                       ),
                       const SizedBox(width: 12),
-                      const Text('Speed: Slowest First'),
+                      Text(localizations.sortSpeedSlowest),
                       if (_sortOption == QuoteSortOption.speedSlowest)
                         const Padding(
                           padding: EdgeInsets.only(left: 8),
@@ -273,7 +275,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: FilterChip(
-                    label: const Text('All'),
+                    label: Text(localizations.filterAll),
                     selected: _selectedTransportFilter == null,
                     onSelected: (selected) {
                       setState(() {
@@ -581,6 +583,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
     Shipment shipment,
     List<dynamic> cartons,
   ) {
+    final localizations = AppLocalizations.of(context)!;
     // Cast to proper type for calculation service
     final cartonList = cartons.cast<models.Carton>();
     final totals = CalculationService.calculateTotals(cartonList);
@@ -598,14 +601,14 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
               ),
               const SizedBox(width: 8),
               Text(
-                UIStrings.titleShipmentDetails,
+                localizations.titleShipmentDetails,
                 style: context.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const Spacer(),
               Text(
-                'Click to edit',
+                localizations.hintClickToEdit,
                 style: context.textTheme.bodySmall?.copyWith(
                   color: context.colorScheme.onSurfaceVariant,
                   fontStyle: FontStyle.italic,
@@ -635,7 +638,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                         Row(
                           children: [
                             Text(
-                              UIStrings.labelFrom,
+                              localizations.labelFrom,
                               style: context.textTheme.bodySmall?.copyWith(
                                 color: context.colorScheme.onSurfaceVariant,
                               ),
@@ -689,7 +692,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                         Row(
                           children: [
                             Text(
-                              UIStrings.labelTo,
+                              localizations.labelTo,
                               style: context.textTheme.bodySmall?.copyWith(
                                 color: context.colorScheme.onSurfaceVariant,
                               ),
@@ -725,7 +728,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
               _buildClickableStat(
                 context,
                 icon: Icons.inventory_2_outlined,
-                label: UIStrings.labelCartons,
+                label: localizations.labelCartons,
                 value: '${totals.cartonCount}',
                 onTap: () async {
                   final navContext = context;
@@ -745,7 +748,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
               _buildStat(
                 context,
                 icon: Icons.scale_outlined,
-                label: UIStrings.labelWeight,
+                label: localizations.labelWeight,
                 value: '${totals.chargeableKg.toStringAsFixed(1)} kg',
               ),
               if (totals.isOversized)
@@ -766,6 +769,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
     Shipment shipment, {
     required bool isOrigin,
   }) {
+    final localizations = AppLocalizations.of(context)!;
     final cityController = TextEditingController(
       text: isOrigin ? shipment.originCity : shipment.destCity,
     );
@@ -781,7 +785,9 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
 
     ModalUtils.showSinglePageModal(
       context: context,
-      title: 'Edit ${isOrigin ? "Origin" : "Destination"}',
+      title: isOrigin
+          ? localizations.editOriginTitle
+          : localizations.editDestinationTitle,
       showCloseButton: true,
       barrierDismissible: true,
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
@@ -792,7 +798,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
             Expanded(
               child: OutlinedButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: Text(localizations.buttonCancel),
               ),
             ),
             const SizedBox(width: 12),
@@ -927,10 +933,10 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                         SnackBar(
                           content: Text(
                             newQuotes.isNotEmpty
-                                ? UIStrings.successAddressUpdated(
+                                ? localizations.successAddressUpdated(
                                     newQuotes.length,
                                   )
-                                : 'Address updated! No quotes available - configure Shippo carrier accounts for real rates.',
+                                : localizations.warningNoQuotesConfigureShippo,
                           ),
                           backgroundColor: newQuotes.isNotEmpty
                               ? Colors.green
@@ -948,14 +954,14 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            '${UIStrings.errorUpdatingAddress}: $e',
+                            '${localizations.errorUpdatingAddress}: $e',
                           ),
                         ),
                       );
                     }
                   }
                 },
-                child: const Text('Save'),
+                child: Text(localizations.buttonSave),
               ),
             ),
           ],
@@ -970,14 +976,14 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
               postalController: postalController,
               countryController: countryController,
               stateController: stateController,
-              label: 'City',
+              label: localizations.labelCity,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: postalController,
-              decoration: const InputDecoration(
-                labelText: 'Postal Code',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: localizations.labelPostalCode,
+                border: const OutlineInputBorder(),
               ),
               readOnly: true,
             ),
@@ -987,9 +993,9 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                 Expanded(
                   child: TextFormField(
                     controller: countryController,
-                    decoration: const InputDecoration(
-                      labelText: 'Country',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: localizations.labelCountry,
+                      border: const OutlineInputBorder(),
                     ),
                     readOnly: true,
                   ),
@@ -998,9 +1004,9 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                 Expanded(
                   child: TextFormField(
                     controller: stateController,
-                    decoration: const InputDecoration(
-                      labelText: 'State',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: localizations.labelState,
+                      border: const OutlineInputBorder(),
                     ),
                     readOnly: true,
                   ),
@@ -1009,7 +1015,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Country, state, and postal code will be auto-filled when you select a city',
+              localizations.autoFillNote,
               style: TextStyle(
                 fontSize: 12,
                 color: Theme.of(modalContext).colorScheme.onSurfaceVariant,
@@ -1028,9 +1034,10 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
     List<models.Carton> cartons,
     List<Quote> originalQuotes,
   ) {
+    final localizations = AppLocalizations.of(context)!;
     ModalUtils.showSinglePageModal(
       context: context,
-      title: 'Edit Dimensions',
+      title: localizations.editDimensionsTitle,
       showCloseButton: true,
       barrierDismissible: true,
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
@@ -1040,7 +1047,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Experiment with different packing configurations',
+                localizations.editDimensionsSubtitle,
                 style: Theme.of(modalContext).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(modalContext).colorScheme.onSurfaceVariant,
                 ),
@@ -1148,6 +1155,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return ModalCard(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -1160,14 +1168,14 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
             ),
             const SizedBox(height: 20),
             Text(
-              'No Shipping Quotes Available',
+              localizations.emptyStateNoQuotes,
               style: context.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 12),
             Text(
-              'Shippo\'s free test carrier accounts don\'t support international shipments from China.',
+              localizations.shippoTestLimitationShort,
               style: context.textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
@@ -1197,7 +1205,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'How to get real shipping quotes:',
+                        localizations.shippoHowToGetRealQuotes,
                         style: context.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -1205,14 +1213,11 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  _buildStep(
-                    '1',
-                    'Sign up for carrier accounts (DHL, FedEx, UPS, etc.)',
-                  ),
+                  _buildStep('1', localizations.shippoStep1),
                   const SizedBox(height: 8),
-                  _buildStep('2', 'Connect them to your Shippo account'),
+                  _buildStep('2', localizations.shippoStep2),
                   const SizedBox(height: 8),
-                  _buildStep('3', 'Update your Shippo API key in app settings'),
+                  _buildStep('3', localizations.shippoStep3),
                 ],
               ),
             ),
@@ -1292,14 +1297,16 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
       );
 
       if (context.mounted) {
+        final localizations = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(UIStrings.successPdfExported)),
+          SnackBar(content: Text(localizations.successPdfExported)),
         );
       }
     } catch (e) {
       if (context.mounted) {
+        final localizations = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${UIStrings.errorExportingPdf}: $e')),
+          SnackBar(content: Text('${localizations.errorExportingPdf}: $e')),
         );
       }
     }
@@ -1332,6 +1339,7 @@ class _QuoteCardState extends State<_QuoteCard> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final quote = widget.quote;
     final currency = NumberFormat.currency(symbol: '€', decimalDigits: 2);
 
@@ -1356,21 +1364,21 @@ class _QuoteCardState extends State<_QuoteCard> {
                           _buildBadge(
                             context,
                             icon: Icons.star,
-                            label: 'CHEAPEST',
+                            label: localizations.badgeCheapest,
                             color: ColorConstants.badgeCheapest,
                           ),
                         if (widget.isFastest)
                           _buildBadge(
                             context,
                             icon: Icons.bolt,
-                            label: 'FASTEST',
+                            label: localizations.badgeFastest,
                             color: ColorConstants.badgeFastest,
                           ),
                         if (widget.isCheapestInCategory && !widget.isCheapest)
                           _buildBadge(
                             context,
                             icon: Icons.star_half,
-                            label: 'BEST IN CATEGORY',
+                            label: localizations.badgeBestInCategory,
                             color: ColorConstants.badgeBest,
                           ),
                         if (widget.showTransportChip)
@@ -1436,7 +1444,7 @@ class _QuoteCardState extends State<_QuoteCard> {
             Divider(height: 1, color: context.colorScheme.outlineVariant),
             const SizedBox(height: 16),
             Text(
-              'Price Breakdown',
+              localizations.quoteDetailsPriceBreakdown,
               style: context.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -1444,13 +1452,13 @@ class _QuoteCardState extends State<_QuoteCard> {
             const SizedBox(height: 8),
             _buildBreakdownRow(
               context,
-              'Chargeable Weight',
+              localizations.quoteDetailsChargeableWeight,
               '${quote.chargeableKg.toStringAsFixed(1)} kg',
             ),
             const SizedBox(height: 4),
             _buildBreakdownRow(
               context,
-              'Total Price',
+              localizations.quoteDetailsTotalPrice,
               currency.format(quote.priceEur),
               isBold: true,
             ),
@@ -1465,7 +1473,7 @@ class _QuoteCardState extends State<_QuoteCard> {
                 child: FilledButton.icon(
                   onPressed: () => _bookShipment(context),
                   icon: const Icon(Icons.check_circle_outline, size: 18),
-                  label: const Text('Book This'),
+                  label: Text(localizations.buttonBookThis),
                 ),
               ),
               const SizedBox(width: 8),
@@ -1474,7 +1482,11 @@ class _QuoteCardState extends State<_QuoteCard> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(_isExpanded ? 'Less' : 'Details'),
+                    Text(
+                      _isExpanded
+                          ? localizations.buttonLess
+                          : localizations.buttonDetails,
+                    ),
                     Icon(
                       _isExpanded
                           ? Icons.keyboard_arrow_up
@@ -1613,9 +1625,10 @@ class _QuoteCardState extends State<_QuoteCard> {
   }
 
   Future<void> _bookShipment(BuildContext context) async {
+    final localizations = AppLocalizations.of(context)!;
     final confirm = await ModalUtils.showSinglePageModal<bool>(
       context: context,
-      title: 'Book Shipment',
+      title: localizations.bookShipmentTitle,
       showCloseButton: true,
       barrierDismissible: true,
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
@@ -1626,14 +1639,14 @@ class _QuoteCardState extends State<_QuoteCard> {
             Expanded(
               child: OutlinedButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
+                child: Text(localizations.buttonCancel),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: FilledButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Book'),
+                child: Text(localizations.buttonBook),
               ),
             ),
           ],
@@ -1641,16 +1654,20 @@ class _QuoteCardState extends State<_QuoteCard> {
       ),
       builder: (modalContext) {
         return Text(
-          'Book shipment with ${widget.quote.carrier} ${widget.quote.service}?',
+          localizations.bookShipmentMessage(
+            widget.quote.carrier,
+            widget.quote.service,
+          ),
           style: Theme.of(modalContext).textTheme.bodyLarge,
         );
       },
     );
 
     if (confirm == true && context.mounted) {
+      final localizations2 = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Booking feature coming soon!'),
+        SnackBar(
+          content: Text(localizations2.bookingFeatureComingSoon),
           duration: Duration(seconds: UIConstants.snackBarDurationShort),
         ),
       );
@@ -1845,9 +1862,10 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
     } catch (e) {
       // print('DEBUG ERROR: $e');
       if (mounted) {
+        final localizations = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${UIStrings.errorRecalculating}: $e'),
+            content: Text('${localizations.errorRecalculating}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -1863,6 +1881,7 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
     List<ShippingQuote> newShippingQuotes,
     List<models.Carton> newCartonModels,
   ) async {
+    final localizations = AppLocalizations.of(context)!;
     final currency = NumberFormat.currency(symbol: '€', decimalDigits: 2);
     final oldCheapest = widget.originalQuotes.isEmpty
         ? null
@@ -1878,7 +1897,7 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
 
     final result = await ModalUtils.showSinglePageModal<bool>(
       context: context,
-      title: UIStrings.titleQuoteComparison,
+      title: localizations.titleQuoteComparison,
       showCloseButton: true,
       barrierDismissible: true,
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
@@ -1889,14 +1908,14 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
             Expanded(
               child: OutlinedButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('Discard'),
+                child: Text(localizations.buttonDiscard),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: FilledButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: const Text('Save Changes'),
+                child: Text(localizations.buttonSaveChanges),
               ),
             ),
           ],
@@ -1941,10 +1960,10 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                   children: [
                     Text(
                       savings > 0
-                          ? 'Potential Savings!'
+                          ? localizations.quoteComparisonPotentialSavings
                           : savings < 0
-                          ? 'Cost Increase'
-                          : 'No Change',
+                          ? localizations.quoteComparisonCostIncrease
+                          : localizations.quoteComparisonNoChange,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -1969,7 +1988,10 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Cheapest: ${currency.format(oldCheapest.priceEur)} → ${currency.format(newCheapest.total)}',
+                      localizations.cheapestPriceChange(
+                        currency.format(oldCheapest.priceEur),
+                        currency.format(newCheapest.total),
+                      ),
                       style: const TextStyle(fontSize: 12),
                     ),
                   ],
@@ -1980,8 +2002,10 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
             const SizedBox(height: 16),
             Text(
               newShippingQuotes.isEmpty
-                  ? 'No Quotes Available'
-                  : 'Available Quotes (${newShippingQuotes.length})',
+                  ? localizations.quoteComparisonNoQuotesAvailable
+                  : localizations.quoteComparisonAvailableQuotes(
+                      newShippingQuotes.length,
+                    ),
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 8),
@@ -2008,17 +2032,17 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                       size: 56,
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      'No Shipping Quotes Available',
-                      style: TextStyle(
+                    Text(
+                      localizations.emptyStateNoQuotes,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
                       ),
                     ),
                     const SizedBox(height: 12),
-                    const Text(
-                      UIStrings.errorShippoTestLimitation,
-                      style: TextStyle(fontSize: 14),
+                    Text(
+                      localizations.shippoTestLimitationShort,
+                      style: const TextStyle(fontSize: 14),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
@@ -2041,9 +2065,9 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                                 color: Colors.blue.shade700,
                               ),
                               const SizedBox(width: 8),
-                              const Text(
-                                'To get real shipping quotes:',
-                                style: TextStyle(
+                              Text(
+                                localizations.shippoInfoToGetRealQuotes,
+                                style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 13,
                                 ),
@@ -2051,11 +2075,11 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          const Text(
-                            '1. Sign up for carrier accounts (DHL, FedEx, UPS)\n'
-                            '2. Connect them to your Shippo account\n'
-                            '3. Update your API key in the app settings',
-                            style: TextStyle(fontSize: 12),
+                          Text(
+                            '${localizations.shippoInfoStep1}\n'
+                            '${localizations.shippoInfoStep2}\n'
+                            '${localizations.shippoInfoStep3}',
+                            style: const TextStyle(fontSize: 12),
                           ),
                         ],
                       ),
@@ -2180,18 +2204,20 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
       widget.onQuotesUpdated();
 
       if (mounted) {
+        final localizations = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(UIStrings.successChangesSaved),
+          SnackBar(
+            content: Text(localizations.successChangesSaved),
             backgroundColor: Colors.green,
           ),
         );
       }
     } catch (e) {
       if (mounted) {
+        final localizations = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${UIStrings.errorSavingChanges}: $e'),
+            content: Text('${localizations.errorSavingChanges}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -2218,6 +2244,7 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Column(
       children: [
         // Live totals preview
@@ -2243,7 +2270,7 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
             Expanded(
               child: OutlinedButton.icon(
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Reset to Original'),
+                label: Text(localizations.buttonResetToOriginal),
                 onPressed: _resetToOriginal,
               ),
             ),
@@ -2260,7 +2287,7 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                         ),
                       )
                     : const Icon(Icons.calculate_rounded),
-                label: const Text('Recalculate Quotes'),
+                label: Text(localizations.buttonRecalculateQuotes),
                 onPressed: _isRecalculating ? null : _recalculateQuotes,
               ),
             ),
@@ -2271,6 +2298,7 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
   }
 
   Widget _buildLiveTotalsPreview() {
+    final localizations = AppLocalizations.of(context)!;
     final cartonModels = _editedCartons.map((e) => e.toCarton()).toList();
     final totals = CalculationService.calculateTotals(cartonModels);
 
@@ -2278,7 +2306,7 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
       child: Column(
         children: [
           Text(
-            'Updated Totals (Preview)',
+            localizations.liveTotalsUpdated,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: context.colorScheme.primary,
@@ -2288,14 +2316,20 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatChip('Cartons', '${totals.cartonCount}'),
               _buildStatChip(
-                'Actual',
+                localizations.labelCartons,
+                '${totals.cartonCount}',
+              ),
+              _buildStatChip(
+                localizations.liveTotalsActual,
                 '${totals.actualKg.toStringAsFixed(1)} kg',
               ),
-              _buildStatChip('Dim', '${totals.dimKg.toStringAsFixed(1)} kg'),
               _buildStatChip(
-                'Chargeable',
+                localizations.liveTotalsDim,
+                '${totals.dimKg.toStringAsFixed(1)} kg',
+              ),
+              _buildStatChip(
+                localizations.liveTotalsChargeable,
                 '${totals.chargeableKg.toStringAsFixed(1)} kg',
                 isPrimary: true,
               ),
@@ -2320,7 +2354,7 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Dim Weight = (L×W×H)/5000, Chargeable = max(Actual, Dim) × Qty. Click "Recalculate Quotes" to fetch real shipping rates from Shippo API.',
+                    localizations.liveTotalsInfoNote,
                     style: TextStyle(
                       fontSize: 11,
                       color: context.colorScheme.onSurfaceVariant,
@@ -2355,7 +2389,7 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Oversize - extra fees may apply',
+                    localizations.liveTotalsOversizeWarning,
                     style: TextStyle(fontSize: 12, color: Colors.orange),
                   ),
                 ],
@@ -2391,12 +2425,13 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
   }
 
   Widget _buildEditableCartonCard(int index, EditableCarton carton) {
+    final localizations = AppLocalizations.of(context)!;
     return ModalCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Carton ${index + 1}',
+            localizations.labelCartonNumber(index + 1),
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           const SizedBox(height: 12),
@@ -2408,9 +2443,9 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                 child: TextFormField(
                   key: ValueKey('length_$index'),
                   initialValue: carton.lengthCm.toStringAsFixed(1),
-                  decoration: const InputDecoration(
-                    labelText: 'L (cm)',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: localizations.labelLength,
+                    border: const OutlineInputBorder(),
                     isDense: true,
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: 8,
@@ -2434,9 +2469,9 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                 child: TextFormField(
                   key: ValueKey('width_$index'),
                   initialValue: carton.widthCm.toStringAsFixed(1),
-                  decoration: const InputDecoration(
-                    labelText: 'W (cm)',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: localizations.labelWidth,
+                    border: const OutlineInputBorder(),
                     isDense: true,
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: 8,
@@ -2460,9 +2495,9 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                 child: TextFormField(
                   key: ValueKey('height_$index'),
                   initialValue: carton.heightCm.toStringAsFixed(1),
-                  decoration: const InputDecoration(
-                    labelText: 'H (cm)',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: localizations.labelHeight,
+                    border: const OutlineInputBorder(),
                     isDense: true,
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: 8,
@@ -2494,8 +2529,8 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                 child: TextFormField(
                   key: ValueKey('weight_$index'),
                   initialValue: carton.weightKg.toStringAsFixed(1),
-                  decoration: const InputDecoration(
-                    labelText: 'Weight (kg)',
+                  decoration: InputDecoration(
+                    labelText: localizations.labelWeightKg,
                     border: OutlineInputBorder(),
                     isDense: true,
                     contentPadding: EdgeInsets.symmetric(
@@ -2520,9 +2555,9 @@ class _EditableCartonsListState extends State<_EditableCartonsList> {
                 child: TextFormField(
                   key: ValueKey('qty_$index'),
                   initialValue: carton.qty.toString(),
-                  decoration: const InputDecoration(
-                    labelText: 'Qty',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: localizations.labelQuantity,
+                    border: const OutlineInputBorder(),
                     isDense: true,
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: 8,

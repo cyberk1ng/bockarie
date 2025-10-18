@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:bockaire/services/quote_calculator_service.dart';
 import 'package:bockaire/themes/theme.dart';
 import 'package:bockaire/widgets/modal/modal_card.dart';
+import 'package:bockaire/l10n/app_localizations.dart';
 
 /// Quotes list with badges for best options
 class QuotesList extends StatelessWidget {
@@ -12,6 +13,7 @@ class QuotesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     if (quotes.isEmpty) {
       return Center(
         child: Padding(
@@ -25,7 +27,7 @@ class QuotesList extends StatelessWidget {
               ),
               SizedBox(height: AppTheme.spacingMedium),
               Text(
-                'No quotes available',
+                localizations.statusNoQuotesAvailable,
                 style: context.textTheme.bodyMedium?.copyWith(
                   color: context.colorScheme.onSurfaceVariant,
                 ),
@@ -39,7 +41,7 @@ class QuotesList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Instant Quotes', style: context.textTheme.titleLarge),
+        Text(localizations.instantQuotes, style: context.textTheme.titleLarge),
         SizedBox(height: AppTheme.spacingMedium),
         ...quotes.map(
           (quote) => Padding(
@@ -60,6 +62,7 @@ class _QuoteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final isCheapest = badges.isCheapest(quote);
     final isFastest = badges.isFastest(quote);
     final isBestValue = badges.isBestValue(quote);
@@ -83,7 +86,9 @@ class _QuoteCard extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      '${quote.chargeableKg.toStringAsFixed(1)} kg chargeable',
+                      localizations.chargeableWeightDisplay(
+                        quote.chargeableKg.toStringAsFixed(1),
+                      ),
                       style: context.textTheme.bodySmall?.copyWith(
                         color: context.colorScheme.onSurfaceVariant,
                       ),
@@ -110,19 +115,19 @@ class _QuoteCard extends StatelessWidget {
               children: [
                 if (isCheapest)
                   _Badge(
-                    label: 'Cheapest',
+                    label: localizations.badgeCheapestShort,
                     icon: Icons.price_check,
                     color: Colors.green,
                   ),
                 if (isFastest)
                   _Badge(
-                    label: 'Fastest',
+                    label: localizations.badgeFastestShort,
                     icon: Icons.rocket_launch,
                     color: Colors.orange,
                   ),
                 if (isBestValue && !isCheapest)
                   _Badge(
-                    label: 'Best Value',
+                    label: localizations.badgeBestValue,
                     icon: Icons.star,
                     color: Colors.blue,
                   ),
@@ -140,16 +145,20 @@ class _QuoteCard extends StatelessWidget {
             ),
             child: Column(
               children: [
-                _buildBreakdownRow(context, 'Subtotal', quote.subtotal),
                 _buildBreakdownRow(
                   context,
-                  'Fuel Surcharge',
+                  localizations.quoteSubtotal,
+                  quote.subtotal,
+                ),
+                _buildBreakdownRow(
+                  context,
+                  localizations.quoteFuelSurcharge,
                   quote.fuelSurcharge,
                 ),
                 if (quote.oversizeFee > 0)
                   _buildBreakdownRow(
                     context,
-                    'Oversize Fee',
+                    localizations.quoteOversizeFee,
                     quote.oversizeFee,
                     isWarning: true,
                   ),

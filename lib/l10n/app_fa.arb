@@ -1,0 +1,1180 @@
+{
+  "@@locale": "fa",
+
+  "appTitle": "Bockaire",
+  "@appTitle": {
+    "description": "Application name"
+  },
+
+  "navHome": "Home",
+  "@navHome": {
+    "description": "Home navigation label"
+  },
+
+  "navNewShipment": "New Shipment",
+  "@navNewShipment": {
+    "description": "New Shipment navigation label"
+  },
+
+  "navSettings": "Settings",
+  "@navSettings": {
+    "description": "Settings navigation label"
+  },
+
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Settings page title"
+  },
+
+  "settingsAppearance": "Appearance",
+  "@settingsAppearance": {
+    "description": "Appearance section title"
+  },
+
+  "settingsThemeMode": "Theme Mode",
+  "@settingsThemeMode": {
+    "description": "Theme mode setting label"
+  },
+
+  "settingsThemeLightTooltip": "Light Mode",
+  "@settingsThemeLightTooltip": {
+    "description": "Light mode tooltip"
+  },
+
+  "settingsThemeSystemTooltip": "System Default",
+  "@settingsThemeSystemTooltip": {
+    "description": "System default theme tooltip"
+  },
+
+  "settingsThemeDarkTooltip": "Dark Mode",
+  "@settingsThemeDarkTooltip": {
+    "description": "Dark mode tooltip"
+  },
+
+  "settingsConfiguration": "Configuration",
+  "@settingsConfiguration": {
+    "description": "Configuration section title"
+  },
+
+  "settingsRateTables": "Rate Tables",
+  "@settingsRateTables": {
+    "description": "Rate tables setting"
+  },
+
+  "settingsRateTablesSubtitle": "Manage carrier rates",
+  "@settingsRateTablesSubtitle": {
+    "description": "Rate tables subtitle"
+  },
+
+  "settingsAiProviders": "AI Providers",
+  "@settingsAiProviders": {
+    "description": "AI providers setting"
+  },
+
+  "settingsAiProvidersSubtitle": "Configure AI models",
+  "@settingsAiProvidersSubtitle": {
+    "description": "AI providers subtitle"
+  },
+
+  "settingsAbout": "About",
+  "@settingsAbout": {
+    "description": "About setting"
+  },
+
+  "settingsLanguageTitle": "Language",
+  "@settingsLanguageTitle": {
+    "description": "Language setting title"
+  },
+
+  "settingsLanguageSubtitle": "Select app language",
+  "@settingsLanguageSubtitle": {
+    "description": "Language setting subtitle"
+  },
+
+  "languageEnglish": "English",
+  "@languageEnglish": {
+    "description": "English language name"
+  },
+
+  "languageGerman": "German",
+  "@languageGerman": {
+    "description": "German language name"
+  },
+
+  "languageChinese": "Chinese",
+  "@languageChinese": {
+    "description": "Chinese language name"
+  },
+
+  "systemDefaultLanguage": "System Default",
+  "@systemDefaultLanguage": {
+    "description": "System default language option"
+  },
+
+  "searchHint": "Search languages...",
+  "@searchHint": {
+    "description": "Search hint for language selection"
+  },
+
+  "titleRecentShipments": "Recent Shipments",
+  "@titleRecentShipments": {
+    "description": "Recent shipments section title"
+  },
+
+  "titleNewShipment": "New Shipment",
+  "@titleNewShipment": {
+    "description": "New shipment page title"
+  },
+
+  "titleShipmentDetails": "Shipment Details",
+  "@titleShipmentDetails": {
+    "description": "Shipment details section title"
+  },
+
+  "titleShippingQuotes": "Shipping Quotes",
+  "@titleShippingQuotes": {
+    "description": "Shipping quotes page title"
+  },
+
+  "titleAvailableQuotes": "Available Quotes",
+  "@titleAvailableQuotes": {
+    "description": "Available quotes section title"
+  },
+
+  "titleQuoteComparison": "Quote Comparison",
+  "@titleQuoteComparison": {
+    "description": "Quote comparison modal title"
+  },
+
+  "titlePackingOptimizer": "Packing Optimizer",
+  "@titlePackingOptimizer": {
+    "description": "Packing optimizer page title"
+  },
+
+  "emptyStateNoShipments": "No shipments yet",
+  "@emptyStateNoShipments": {
+    "description": "Empty state title when no shipments exist"
+  },
+
+  "emptyStateCreateFirst": "Create your first shipment to get started",
+  "@emptyStateCreateFirst": {
+    "description": "Empty state subtitle for first shipment"
+  },
+
+  "emptyStateNoQuotes": "No Shipping Quotes Available",
+  "@emptyStateNoQuotes": {
+    "description": "Empty state when no quotes available"
+  },
+
+  "labelFrom": "From",
+  "@labelFrom": {
+    "description": "Origin label"
+  },
+
+  "labelTo": "To",
+  "@labelTo": {
+    "description": "Destination label"
+  },
+
+  "labelOriginCity": "Origin City",
+  "@labelOriginCity": {
+    "description": "Origin city field label"
+  },
+
+  "labelOriginPostal": "Origin Postal",
+  "@labelOriginPostal": {
+    "description": "Origin postal code field label"
+  },
+
+  "labelDestinationCity": "Destination City",
+  "@labelDestinationCity": {
+    "description": "Destination city field label"
+  },
+
+  "labelDestinationPostal": "Destination Postal",
+  "@labelDestinationPostal": {
+    "description": "Destination postal code field label"
+  },
+
+  "labelPostalCode": "Postal Code",
+  "@labelPostalCode": {
+    "description": "Postal code field label"
+  },
+
+  "labelCountry": "Country",
+  "@labelCountry": {
+    "description": "Country field label"
+  },
+
+  "labelState": "State",
+  "@labelState": {
+    "description": "State field label"
+  },
+
+  "labelCity": "City",
+  "@labelCity": {
+    "description": "City field label"
+  },
+
+  "labelNotes": "Notes (optional)",
+  "@labelNotes": {
+    "description": "Notes field label"
+  },
+
+  "labelCartons": "Cartons",
+  "@labelCartons": {
+    "description": "Cartons label"
+  },
+
+  "labelWeight": "Weight",
+  "@labelWeight": {
+    "description": "Weight label"
+  },
+
+  "labelLength": "Length (cm)",
+  "@labelLength": {
+    "description": "Length field label"
+  },
+
+  "labelWidth": "Width (cm)",
+  "@labelWidth": {
+    "description": "Width field label"
+  },
+
+  "labelHeight": "Height (cm)",
+  "@labelHeight": {
+    "description": "Height field label"
+  },
+
+  "labelWeightKg": "Weight (kg)",
+  "@labelWeightKg": {
+    "description": "Weight in kg field label"
+  },
+
+  "labelQuantity": "Quantity",
+  "@labelQuantity": {
+    "description": "Quantity field label"
+  },
+
+  "labelItemType": "Item Type",
+  "@labelItemType": {
+    "description": "Item type field label"
+  },
+
+  "labelCartonNumber": "Carton {number}",
+  "@labelCartonNumber": {
+    "description": "Carton number label",
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+
+  "buttonSave": "Save",
+  "@buttonSave": {
+    "description": "Save button"
+  },
+
+  "buttonCancel": "Cancel",
+  "@buttonCancel": {
+    "description": "Cancel button"
+  },
+
+  "buttonDelete": "Delete",
+  "@buttonDelete": {
+    "description": "Delete button"
+  },
+
+  "buttonAddCarton": "Add Carton",
+  "@buttonAddCarton": {
+    "description": "Add carton button"
+  },
+
+  "buttonSaveShipment": "Save Shipment",
+  "@buttonSaveShipment": {
+    "description": "Save shipment button"
+  },
+
+  "buttonViewQuotes": "View Quotes",
+  "@buttonViewQuotes": {
+    "description": "View quotes button"
+  },
+
+  "buttonOptimize": "Optimize",
+  "@buttonOptimize": {
+    "description": "Optimize button"
+  },
+
+  "buttonBookThis": "Book This",
+  "@buttonBookThis": {
+    "description": "Book this shipment button"
+  },
+
+  "buttonDetails": "Details",
+  "@buttonDetails": {
+    "description": "Details button"
+  },
+
+  "buttonLess": "Less",
+  "@buttonLess": {
+    "description": "Less details button"
+  },
+
+  "buttonBook": "Book",
+  "@buttonBook": {
+    "description": "Book button"
+  },
+
+  "buttonDiscard": "Discard",
+  "@buttonDiscard": {
+    "description": "Discard button"
+  },
+
+  "buttonSaveChanges": "Save Changes",
+  "@buttonSaveChanges": {
+    "description": "Save changes button"
+  },
+
+  "buttonGotIt": "Got it",
+  "@buttonGotIt": {
+    "description": "Got it button"
+  },
+
+  "buttonResetToOriginal": "Reset to Original",
+  "@buttonResetToOriginal": {
+    "description": "Reset to original button"
+  },
+
+  "buttonRecalculateQuotes": "Recalculate Quotes",
+  "@buttonRecalculateQuotes": {
+    "description": "Recalculate quotes button"
+  },
+
+  "buttonApplySuggestion": "Apply Suggestion",
+  "@buttonApplySuggestion": {
+    "description": "Apply suggestion button"
+  },
+
+  "actionExportPdf": "Export PDF",
+  "@actionExportPdf": {
+    "description": "Export PDF action"
+  },
+
+  "actionOptimizePacking": "Optimize Packing",
+  "@actionOptimizePacking": {
+    "description": "Optimize packing action"
+  },
+
+  "tooltipBack": "Back",
+  "@tooltipBack": {
+    "description": "Back button tooltip"
+  },
+
+  "tooltipHelp": "Help",
+  "@tooltipHelp": {
+    "description": "Help button tooltip"
+  },
+
+  "tooltipSort": "Sort",
+  "@tooltipSort": {
+    "description": "Sort button tooltip"
+  },
+
+  "tooltipListView": "List View",
+  "@tooltipListView": {
+    "description": "List view tooltip"
+  },
+
+  "tooltipGroupByTransportMethod": "Group by Transport Method",
+  "@tooltipGroupByTransportMethod": {
+    "description": "Group by transport method tooltip"
+  },
+
+  "hintClickToEdit": "Click to edit",
+  "@hintClickToEdit": {
+    "description": "Click to edit hint"
+  },
+
+  "validationRequired": "Required",
+  "@validationRequired": {
+    "description": "Required field validation message"
+  },
+
+  "validationInvalid": "Invalid",
+  "@validationInvalid": {
+    "description": "Invalid field validation message"
+  },
+
+  "errorAddCartons": "Please add at least one carton",
+  "@errorAddCartons": {
+    "description": "Error when no cartons added"
+  },
+
+  "errorSavingShipment": "Error saving shipment",
+  "@errorSavingShipment": {
+    "description": "Error saving shipment"
+  },
+
+  "errorLoadingShipments": "Error loading shipments",
+  "@errorLoadingShipments": {
+    "description": "Error loading shipments"
+  },
+
+  "errorLoadingCartons": "Error loading cartons",
+  "@errorLoadingCartons": {
+    "description": "Error loading cartons"
+  },
+
+  "errorUpdatingAddress": "Error updating address",
+  "@errorUpdatingAddress": {
+    "description": "Error updating address"
+  },
+
+  "errorExportingPdf": "Error exporting PDF",
+  "@errorExportingPdf": {
+    "description": "Error exporting PDF"
+  },
+
+  "errorRecalculating": "Error recalculating quotes",
+  "@errorRecalculating": {
+    "description": "Error recalculating quotes"
+  },
+
+  "errorSavingChanges": "Error saving changes",
+  "@errorSavingChanges": {
+    "description": "Error saving changes"
+  },
+
+  "errorDeletingShipment": "Error deleting shipment",
+  "@errorDeletingShipment": {
+    "description": "Error deleting shipment"
+  },
+
+  "errorApplySuggestion": "Error applying suggestion",
+  "@errorApplySuggestion": {
+    "description": "Error applying optimization suggestion"
+  },
+
+  "successShipmentSaved": "Shipment saved successfully",
+  "@successShipmentSaved": {
+    "description": "Success message for saved shipment"
+  },
+
+  "successShipmentDeleted": "Shipment deleted successfully",
+  "@successShipmentDeleted": {
+    "description": "Success message for deleted shipment"
+  },
+
+  "successPdfExported": "PDF exported successfully",
+  "@successPdfExported": {
+    "description": "Success message for PDF export"
+  },
+
+  "successChangesSaved": "Changes saved! Quotes updated.",
+  "@successChangesSaved": {
+    "description": "Success message for saved changes"
+  },
+
+  "successAddressUpdated": "Address updated! {count} quotes generated.",
+  "@successAddressUpdated": {
+    "description": "Success message for updated address",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+
+  "successOptimizationApplied": "Optimization applied! Quotes have been recalculated.",
+  "@successOptimizationApplied": {
+    "description": "Success message when optimization is applied"
+  },
+
+  "statusCalculatingQuotes": "Calculating quotes...",
+  "@statusCalculatingQuotes": {
+    "description": "Status message when calculating quotes"
+  },
+
+  "statusLoading": "Loading...",
+  "@statusLoading": {
+    "description": "Loading status"
+  },
+
+  "statusSavingShipment": "Saving shipment and generating quotes...",
+  "@statusSavingShipment": {
+    "description": "Status when saving shipment"
+  },
+
+  "statusNoQuotesAvailable": "No quotes available",
+  "@statusNoQuotesAvailable": {
+    "description": "Status when no quotes available"
+  },
+
+  "deleteShipmentTitle": "Delete Shipment",
+  "@deleteShipmentTitle": {
+    "description": "Delete shipment dialog title"
+  },
+
+  "deleteShipmentMessage": "Are you sure you want to delete the shipment from {origin} to {destination}?",
+  "@deleteShipmentMessage": {
+    "description": "Delete shipment confirmation message",
+    "placeholders": {
+      "origin": {
+        "type": "String",
+        "example": "Shanghai"
+      },
+      "destination": {
+        "type": "String",
+        "example": "Berlin"
+      }
+    }
+  },
+
+  "bookShipmentTitle": "Book Shipment",
+  "@bookShipmentTitle": {
+    "description": "Book shipment dialog title"
+  },
+
+  "bookShipmentMessage": "Book shipment with {carrier} {service}?",
+  "@bookShipmentMessage": {
+    "description": "Book shipment confirmation message",
+    "placeholders": {
+      "carrier": {
+        "type": "String",
+        "example": "DHL"
+      },
+      "service": {
+        "type": "String",
+        "example": "Express"
+      }
+    }
+  },
+
+  "bookingFeatureComingSoon": "Booking feature coming soon!",
+  "@bookingFeatureComingSoon": {
+    "description": "Booking feature coming soon message"
+  },
+
+  "editOriginTitle": "Edit Origin",
+  "@editOriginTitle": {
+    "description": "Edit origin dialog title"
+  },
+
+  "editDestinationTitle": "Edit Destination",
+  "@editDestinationTitle": {
+    "description": "Edit destination dialog title"
+  },
+
+  "editDimensionsTitle": "Edit Dimensions",
+  "@editDimensionsTitle": {
+    "description": "Edit dimensions dialog title"
+  },
+
+  "editDimensionsSubtitle": "Experiment with different packing configurations",
+  "@editDimensionsSubtitle": {
+    "description": "Edit dimensions dialog subtitle"
+  },
+
+  "autoFillNote": "Country, state, and postal code will be auto-filled when you select a city",
+  "@autoFillNote": {
+    "description": "Auto-fill note for address fields"
+  },
+
+  "sortPriceLowHigh": "Price: Low to High",
+  "@sortPriceLowHigh": {
+    "description": "Sort option for price low to high"
+  },
+
+  "sortPriceHighLow": "Price: High to Low",
+  "@sortPriceHighLow": {
+    "description": "Sort option for price high to low"
+  },
+
+  "sortSpeedFastest": "Speed: Fastest First",
+  "@sortSpeedFastest": {
+    "description": "Sort option for fastest first"
+  },
+
+  "sortSpeedSlowest": "Speed: Slowest First",
+  "@sortSpeedSlowest": {
+    "description": "Sort option for slowest first"
+  },
+
+  "filterAll": "All",
+  "@filterAll": {
+    "description": "All filter option"
+  },
+
+  "badgeCheapest": "CHEAPEST",
+  "@badgeCheapest": {
+    "description": "Cheapest badge label"
+  },
+
+  "badgeFastest": "FASTEST",
+  "@badgeFastest": {
+    "description": "Fastest badge label"
+  },
+
+  "badgeBestInCategory": "BEST IN CATEGORY",
+  "@badgeBestInCategory": {
+    "description": "Best in category badge label"
+  },
+
+  "quoteDetailsPriceBreakdown": "Price Breakdown",
+  "@quoteDetailsPriceBreakdown": {
+    "description": "Price breakdown section title"
+  },
+
+  "quoteDetailsChargeableWeight": "Chargeable Weight",
+  "@quoteDetailsChargeableWeight": {
+    "description": "Chargeable weight label"
+  },
+
+  "quoteDetailsTotalPrice": "Total Price",
+  "@quoteDetailsTotalPrice": {
+    "description": "Total price label"
+  },
+
+  "quoteComparisonPotentialSavings": "Potential Savings!",
+  "@quoteComparisonPotentialSavings": {
+    "description": "Potential savings label"
+  },
+
+  "quoteComparisonCostIncrease": "Cost Increase",
+  "@quoteComparisonCostIncrease": {
+    "description": "Cost increase label"
+  },
+
+  "quoteComparisonNoChange": "No Change",
+  "@quoteComparisonNoChange": {
+    "description": "No change label"
+  },
+
+  "quoteComparisonAvailableQuotes": "Available Quotes ({count})",
+  "@quoteComparisonAvailableQuotes": {
+    "description": "Available quotes with count",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+
+  "quoteComparisonNoQuotesAvailable": "No Quotes Available",
+  "@quoteComparisonNoQuotesAvailable": {
+    "description": "No quotes available in comparison"
+  },
+
+  "shippoTestLimitationMessage": "Shippo test API keys don't support this shipping route.\n\nTest carrier accounts typically only work for US domestic or China-to-US routes.\n\nTo get real rates for this route, you need to:\n• Switch to live Shippo API keys\n• Connect real carrier accounts (UPS, DHL, FedEx, etc.)",
+  "@shippoTestLimitationMessage": {
+    "description": "Shippo test API limitation message"
+  },
+
+  "shippoTestLimitationShort": "Shippo's free test carrier accounts don't support international shipments from China.",
+  "@shippoTestLimitationShort": {
+    "description": "Short Shippo test limitation message"
+  },
+
+  "shippoHowToGetRealQuotes": "How to get real shipping quotes:",
+  "@shippoHowToGetRealQuotes": {
+    "description": "How to get real quotes title"
+  },
+
+  "shippoStep1": "Sign up for carrier accounts (DHL, FedEx, UPS, etc.)",
+  "@shippoStep1": {
+    "description": "Step 1 for getting real quotes"
+  },
+
+  "shippoStep2": "Connect them to your Shippo account",
+  "@shippoStep2": {
+    "description": "Step 2 for getting real quotes"
+  },
+
+  "shippoStep3": "Update your Shippo API key in app settings",
+  "@shippoStep3": {
+    "description": "Step 3 for getting real quotes"
+  },
+
+  "shippoInfoToGetRealQuotes": "To get real shipping quotes:",
+  "@shippoInfoToGetRealQuotes": {
+    "description": "Info header for getting real quotes"
+  },
+
+  "shippoInfoStep1": "1. Sign up for carrier accounts (DHL, FedEx, UPS)",
+  "@shippoInfoStep1": {
+    "description": "Info step 1"
+  },
+
+  "shippoInfoStep2": "2. Connect them to your Shippo account",
+  "@shippoInfoStep2": {
+    "description": "Info step 2"
+  },
+
+  "shippoInfoStep3": "3. Update your API key in the app settings",
+  "@shippoInfoStep3": {
+    "description": "Info step 3"
+  },
+
+  "warningNoQuotesConfigureShippo": "Address updated! No quotes available - configure Shippo carrier accounts for real rates.",
+  "@warningNoQuotesConfigureShippo": {
+    "description": "Warning when no quotes after address update"
+  },
+
+  "warningCouldNotGenerateQuotes": "Warning: Could not generate quotes: {error}",
+  "@warningCouldNotGenerateQuotes": {
+    "description": "Warning when quote generation fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "API error"
+      }
+    }
+  },
+
+  "optimizerCurrentPacking": "Current Packing",
+  "@optimizerCurrentPacking": {
+    "description": "Current packing section title"
+  },
+
+  "optimizerPackingSummary": "Packing Summary",
+  "@optimizerPackingSummary": {
+    "description": "Packing summary title"
+  },
+
+  "optimizerTotalCartons": "Total Cartons",
+  "@optimizerTotalCartons": {
+    "description": "Total cartons label"
+  },
+
+  "optimizerActualWeight": "Actual Weight",
+  "@optimizerActualWeight": {
+    "description": "Actual weight label"
+  },
+
+  "optimizerDimensionalWeight": "Dimensional Weight",
+  "@optimizerDimensionalWeight": {
+    "description": "Dimensional weight label"
+  },
+
+  "optimizerChargeableWeight": "Chargeable Weight",
+  "@optimizerChargeableWeight": {
+    "description": "Chargeable weight label"
+  },
+
+  "optimizerLargestSide": "Largest Side",
+  "@optimizerLargestSide": {
+    "description": "Largest side label"
+  },
+
+  "optimizerOversizeWarning": "Oversize detected - extra fees apply",
+  "@optimizerOversizeWarning": {
+    "description": "Oversize warning message"
+  },
+
+  "optimizerSuggestions": "Optimization Suggestions",
+  "@optimizerSuggestions": {
+    "description": "Optimization suggestions section title"
+  },
+
+  "optimizerCostSavingOpportunity": "Cost Saving Opportunity",
+  "@optimizerCostSavingOpportunity": {
+    "description": "Cost saving opportunity title"
+  },
+
+  "optimizerPackingOptimal": "Packing looks optimal!",
+  "@optimizerPackingOptimal": {
+    "description": "Packing optimal message"
+  },
+
+  "optimizerNoSuggestions": "Your current packing is efficient. No optimization suggestions at this time.",
+  "@optimizerNoSuggestions": {
+    "description": "No suggestions message"
+  },
+
+  "optimizerCartonDetails": "Carton Details",
+  "@optimizerCartonDetails": {
+    "description": "Carton details section title"
+  },
+
+  "optimizerDimensions": "Dimensions: {length}×{width}×{height} cm",
+  "@optimizerDimensions": {
+    "description": "Dimensions display",
+    "placeholders": {
+      "length": {
+        "type": "double",
+        "format": "decimalPattern",
+        "example": "50.0"
+      },
+      "width": {
+        "type": "double",
+        "format": "decimalPattern",
+        "example": "40.0"
+      },
+      "height": {
+        "type": "double",
+        "format": "decimalPattern",
+        "example": "30.0"
+      }
+    }
+  },
+
+  "optimizerWeight": "Weight: {weight} kg",
+  "@optimizerWeight": {
+    "description": "Weight display",
+    "placeholders": {
+      "weight": {
+        "type": "double",
+        "format": "decimalPattern",
+        "example": "25.5"
+      }
+    }
+  },
+
+  "optimizerItem": "Item: {type}",
+  "@optimizerItem": {
+    "description": "Item type display",
+    "placeholders": {
+      "type": {
+        "type": "String",
+        "example": "Electronics"
+      }
+    }
+  },
+
+  "optimizerHelpTitle": "Packing Optimizer",
+  "@optimizerHelpTitle": {
+    "description": "Optimizer help dialog title"
+  },
+
+  "optimizerHelpContent": "The packing optimizer analyzes your cartons and suggests ways to reduce shipping costs by optimizing dimensions.\n\nKey metrics:\n• Actual Weight: Physical weight of items\n• Dimensional Weight: Calculated from carton size\n• Chargeable Weight: Higher of the two\n\nTip: Reducing carton height often provides the best savings!",
+  "@optimizerHelpContent": {
+    "description": "Optimizer help content"
+  },
+
+  "liveTotalsUpdated": "Updated Totals (Preview)",
+  "@liveTotalsUpdated": {
+    "description": "Updated totals preview title"
+  },
+
+  "liveTotalsActual": "Actual",
+  "@liveTotalsActual": {
+    "description": "Actual weight label in live totals"
+  },
+
+  "liveTotalsDim": "Dim",
+  "@liveTotalsDim": {
+    "description": "Dimensional weight label in live totals"
+  },
+
+  "liveTotalsChargeable": "Chargeable",
+  "@liveTotalsChargeable": {
+    "description": "Chargeable weight label in live totals"
+  },
+
+  "liveTotalsInfoNote": "Dim Weight = (L×W×H)/5000, Chargeable = max(Actual, Dim) × Qty. Click \"Recalculate Quotes\" to fetch real shipping rates from Shippo API.",
+  "@liveTotalsInfoNote": {
+    "description": "Info note about weight calculations"
+  },
+
+  "liveTotalsOversizeWarning": "Oversize - extra fees may apply",
+  "@liveTotalsOversizeWarning": {
+    "description": "Oversize warning in live totals"
+  },
+
+  "transportExpressAir": "Express Air",
+  "@transportExpressAir": {
+    "description": "Express air transport method"
+  },
+
+  "transportStandardAir": "Standard Air",
+  "@transportStandardAir": {
+    "description": "Standard air transport method"
+  },
+
+  "transportAirFreight": "Air Freight",
+  "@transportAirFreight": {
+    "description": "Air freight transport method"
+  },
+
+  "transportSeaFreightLCL": "Sea Freight (LCL)",
+  "@transportSeaFreightLCL": {
+    "description": "Sea freight LCL transport method"
+  },
+
+  "transportSeaFreightFCL": "Sea Freight (FCL)",
+  "@transportSeaFreightFCL": {
+    "description": "Sea freight FCL transport method"
+  },
+
+  "transportRoadFreight": "Road Freight",
+  "@transportRoadFreight": {
+    "description": "Road freight transport method"
+  },
+
+  "transportOptionsCount": "{count} {count, plural, =1{option} other{options}}",
+  "@transportOptionsCount": {
+    "description": "Transport method options count",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+
+  "etaDays": "{min}-{max} days",
+  "@etaDays": {
+    "description": "ETA days range",
+    "placeholders": {
+      "min": {
+        "type": "int",
+        "example": "3"
+      },
+      "max": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+
+  "etaSingleDay": "{days} days",
+  "@etaSingleDay": {
+    "description": "ETA in days",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+
+  "weightKg": "{weight} kg",
+  "@weightKg": {
+    "description": "Weight in kilograms",
+    "placeholders": {
+      "weight": {
+        "type": "double",
+        "format": "decimalPattern",
+        "example": "25.5"
+      }
+    }
+  },
+
+  "priceFrom": "from {price}",
+  "@priceFrom": {
+    "description": "Price starting from",
+    "placeholders": {
+      "price": {
+        "type": "String",
+        "example": "€150"
+      }
+    }
+  },
+
+  "cheapestPrice": "{weight} kg • from {price}",
+  "@cheapestPrice": {
+    "description": "Cheapest price display",
+    "placeholders": {
+      "weight": {
+        "type": "String",
+        "example": "25.5"
+      },
+      "price": {
+        "type": "String",
+        "example": "€150"
+      }
+    }
+  },
+
+  "routeDisplay": "{origin} → {destination}",
+  "@routeDisplay": {
+    "description": "Route display format",
+    "placeholders": {
+      "origin": {
+        "type": "String",
+        "example": "Shanghai"
+      },
+      "destination": {
+        "type": "String",
+        "example": "Berlin"
+      }
+    }
+  },
+
+  "cityPostalDisplay": "{city}, {postal}",
+  "@cityPostalDisplay": {
+    "description": "City and postal code display",
+    "placeholders": {
+      "city": {
+        "type": "String",
+        "example": "Berlin"
+      },
+      "postal": {
+        "type": "String",
+        "example": "10115"
+      }
+    }
+  },
+
+  "versionDisplay": "Bockaire v{version} ({buildNumber})",
+  "@versionDisplay": {
+    "description": "Version display format",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "0.5.2"
+      },
+      "buildNumber": {
+        "type": "String",
+        "example": "7"
+      }
+    }
+  },
+
+  "cheapestPriceChange": "Cheapest: {oldPrice} → {newPrice}",
+  "@cheapestPriceChange": {
+    "description": "Cheapest price change display",
+    "placeholders": {
+      "oldPrice": {
+        "type": "String",
+        "example": "€200"
+      },
+      "newPrice": {
+        "type": "String",
+        "example": "€180"
+      }
+    }
+  },
+
+  "instantQuotes": "Instant Quotes",
+  "@instantQuotes": {
+    "description": "Instant quotes section title"
+  },
+
+  "chargeableWeightDisplay": "{weight} kg chargeable",
+  "@chargeableWeightDisplay": {
+    "description": "Chargeable weight display",
+    "placeholders": {
+      "weight": {
+        "type": "String",
+        "example": "25.5"
+      }
+    }
+  },
+
+  "badgeCheapestShort": "Cheapest",
+  "@badgeCheapestShort": {
+    "description": "Cheapest badge short label"
+  },
+
+  "badgeFastestShort": "Fastest",
+  "@badgeFastestShort": {
+    "description": "Fastest badge short label"
+  },
+
+  "badgeBestValue": "Best Value",
+  "@badgeBestValue": {
+    "description": "Best value badge label"
+  },
+
+  "quoteSubtotal": "Subtotal",
+  "@quoteSubtotal": {
+    "description": "Quote subtotal label"
+  },
+
+  "quoteFuelSurcharge": "Fuel Surcharge",
+  "@quoteFuelSurcharge": {
+    "description": "Fuel surcharge label"
+  },
+
+  "quoteOversizeFee": "Oversize Fee",
+  "@quoteOversizeFee": {
+    "description": "Oversize fee label"
+  },
+
+  "optimizationFoundTitle": "Optimization Found!",
+  "@optimizationFoundTitle": {
+    "description": "Optimization found title"
+  },
+
+  "fewerCartons": "{count} fewer carton(s)",
+  "@fewerCartons": {
+    "description": "Fewer cartons message",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+
+  "lessChargeableWeight": "{weight} kg less chargeable weight",
+  "@lessChargeableWeight": {
+    "description": "Less chargeable weight message",
+    "placeholders": {
+      "weight": {
+        "type": "String",
+        "example": "5.5"
+      }
+    }
+  },
+
+  "currentPackingOptimal": "Current packing is already optimal",
+  "@currentPackingOptimal": {
+    "description": "Current packing is optimal message"
+  },
+
+  "comparisonCurrent": "Current",
+  "@comparisonCurrent": {
+    "description": "Current comparison label"
+  },
+
+  "comparisonOptimized": "Optimized",
+  "@comparisonOptimized": {
+    "description": "Optimized comparison label"
+  },
+
+  "statCartons": "Cartons",
+  "@statCartons": {
+    "description": "Cartons statistic label"
+  },
+
+  "statChargeable": "Chargeable",
+  "@statChargeable": {
+    "description": "Chargeable weight statistic label"
+  },
+
+  "statVolume": "Volume",
+  "@statVolume": {
+    "description": "Volume statistic label"
+  },
+
+  "buttonApplyOptimization": "Apply Optimization",
+  "@buttonApplyOptimization": {
+    "description": "Apply optimization button"
+  },
+
+  "buttonKeepOriginal": "Keep Original",
+  "@buttonKeepOriginal": {
+    "description": "Keep original button"
+  },
+
+  "buttonClose": "Close",
+  "@buttonClose": {
+    "description": "Close button"
+  },
+
+  "helperSelectFromDropdown": "Please select a city from the dropdown",
+  "@helperSelectFromDropdown": {
+    "description": "Helper text to select from dropdown"
+  },
+
+  "validationSelectFromDropdown": "Please select a city from the dropdown",
+  "@validationSelectFromDropdown": {
+    "description": "Validation message to select from dropdown"
+  }
+}
