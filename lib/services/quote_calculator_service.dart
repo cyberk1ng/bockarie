@@ -100,6 +100,8 @@ class QuoteCalculatorService {
             notes: rate.estimatedDays != null
                 ? 'ETA: ${rate.estimatedDays} days'
                 : null,
+            estimatedDays: rate.estimatedDays,
+            durationTerms: rate.durationTerms,
           );
         }).toList();
       } catch (e) {
@@ -172,6 +174,8 @@ class ShippingQuote {
   final double total;
   final double chargeableKg;
   final String? notes;
+  final int? estimatedDays;
+  final String? durationTerms;
 
   const ShippingQuote({
     required this.carrier,
@@ -182,6 +186,8 @@ class ShippingQuote {
     required this.total,
     required this.chargeableKg,
     this.notes,
+    this.estimatedDays,
+    this.durationTerms,
   });
 
   String get displayName => '$carrier $service';
