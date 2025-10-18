@@ -9,6 +9,8 @@ import 'package:bockaire/database/database.dart';
 import 'package:bockaire/services/quote_calculator_service.dart';
 import 'package:bockaire/classes/carton.dart' as models;
 import 'package:bockaire/providers/shipment_providers.dart';
+import 'package:bockaire/models/transport_method.dart';
+import 'package:bockaire/utils/duration_parser.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart' as drift;
 
@@ -473,6 +475,19 @@ class _OptimizationSuggestionCardState
 
           // Save new quotes
           for (final quote in newQuotes) {
+            // Parse duration from quote
+            final (etaMin, etaMax) = parseDuration(
+              quote.estimatedDays,
+              quote.durationTerms,
+            );
+
+            // Classify transport method
+            final transportMethod = classifyTransportMethod(
+              quote.carrier,
+              quote.service,
+              quote.estimatedDays ?? 5,
+            );
+
             await db
                 .into(db.quotes)
                 .insert(
@@ -481,10 +496,11 @@ class _OptimizationSuggestionCardState
                     shipmentId: drift.Value(widget.shipmentId),
                     carrier: drift.Value(quote.carrier),
                     service: drift.Value(quote.service),
-                    etaMin: drift.Value(5),
-                    etaMax: drift.Value(7),
+                    etaMin: drift.Value(etaMin),
+                    etaMax: drift.Value(etaMax),
                     priceEur: drift.Value(quote.total),
                     chargeableKg: drift.Value(quote.chargeableKg),
+                    transportMethod: drift.Value(transportMethod.name),
                   ),
                 );
           }

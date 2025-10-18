@@ -75,6 +75,7 @@ class Quotes extends Table {
   IntColumn get etaMax => integer()();
   RealColumn get priceEur => real()();
   RealColumn get chargeableKg => real()();
+  TextColumn get transportMethod => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -103,8 +104,11 @@ class CompanyInfo extends Table {
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
+  // Constructor for testing with custom executor
+  AppDatabase.forTesting(super.executor);
+
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -131,6 +135,11 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(shipments, shipments.originState);
         await m.addColumn(shipments, shipments.destCountry);
         await m.addColumn(shipments, shipments.destState);
+      }
+      if (from < 4) {
+        // Migration from version 3 to 4
+        // Add transportMethod column to Quotes table
+        await m.addColumn(quotes, quotes.transportMethod);
       }
     },
   );

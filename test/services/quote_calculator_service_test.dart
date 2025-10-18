@@ -456,6 +456,106 @@ void main() {
 
         expect(quote.toString(), 'DHL Express: €230.00 (50.5kg)');
       });
+
+      test('includes estimatedDays when provided', () {
+        const quote = ShippingQuote(
+          carrier: 'UPS',
+          service: 'Express Saver',
+          subtotal: 200.0,
+          fuelSurcharge: 30.0,
+          oversizeFee: 0.0,
+          total: 230.0,
+          chargeableKg: 50.0,
+          notes: 'Test quote',
+          estimatedDays: 3,
+        );
+
+        expect(quote.estimatedDays, 3);
+      });
+
+      test('includes durationTerms when provided', () {
+        const quote = ShippingQuote(
+          carrier: 'FedEx',
+          service: 'Priority',
+          subtotal: 200.0,
+          fuelSurcharge: 30.0,
+          oversizeFee: 0.0,
+          total: 230.0,
+          chargeableKg: 50.0,
+          notes: 'Test quote',
+          durationTerms: '2-3 business days',
+        );
+
+        expect(quote.durationTerms, '2-3 business days');
+      });
+
+      test('handles both estimatedDays and durationTerms', () {
+        const quote = ShippingQuote(
+          carrier: 'DHL',
+          service: 'Express Worldwide',
+          subtotal: 250.0,
+          fuelSurcharge: 35.0,
+          oversizeFee: 0.0,
+          total: 285.0,
+          chargeableKg: 60.0,
+          notes: 'Express service',
+          estimatedDays: 2,
+          durationTerms: '1-3 business days',
+        );
+
+        expect(quote.estimatedDays, 2);
+        expect(quote.durationTerms, '1-3 business days');
+      });
+
+      test('estimatedDays and durationTerms can be null', () {
+        const quote = ShippingQuote(
+          carrier: 'Carrier',
+          service: 'Standard',
+          subtotal: 150.0,
+          fuelSurcharge: 20.0,
+          oversizeFee: 0.0,
+          total: 170.0,
+          chargeableKg: 40.0,
+          notes: null,
+        );
+
+        expect(quote.estimatedDays, null);
+        expect(quote.durationTerms, null);
+      });
+
+      test('supports zero estimatedDays', () {
+        const quote = ShippingQuote(
+          carrier: 'Same Day',
+          service: 'Instant',
+          subtotal: 500.0,
+          fuelSurcharge: 50.0,
+          oversizeFee: 0.0,
+          total: 550.0,
+          chargeableKg: 5.0,
+          notes: 'Same day delivery',
+          estimatedDays: 0,
+        );
+
+        expect(quote.estimatedDays, 0);
+      });
+
+      test('supports high estimatedDays for sea freight', () {
+        const quote = ShippingQuote(
+          carrier: 'Maersk',
+          service: 'Sea Freight LCL',
+          subtotal: 100.0,
+          fuelSurcharge: 10.0,
+          oversizeFee: 0.0,
+          total: 110.0,
+          chargeableKg: 200.0,
+          notes: 'Ocean freight',
+          estimatedDays: 35,
+          durationTerms: '30-40 days',
+        );
+
+        expect(quote.estimatedDays, 35);
+        expect(quote.durationTerms, '30-40 days');
+      });
     });
   });
 }

@@ -2041,6 +2041,17 @@ class $QuotesTable extends Quotes with TableInfo<$QuotesTable, Quote> {
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _transportMethodMeta = const VerificationMeta(
+    'transportMethod',
+  );
+  @override
+  late final GeneratedColumn<String> transportMethod = GeneratedColumn<String>(
+    'transport_method',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2051,6 +2062,7 @@ class $QuotesTable extends Quotes with TableInfo<$QuotesTable, Quote> {
     etaMax,
     priceEur,
     chargeableKg,
+    transportMethod,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2128,6 +2140,15 @@ class $QuotesTable extends Quotes with TableInfo<$QuotesTable, Quote> {
     } else if (isInserting) {
       context.missing(_chargeableKgMeta);
     }
+    if (data.containsKey('transport_method')) {
+      context.handle(
+        _transportMethodMeta,
+        transportMethod.isAcceptableOrUnknown(
+          data['transport_method']!,
+          _transportMethodMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -2169,6 +2190,10 @@ class $QuotesTable extends Quotes with TableInfo<$QuotesTable, Quote> {
         DriftSqlType.double,
         data['${effectivePrefix}chargeable_kg'],
       )!,
+      transportMethod: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}transport_method'],
+      ),
     );
   }
 
@@ -2187,6 +2212,7 @@ class Quote extends DataClass implements Insertable<Quote> {
   final int etaMax;
   final double priceEur;
   final double chargeableKg;
+  final String? transportMethod;
   const Quote({
     required this.id,
     required this.shipmentId,
@@ -2196,6 +2222,7 @@ class Quote extends DataClass implements Insertable<Quote> {
     required this.etaMax,
     required this.priceEur,
     required this.chargeableKg,
+    this.transportMethod,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2208,6 +2235,9 @@ class Quote extends DataClass implements Insertable<Quote> {
     map['eta_max'] = Variable<int>(etaMax);
     map['price_eur'] = Variable<double>(priceEur);
     map['chargeable_kg'] = Variable<double>(chargeableKg);
+    if (!nullToAbsent || transportMethod != null) {
+      map['transport_method'] = Variable<String>(transportMethod);
+    }
     return map;
   }
 
@@ -2221,6 +2251,9 @@ class Quote extends DataClass implements Insertable<Quote> {
       etaMax: Value(etaMax),
       priceEur: Value(priceEur),
       chargeableKg: Value(chargeableKg),
+      transportMethod: transportMethod == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transportMethod),
     );
   }
 
@@ -2238,6 +2271,7 @@ class Quote extends DataClass implements Insertable<Quote> {
       etaMax: serializer.fromJson<int>(json['etaMax']),
       priceEur: serializer.fromJson<double>(json['priceEur']),
       chargeableKg: serializer.fromJson<double>(json['chargeableKg']),
+      transportMethod: serializer.fromJson<String?>(json['transportMethod']),
     );
   }
   @override
@@ -2252,6 +2286,7 @@ class Quote extends DataClass implements Insertable<Quote> {
       'etaMax': serializer.toJson<int>(etaMax),
       'priceEur': serializer.toJson<double>(priceEur),
       'chargeableKg': serializer.toJson<double>(chargeableKg),
+      'transportMethod': serializer.toJson<String?>(transportMethod),
     };
   }
 
@@ -2264,6 +2299,7 @@ class Quote extends DataClass implements Insertable<Quote> {
     int? etaMax,
     double? priceEur,
     double? chargeableKg,
+    Value<String?> transportMethod = const Value.absent(),
   }) => Quote(
     id: id ?? this.id,
     shipmentId: shipmentId ?? this.shipmentId,
@@ -2273,6 +2309,9 @@ class Quote extends DataClass implements Insertable<Quote> {
     etaMax: etaMax ?? this.etaMax,
     priceEur: priceEur ?? this.priceEur,
     chargeableKg: chargeableKg ?? this.chargeableKg,
+    transportMethod: transportMethod.present
+        ? transportMethod.value
+        : this.transportMethod,
   );
   Quote copyWithCompanion(QuotesCompanion data) {
     return Quote(
@@ -2288,6 +2327,9 @@ class Quote extends DataClass implements Insertable<Quote> {
       chargeableKg: data.chargeableKg.present
           ? data.chargeableKg.value
           : this.chargeableKg,
+      transportMethod: data.transportMethod.present
+          ? data.transportMethod.value
+          : this.transportMethod,
     );
   }
 
@@ -2301,7 +2343,8 @@ class Quote extends DataClass implements Insertable<Quote> {
           ..write('etaMin: $etaMin, ')
           ..write('etaMax: $etaMax, ')
           ..write('priceEur: $priceEur, ')
-          ..write('chargeableKg: $chargeableKg')
+          ..write('chargeableKg: $chargeableKg, ')
+          ..write('transportMethod: $transportMethod')
           ..write(')'))
         .toString();
   }
@@ -2316,6 +2359,7 @@ class Quote extends DataClass implements Insertable<Quote> {
     etaMax,
     priceEur,
     chargeableKg,
+    transportMethod,
   );
   @override
   bool operator ==(Object other) =>
@@ -2328,7 +2372,8 @@ class Quote extends DataClass implements Insertable<Quote> {
           other.etaMin == this.etaMin &&
           other.etaMax == this.etaMax &&
           other.priceEur == this.priceEur &&
-          other.chargeableKg == this.chargeableKg);
+          other.chargeableKg == this.chargeableKg &&
+          other.transportMethod == this.transportMethod);
 }
 
 class QuotesCompanion extends UpdateCompanion<Quote> {
@@ -2340,6 +2385,7 @@ class QuotesCompanion extends UpdateCompanion<Quote> {
   final Value<int> etaMax;
   final Value<double> priceEur;
   final Value<double> chargeableKg;
+  final Value<String?> transportMethod;
   final Value<int> rowid;
   const QuotesCompanion({
     this.id = const Value.absent(),
@@ -2350,6 +2396,7 @@ class QuotesCompanion extends UpdateCompanion<Quote> {
     this.etaMax = const Value.absent(),
     this.priceEur = const Value.absent(),
     this.chargeableKg = const Value.absent(),
+    this.transportMethod = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   QuotesCompanion.insert({
@@ -2361,6 +2408,7 @@ class QuotesCompanion extends UpdateCompanion<Quote> {
     required int etaMax,
     required double priceEur,
     required double chargeableKg,
+    this.transportMethod = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        shipmentId = Value(shipmentId),
@@ -2379,6 +2427,7 @@ class QuotesCompanion extends UpdateCompanion<Quote> {
     Expression<int>? etaMax,
     Expression<double>? priceEur,
     Expression<double>? chargeableKg,
+    Expression<String>? transportMethod,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2390,6 +2439,7 @@ class QuotesCompanion extends UpdateCompanion<Quote> {
       if (etaMax != null) 'eta_max': etaMax,
       if (priceEur != null) 'price_eur': priceEur,
       if (chargeableKg != null) 'chargeable_kg': chargeableKg,
+      if (transportMethod != null) 'transport_method': transportMethod,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2403,6 +2453,7 @@ class QuotesCompanion extends UpdateCompanion<Quote> {
     Value<int>? etaMax,
     Value<double>? priceEur,
     Value<double>? chargeableKg,
+    Value<String?>? transportMethod,
     Value<int>? rowid,
   }) {
     return QuotesCompanion(
@@ -2414,6 +2465,7 @@ class QuotesCompanion extends UpdateCompanion<Quote> {
       etaMax: etaMax ?? this.etaMax,
       priceEur: priceEur ?? this.priceEur,
       chargeableKg: chargeableKg ?? this.chargeableKg,
+      transportMethod: transportMethod ?? this.transportMethod,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2445,6 +2497,9 @@ class QuotesCompanion extends UpdateCompanion<Quote> {
     if (chargeableKg.present) {
       map['chargeable_kg'] = Variable<double>(chargeableKg.value);
     }
+    if (transportMethod.present) {
+      map['transport_method'] = Variable<String>(transportMethod.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2462,6 +2517,7 @@ class QuotesCompanion extends UpdateCompanion<Quote> {
           ..write('etaMax: $etaMax, ')
           ..write('priceEur: $priceEur, ')
           ..write('chargeableKg: $chargeableKg, ')
+          ..write('transportMethod: $transportMethod, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4476,6 +4532,7 @@ typedef $$QuotesTableCreateCompanionBuilder =
       required int etaMax,
       required double priceEur,
       required double chargeableKg,
+      Value<String?> transportMethod,
       Value<int> rowid,
     });
 typedef $$QuotesTableUpdateCompanionBuilder =
@@ -4488,6 +4545,7 @@ typedef $$QuotesTableUpdateCompanionBuilder =
       Value<int> etaMax,
       Value<double> priceEur,
       Value<double> chargeableKg,
+      Value<String?> transportMethod,
       Value<int> rowid,
     });
 
@@ -4554,6 +4612,11 @@ class $$QuotesTableFilterComposer
 
   ColumnFilters<double> get chargeableKg => $composableBuilder(
     column: $table.chargeableKg,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get transportMethod => $composableBuilder(
+    column: $table.transportMethod,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4625,6 +4688,11 @@ class $$QuotesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get transportMethod => $composableBuilder(
+    column: $table.transportMethod,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$ShipmentsTableOrderingComposer get shipmentId {
     final $$ShipmentsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -4678,6 +4746,11 @@ class $$QuotesTableAnnotationComposer
 
   GeneratedColumn<double> get chargeableKg => $composableBuilder(
     column: $table.chargeableKg,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get transportMethod => $composableBuilder(
+    column: $table.transportMethod,
     builder: (column) => column,
   );
 
@@ -4741,6 +4814,7 @@ class $$QuotesTableTableManager
                 Value<int> etaMax = const Value.absent(),
                 Value<double> priceEur = const Value.absent(),
                 Value<double> chargeableKg = const Value.absent(),
+                Value<String?> transportMethod = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => QuotesCompanion(
                 id: id,
@@ -4751,6 +4825,7 @@ class $$QuotesTableTableManager
                 etaMax: etaMax,
                 priceEur: priceEur,
                 chargeableKg: chargeableKg,
+                transportMethod: transportMethod,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -4763,6 +4838,7 @@ class $$QuotesTableTableManager
                 required int etaMax,
                 required double priceEur,
                 required double chargeableKg,
+                Value<String?> transportMethod = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => QuotesCompanion.insert(
                 id: id,
@@ -4773,6 +4849,7 @@ class $$QuotesTableTableManager
                 etaMax: etaMax,
                 priceEur: priceEur,
                 chargeableKg: chargeableKg,
+                transportMethod: transportMethod,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

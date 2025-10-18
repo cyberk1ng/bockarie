@@ -12,6 +12,8 @@ import 'package:bockaire/widgets/shipment/live_totals_card.dart';
 import 'package:bockaire/services/calculation_service.dart';
 import 'package:bockaire/services/quote_calculator_service.dart';
 import 'package:bockaire/classes/carton.dart' as models;
+import 'package:bockaire/models/transport_method.dart';
+import 'package:bockaire/utils/duration_parser.dart';
 import 'package:drift/drift.dart' as drift;
 
 class NewShipmentPage extends StatefulWidget {
@@ -602,6 +604,20 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
           _logger.d(
             'Saving quote: ${quote.carrier} ${quote.service} - €${quote.total}',
           );
+
+          // Parse duration from quote
+          final (etaMin, etaMax) = parseDuration(
+            quote.estimatedDays,
+            quote.durationTerms,
+          );
+
+          // Classify transport method
+          final transportMethod = classifyTransportMethod(
+            quote.carrier,
+            quote.service,
+            quote.estimatedDays ?? 5,
+          );
+
           await db
               .into(db.quotes)
               .insert(
@@ -610,10 +626,11 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                   shipmentId: drift.Value(shipmentId),
                   carrier: drift.Value(quote.carrier),
                   service: drift.Value(quote.service),
-                  etaMin: drift.Value(5), // Default values, will be updated
-                  etaMax: drift.Value(7),
+                  etaMin: drift.Value(etaMin),
+                  etaMax: drift.Value(etaMax),
                   priceEur: drift.Value(quote.total),
                   chargeableKg: drift.Value(quote.chargeableKg),
+                  transportMethod: drift.Value(transportMethod.name),
                 ),
               );
         }
