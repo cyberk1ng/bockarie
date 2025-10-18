@@ -3,12 +3,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bockaire/themes/theme.dart';
 import 'package:bockaire/providers/theme_providers.dart';
 import 'package:bockaire/widgets/modal/modal_card.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
-class SettingsPage extends ConsumerWidget {
+class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends ConsumerState<SettingsPage> {
+  late Future<PackageInfo> _packageInfoFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _packageInfoFuture = PackageInfo.fromPlatform();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
 
     return Scaffold(
@@ -28,10 +42,7 @@ class SettingsPage extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Theme Mode',
-                  style: context.textTheme.titleMedium,
-                ),
+                Text('Theme Mode', style: context.textTheme.titleMedium),
                 const SizedBox(height: AppTheme.spacingMedium),
                 SegmentedButton<ThemeMode>(
                   selected: {themeMode},
@@ -99,10 +110,19 @@ class SettingsPage extends ConsumerWidget {
           const Divider(),
           const SizedBox(height: AppTheme.spacingMedium),
 
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text('About'),
-            subtitle: const Text('Bockaire v1.0.0'),
+          FutureBuilder<PackageInfo>(
+            future: _packageInfoFuture,
+            builder: (context, snapshot) {
+              final versionText = snapshot.hasData
+                  ? 'Bockaire v${snapshot.data!.version} (${snapshot.data!.buildNumber})'
+                  : 'Bockaire';
+
+              return ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: const Text('About'),
+                subtitle: Text(versionText),
+              );
+            },
           ),
         ],
       ),

@@ -42,23 +42,18 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
 }
 
 // Provider for theme mode
-final themeModeProvider =
-    StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
+final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((
+  ref,
+) {
   return ThemeModeNotifier();
 });
 
 // Provider for light theme (fixed color scheme)
 final lightThemeProvider = Provider<ThemeData>((ref) {
-  return FlexThemeData.light(
-    scheme: FlexScheme.deepBlue,
-    useMaterial3: true,
-  );
+  return FlexThemeData.light(scheme: FlexScheme.deepBlue, useMaterial3: true);
 });
 
 // Provider for dark theme (fixed color scheme)
 final darkThemeProvider = Provider<ThemeData>((ref) {
-  return FlexThemeData.dark(
-    scheme: FlexScheme.deepBlue,
-    useMaterial3: true,
-  );
+  return FlexThemeData.dark(scheme: FlexScheme.deepBlue, useMaterial3: true);
 });

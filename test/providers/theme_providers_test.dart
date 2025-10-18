@@ -1,7 +1,6 @@
 import 'package:bockaire/database/database.dart';
 import 'package:bockaire/get_it.dart';
 import 'package:bockaire/providers/theme_providers.dart';
-import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -29,7 +28,9 @@ void main() {
   group('ThemeModeNotifier', () {
     group('Initialization', () {
       test('initial state is ThemeMode.system', () {
-        when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => null);
+        when(
+          () => mockDb.getSetting('theme_mode'),
+        ).thenAnswer((_) async => null);
 
         final notifier = ThemeModeNotifier();
 
@@ -37,7 +38,9 @@ void main() {
       });
 
       test('loads saved light theme from database on init', () async {
-        when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => 'light');
+        when(
+          () => mockDb.getSetting('theme_mode'),
+        ).thenAnswer((_) async => 'light');
 
         final notifier = ThemeModeNotifier();
 
@@ -49,7 +52,9 @@ void main() {
       });
 
       test('loads saved dark theme from database on init', () async {
-        when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => 'dark');
+        when(
+          () => mockDb.getSetting('theme_mode'),
+        ).thenAnswer((_) async => 'dark');
 
         final notifier = ThemeModeNotifier();
 
@@ -61,7 +66,9 @@ void main() {
       });
 
       test('loads saved system theme from database on init', () async {
-        when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => 'system');
+        when(
+          () => mockDb.getSetting('theme_mode'),
+        ).thenAnswer((_) async => 'system');
 
         final notifier = ThemeModeNotifier();
 
@@ -73,7 +80,9 @@ void main() {
       });
 
       test('defaults to system when no saved preference', () async {
-        when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => null);
+        when(
+          () => mockDb.getSetting('theme_mode'),
+        ).thenAnswer((_) async => null);
 
         final notifier = ThemeModeNotifier();
 
@@ -83,19 +92,26 @@ void main() {
         expect(notifier.state, ThemeMode.system);
       });
 
-      test('handles invalid theme mode string by defaulting to system', () async {
-        when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => 'invalid_mode');
+      test(
+        'handles invalid theme mode string by defaulting to system',
+        () async {
+          when(
+            () => mockDb.getSetting('theme_mode'),
+          ).thenAnswer((_) async => 'invalid_mode');
 
-        final notifier = ThemeModeNotifier();
+          final notifier = ThemeModeNotifier();
 
-        // Wait for async initialization
-        await Future.delayed(const Duration(milliseconds: 100));
+          // Wait for async initialization
+          await Future.delayed(const Duration(milliseconds: 100));
 
-        expect(notifier.state, ThemeMode.system);
-      });
+          expect(notifier.state, ThemeMode.system);
+        },
+      );
 
       test('handles database errors gracefully during load', () async {
-        when(() => mockDb.getSetting('theme_mode')).thenThrow(Exception('Database error'));
+        when(
+          () => mockDb.getSetting('theme_mode'),
+        ).thenThrow(Exception('Database error'));
 
         final notifier = ThemeModeNotifier();
 
@@ -109,8 +125,12 @@ void main() {
 
     group('Theme Mode Setting', () {
       test('setThemeMode() updates state to light', () async {
-        when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => null);
-        when(() => mockDb.saveSetting(any(), any())).thenAnswer((_) async => {});
+        when(
+          () => mockDb.getSetting('theme_mode'),
+        ).thenAnswer((_) async => null);
+        when(
+          () => mockDb.saveSetting(any(), any()),
+        ).thenAnswer((_) async => {});
 
         final notifier = ThemeModeNotifier();
 
@@ -120,8 +140,12 @@ void main() {
       });
 
       test('setThemeMode() updates state to dark', () async {
-        when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => null);
-        when(() => mockDb.saveSetting(any(), any())).thenAnswer((_) async => {});
+        when(
+          () => mockDb.getSetting('theme_mode'),
+        ).thenAnswer((_) async => null);
+        when(
+          () => mockDb.saveSetting(any(), any()),
+        ).thenAnswer((_) async => {});
 
         final notifier = ThemeModeNotifier();
 
@@ -131,8 +155,12 @@ void main() {
       });
 
       test('setThemeMode() updates state to system', () async {
-        when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => null);
-        when(() => mockDb.saveSetting(any(), any())).thenAnswer((_) async => {});
+        when(
+          () => mockDb.getSetting('theme_mode'),
+        ).thenAnswer((_) async => null);
+        when(
+          () => mockDb.saveSetting(any(), any()),
+        ).thenAnswer((_) async => {});
 
         final notifier = ThemeModeNotifier();
 
@@ -141,23 +169,34 @@ void main() {
         expect(notifier.state, ThemeMode.system);
       });
 
-      test('setThemeMode() persists to database with correct key and value', () async {
-        when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => null);
-        when(() => mockDb.saveSetting(any(), any())).thenAnswer((_) async => {});
+      test(
+        'setThemeMode() persists to database with correct key and value',
+        () async {
+          when(
+            () => mockDb.getSetting('theme_mode'),
+          ).thenAnswer((_) async => null);
+          when(
+            () => mockDb.saveSetting(any(), any()),
+          ).thenAnswer((_) async => {});
 
-        final notifier = ThemeModeNotifier();
+          final notifier = ThemeModeNotifier();
 
-        notifier.setThemeMode(ThemeMode.dark);
+          notifier.setThemeMode(ThemeMode.dark);
 
-        // Wait for async save
-        await Future.delayed(const Duration(milliseconds: 50));
+          // Wait for async save
+          await Future.delayed(const Duration(milliseconds: 50));
 
-        verify(() => mockDb.saveSetting('theme_mode', 'dark')).called(1);
-      });
+          verify(() => mockDb.saveSetting('theme_mode', 'dark')).called(1);
+        },
+      );
 
       test('setThemeMode() handles multiple rapid changes correctly', () async {
-        when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => null);
-        when(() => mockDb.saveSetting(any(), any())).thenAnswer((_) async => {});
+        when(
+          () => mockDb.getSetting('theme_mode'),
+        ).thenAnswer((_) async => null);
+        when(
+          () => mockDb.saveSetting(any(), any()),
+        ).thenAnswer((_) async => {});
 
         final notifier = ThemeModeNotifier();
 
@@ -177,8 +216,12 @@ void main() {
 
     group('Database Persistence', () {
       test('saves theme mode as string correctly', () async {
-        when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => null);
-        when(() => mockDb.saveSetting(any(), any())).thenAnswer((_) async => {});
+        when(
+          () => mockDb.getSetting('theme_mode'),
+        ).thenAnswer((_) async => null);
+        when(
+          () => mockDb.saveSetting(any(), any()),
+        ).thenAnswer((_) async => {});
 
         final notifier = ThemeModeNotifier();
 
@@ -189,8 +232,12 @@ void main() {
       });
 
       test('handles save failures without crashing', () async {
-        when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => null);
-        when(() => mockDb.saveSetting(any(), any())).thenThrow(Exception('Save failed'));
+        when(
+          () => mockDb.getSetting('theme_mode'),
+        ).thenAnswer((_) async => null);
+        when(
+          () => mockDb.saveSetting(any(), any()),
+        ).thenThrow(Exception('Save failed'));
 
         final notifier = ThemeModeNotifier();
 
@@ -204,8 +251,12 @@ void main() {
       test('round-trip: save → load → verify', () async {
         String? savedValue;
 
-        when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => savedValue);
-        when(() => mockDb.saveSetting(any(), any())).thenAnswer((invocation) async {
+        when(
+          () => mockDb.getSetting('theme_mode'),
+        ).thenAnswer((_) async => savedValue);
+        when(() => mockDb.saveSetting(any(), any())).thenAnswer((
+          invocation,
+        ) async {
           savedValue = invocation.positionalArguments[1] as String;
         });
 
@@ -234,7 +285,9 @@ void main() {
       });
 
       test('null from database during load keeps system default', () async {
-        when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => null);
+        when(
+          () => mockDb.getSetting('theme_mode'),
+        ).thenAnswer((_) async => null);
 
         final notifier = ThemeModeNotifier();
 
@@ -244,8 +297,12 @@ void main() {
       });
 
       test('database connection failure during save is handled', () async {
-        when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => null);
-        when(() => mockDb.saveSetting(any(), any())).thenThrow(Exception('Connection lost'));
+        when(
+          () => mockDb.getSetting('theme_mode'),
+        ).thenAnswer((_) async => null);
+        when(
+          () => mockDb.saveSetting(any(), any()),
+        ).thenThrow(Exception('Connection lost'));
 
         final notifier = ThemeModeNotifier();
 
@@ -254,7 +311,9 @@ void main() {
       });
 
       test('case-sensitive theme mode name comparison', () async {
-        when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => 'DARK');
+        when(
+          () => mockDb.getSetting('theme_mode'),
+        ).thenAnswer((_) async => 'DARK');
 
         final notifier = ThemeModeNotifier();
 
@@ -386,12 +445,9 @@ void main() {
 
       final states = <ThemeMode>[];
 
-      container.listen(
-        themeModeProvider,
-        (previous, next) {
-          states.add(next);
-        },
-      );
+      container.listen(themeModeProvider, (previous, next) {
+        states.add(next);
+      });
 
       container.read(themeModeProvider.notifier).setThemeMode(ThemeMode.light);
       container.read(themeModeProvider.notifier).setThemeMode(ThemeMode.dark);

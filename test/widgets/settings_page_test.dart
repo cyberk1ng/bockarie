@@ -33,9 +33,7 @@ void main() {
   Widget createTestWidget({List<Override>? overrides}) {
     return ProviderScope(
       overrides: overrides ?? [],
-      child: const MaterialApp(
-        home: SettingsPage(),
-      ),
+      child: const MaterialApp(home: SettingsPage()),
     );
   }
 
@@ -96,9 +94,12 @@ void main() {
 
     testWidgets('renders About section', (tester) async {
       await tester.pumpWidget(createTestWidget());
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump();
 
       expect(find.text('About'), findsOneWidget);
-      expect(find.text('Bockaire v1.0.0'), findsOneWidget);
+      // Check that version text contains "Bockaire" (version loads async from package_info_plus)
+      expect(find.textContaining('Bockaire'), findsWidgets);
     });
 
     testWidgets('renders dividers for visual separation', (tester) async {
@@ -175,7 +176,9 @@ void main() {
       expect(container.read(themeModeProvider), ThemeMode.dark);
     });
 
-    testWidgets('selecting different modes updates the selection', (tester) async {
+    testWidgets('selecting different modes updates the selection', (
+      tester,
+    ) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump();
@@ -208,7 +211,9 @@ void main() {
   });
 
   group('Provider Integration', () {
-    testWidgets('initial selection matches provider state (system)', (tester) async {
+    testWidgets('initial selection matches provider state (system)', (
+      tester,
+    ) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump();
@@ -220,8 +225,12 @@ void main() {
       expect(container.read(themeModeProvider), ThemeMode.system);
     });
 
-    testWidgets('initial selection matches provider state (light)', (tester) async {
-      when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => 'light');
+    testWidgets('initial selection matches provider state (light)', (
+      tester,
+    ) async {
+      when(
+        () => mockDb.getSetting('theme_mode'),
+      ).thenAnswer((_) async => 'light');
 
       await tester.pumpWidget(createTestWidget());
       await tester.pump(const Duration(milliseconds: 150));
@@ -234,8 +243,12 @@ void main() {
       expect(container.read(themeModeProvider), ThemeMode.light);
     });
 
-    testWidgets('initial selection matches provider state (dark)', (tester) async {
-      when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => 'dark');
+    testWidgets('initial selection matches provider state (dark)', (
+      tester,
+    ) async {
+      when(
+        () => mockDb.getSetting('theme_mode'),
+      ).thenAnswer((_) async => 'dark');
 
       await tester.pumpWidget(createTestWidget());
       await tester.pump(const Duration(milliseconds: 150));
@@ -295,7 +308,9 @@ void main() {
       expect(listView.padding, isNotNull);
     });
 
-    testWidgets('segmented button has tooltips for accessibility', (tester) async {
+    testWidgets('segmented button has tooltips for accessibility', (
+      tester,
+    ) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pump();
 
@@ -385,7 +400,9 @@ void main() {
       expect(container.read(themeModeProvider), ThemeMode.system);
     });
 
-    testWidgets('page rebuilds when provider changes externally', (tester) async {
+    testWidgets('page rebuilds when provider changes externally', (
+      tester,
+    ) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump();
@@ -403,7 +420,9 @@ void main() {
     });
 
     testWidgets('handles database save failures gracefully', (tester) async {
-      when(() => mockDb.saveSetting(any(), any())).thenThrow(Exception('Save failed'));
+      when(
+        () => mockDb.saveSetting(any(), any()),
+      ).thenThrow(Exception('Save failed'));
 
       await tester.pumpWidget(createTestWidget());
       await tester.pump(const Duration(milliseconds: 100));

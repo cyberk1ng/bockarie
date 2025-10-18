@@ -108,7 +108,9 @@ class Settings extends Table {
   Set<Column> get primaryKey => {key};
 }
 
-@DriftDatabase(tables: [Shipments, Cartons, RateTables, Quotes, CompanyInfo, Settings])
+@DriftDatabase(
+  tables: [Shipments, Cartons, RateTables, Quotes, CompanyInfo, Settings],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -173,11 +175,8 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<void> saveSetting(String key, String value) async {
-    await into(settings).insertOnConflictUpdate(
-      SettingsCompanion.insert(
-        key: key,
-        value: value,
-      ),
-    );
+    await into(
+      settings,
+    ).insertOnConflictUpdate(SettingsCompanion.insert(key: key, value: value));
   }
 }

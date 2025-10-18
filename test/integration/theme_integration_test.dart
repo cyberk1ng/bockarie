@@ -1,6 +1,5 @@
 import 'package:bockaire/database/database.dart';
 import 'package:bockaire/get_it.dart';
-import 'package:bockaire/main.dart';
 import 'package:bockaire/pages/settings_page.dart';
 import 'package:bockaire/providers/theme_providers.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +32,9 @@ void main() {
 
   group('Complete Theme Flow', () {
     testWidgets('app loads theme from database on startup', (tester) async {
-      when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => 'dark');
+      when(
+        () => mockDb.getSetting('theme_mode'),
+      ).thenAnswer((_) async => 'dark');
 
       final container = ProviderContainer();
       addTearDown(container.dispose);
@@ -72,15 +73,15 @@ void main() {
 
       // Verify save was called
       await tester.pump(const Duration(milliseconds: 100));
-      verify(() => mockDb.saveSetting('theme_mode', 'dark')).called(greaterThanOrEqualTo(1));
+      verify(
+        () => mockDb.saveSetting('theme_mode', 'dark'),
+      ).called(greaterThanOrEqualTo(1));
     });
 
     testWidgets('theme persists across navigation', (tester) async {
-      await tester.pumpWidget(const ProviderScope(
-        child: MaterialApp(
-          home: SettingsPage(),
-        ),
-      ));
+      await tester.pumpWidget(
+        const ProviderScope(child: MaterialApp(home: SettingsPage())),
+      );
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump();
 
@@ -94,19 +95,17 @@ void main() {
       await tester.pump();
 
       // Navigate away and back (simulated)
-      await tester.pumpWidget(const ProviderScope(
-        child: MaterialApp(
-          home: Scaffold(body: Text('Other Page')),
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(home: Scaffold(body: Text('Other Page'))),
         ),
-      ));
+      );
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump();
 
-      await tester.pumpWidget(const ProviderScope(
-        child: MaterialApp(
-          home: SettingsPage(),
-        ),
-      ));
+      await tester.pumpWidget(
+        const ProviderScope(child: MaterialApp(home: SettingsPage())),
+      );
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump();
 
@@ -117,7 +116,9 @@ void main() {
       expect(newContainer.read(themeModeProvider), ThemeMode.dark);
     });
 
-    testWidgets('full user journey: open settings → change theme → verify', (tester) async {
+    testWidgets('full user journey: open settings → change theme → verify', (
+      tester,
+    ) async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
@@ -143,30 +144,34 @@ void main() {
 
       // Verify it was saved
       await tester.pump(const Duration(milliseconds: 100));
-      verify(() => mockDb.saveSetting('theme_mode', 'light')).called(greaterThanOrEqualTo(1));
+      verify(
+        () => mockDb.saveSetting('theme_mode', 'light'),
+      ).called(greaterThanOrEqualTo(1));
     });
 
     testWidgets('theme changes apply to MaterialApp', (tester) async {
-      await tester.pumpWidget(ProviderScope(
-        child: Builder(
-          builder: (context) {
-            return Consumer(
-              builder: (context, ref, _) {
-                final themeMode = ref.watch(themeModeProvider);
-                final lightTheme = ref.watch(lightThemeProvider);
-                final darkTheme = ref.watch(darkThemeProvider);
+      await tester.pumpWidget(
+        ProviderScope(
+          child: Builder(
+            builder: (context) {
+              return Consumer(
+                builder: (context, ref, _) {
+                  final themeMode = ref.watch(themeModeProvider);
+                  final lightTheme = ref.watch(lightThemeProvider);
+                  final darkTheme = ref.watch(darkThemeProvider);
 
-                return MaterialApp(
-                  theme: lightTheme,
-                  darkTheme: darkTheme,
-                  themeMode: themeMode,
-                  home: const SettingsPage(),
-                );
-              },
-            );
-          },
+                  return MaterialApp(
+                    theme: lightTheme,
+                    darkTheme: darkTheme,
+                    themeMode: themeMode,
+                    home: const SettingsPage(),
+                  );
+                },
+              );
+            },
+          ),
         ),
-      ));
+      );
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump();
 
@@ -193,9 +198,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: const MaterialApp(
-            home: SettingsPage(),
-          ),
+          child: const MaterialApp(home: SettingsPage()),
         ),
       );
       await tester.pump(const Duration(milliseconds: 100));
@@ -211,9 +214,7 @@ void main() {
         UncontrolledProviderScope(
           container: container,
           child: const MaterialApp(
-            home: Scaffold(
-              body: Text('Different Page'),
-            ),
+            home: Scaffold(body: Text('Different Page')),
           ),
         ),
       );
@@ -274,19 +275,14 @@ void main() {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      container.listen(
-        themeModeProvider,
-        (previous, next) {
-          states.add(next);
-        },
-      );
+      container.listen(themeModeProvider, (previous, next) {
+        states.add(next);
+      });
 
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: const MaterialApp(
-            home: SettingsPage(),
-          ),
+          child: const MaterialApp(home: SettingsPage()),
         ),
       );
       await tester.pump(const Duration(milliseconds: 100));
@@ -306,11 +302,17 @@ void main() {
   });
 
   group('Database Persistence Integration', () {
-    testWidgets('theme setting persists after app restart simulation', (tester) async {
+    testWidgets('theme setting persists after app restart simulation', (
+      tester,
+    ) async {
       String? savedTheme;
 
-      when(() => mockDb.getSetting('theme_mode')).thenAnswer((_) async => savedTheme);
-      when(() => mockDb.saveSetting(any(), any())).thenAnswer((invocation) async {
+      when(
+        () => mockDb.getSetting('theme_mode'),
+      ).thenAnswer((_) async => savedTheme);
+      when(() => mockDb.saveSetting(any(), any())).thenAnswer((
+        invocation,
+      ) async {
         savedTheme = invocation.positionalArguments[1] as String;
       });
 
@@ -348,8 +350,12 @@ void main() {
       container2.dispose();
     });
 
-    testWidgets('handles database errors during load gracefully', (tester) async {
-      when(() => mockDb.getSetting('theme_mode')).thenThrow(Exception('DB Error'));
+    testWidgets('handles database errors during load gracefully', (
+      tester,
+    ) async {
+      when(
+        () => mockDb.getSetting('theme_mode'),
+      ).thenThrow(Exception('DB Error'));
 
       final container = ProviderContainer();
       addTearDown(container.dispose);
@@ -372,12 +378,16 @@ void main() {
       expect(find.byType(SettingsPage), findsOneWidget);
     });
 
-    testWidgets('handles database errors during save gracefully', (tester) async {
-      when(() => mockDb.saveSetting(any(), any())).thenThrow(Exception('Save failed'));
+    testWidgets('handles database errors during save gracefully', (
+      tester,
+    ) async {
+      when(
+        () => mockDb.saveSetting(any(), any()),
+      ).thenThrow(Exception('Save failed'));
 
-      await tester.pumpWidget(const ProviderScope(
-        child: MaterialApp(home: SettingsPage()),
-      ));
+      await tester.pumpWidget(
+        const ProviderScope(child: MaterialApp(home: SettingsPage())),
+      );
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump();
 
@@ -387,7 +397,9 @@ void main() {
 
       // Should not crash
       expect(
-        () => container.read(themeModeProvider.notifier).setThemeMode(ThemeMode.dark),
+        () => container
+            .read(themeModeProvider.notifier)
+            .setThemeMode(ThemeMode.dark),
         returnsNormally,
       );
 
@@ -440,10 +452,12 @@ void main() {
   });
 
   group('Real-World Scenarios', () {
-    testWidgets('user switches theme multiple times in quick succession', (tester) async {
-      await tester.pumpWidget(const ProviderScope(
-        child: MaterialApp(home: SettingsPage()),
-      ));
+    testWidgets('user switches theme multiple times in quick succession', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const ProviderScope(child: MaterialApp(home: SettingsPage())),
+      );
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump();
 
@@ -453,7 +467,9 @@ void main() {
 
       // Rapid theme changes
       for (var i = 0; i < 5; i++) {
-        container.read(themeModeProvider.notifier).setThemeMode(ThemeMode.light);
+        container
+            .read(themeModeProvider.notifier)
+            .setThemeMode(ThemeMode.light);
         await tester.pump();
         container.read(themeModeProvider.notifier).setThemeMode(ThemeMode.dark);
         await tester.pump();
@@ -463,13 +479,18 @@ void main() {
       await tester.pump();
 
       // Should end up in a valid state
-      expect(container.read(themeModeProvider), isIn([ThemeMode.light, ThemeMode.dark]));
+      expect(
+        container.read(themeModeProvider),
+        isIn([ThemeMode.light, ThemeMode.dark]),
+      );
     });
 
-    testWidgets('theme works correctly with system theme changes', (tester) async {
-      await tester.pumpWidget(const ProviderScope(
-        child: MaterialApp(home: SettingsPage()),
-      ));
+    testWidgets('theme works correctly with system theme changes', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const ProviderScope(child: MaterialApp(home: SettingsPage())),
+      );
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump();
 
@@ -488,10 +509,12 @@ void main() {
       // This is handled by MaterialApp's themeMode property
     });
 
-    testWidgets('app handles theme change while other operations are ongoing', (tester) async {
-      await tester.pumpWidget(const ProviderScope(
-        child: MaterialApp(home: SettingsPage()),
-      ));
+    testWidgets('app handles theme change while other operations are ongoing', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const ProviderScope(child: MaterialApp(home: SettingsPage())),
+      );
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump();
 
