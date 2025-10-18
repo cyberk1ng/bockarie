@@ -241,6 +241,31 @@
     "description": "System default language option"
   },
 
+  "settingsCurrencyTitle": "Currency",
+  "@settingsCurrencyTitle": {
+    "description": "Currency setting title"
+  },
+
+  "settingsCurrencySubtitle": "Select display currency",
+  "@settingsCurrencySubtitle": {
+    "description": "Currency setting subtitle"
+  },
+
+  "currencyEuro": "Euro",
+  "@currencyEuro": {
+    "description": "Euro currency name"
+  },
+
+  "currencyUsd": "US Dollar",
+  "@currencyUsd": {
+    "description": "US Dollar currency name"
+  },
+
+  "currencyGbp": "British Pound",
+  "@currencyGbp": {
+    "description": "British Pound currency name"
+  },
+
   "searchHint": "Search languages...",
   "@searchHint": {
     "description": "Search hint for language selection"

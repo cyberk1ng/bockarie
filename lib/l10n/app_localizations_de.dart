@@ -153,6 +153,21 @@ class AppLocalizationsDe extends AppLocalizations {
   String get systemDefaultLanguage => 'Systemstandard';
 
   @override
+  String get settingsCurrencyTitle => 'Währung';
+
+  @override
+  String get settingsCurrencySubtitle => 'Anzeigewährung auswählen';
+
+  @override
+  String get currencyEuro => 'Euro';
+
+  @override
+  String get currencyUsd => 'US-Dollar';
+
+  @override
+  String get currencyGbp => 'Britisches Pfund';
+
+  @override
   String get searchHint => 'Sprachen durchsuchen...';
 
   @override

@@ -6,15 +6,27 @@ import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:bockaire/pages/settings_page.dart';
 import 'package:bockaire/providers/locale_provider.dart';
 import 'package:bockaire/providers/theme_providers.dart';
+import 'package:bockaire/providers/currency_provider.dart';
+import 'package:bockaire/repositories/currency_repository.dart';
 
 void main() {
   group('Language Picker Integration', () {
+    late SharedPreferences prefs;
+
     setUp(() async {
       SharedPreferences.setMockInitialValues({});
+      prefs = await SharedPreferences.getInstance();
     });
 
     Widget buildApp() {
-      return const ProviderScope(child: TestApp());
+      return ProviderScope(
+        overrides: [
+          currencyRepositoryProvider.overrideWithValue(
+            CurrencyRepository(prefs),
+          ),
+        ],
+        child: const TestApp(),
+      );
     }
 
     testWidgets('complete language change flow from English to French', (

@@ -153,6 +153,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get systemDefaultLanguage => '系统默认';
 
   @override
+  String get settingsCurrencyTitle => '货币';
+
+  @override
+  String get settingsCurrencySubtitle => '选择显示货币';
+
+  @override
+  String get currencyEuro => '欧元';
+
+  @override
+  String get currencyUsd => '美元';
+
+  @override
+  String get currencyGbp => '英镑';
+
+  @override
   String get searchHint => '搜索语言...';
 
   @override

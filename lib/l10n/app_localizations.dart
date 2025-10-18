@@ -440,6 +440,36 @@ abstract class AppLocalizations {
   /// **'System Default'**
   String get systemDefaultLanguage;
 
+  /// Currency setting title
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get settingsCurrencyTitle;
+
+  /// Currency setting subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Select display currency'**
+  String get settingsCurrencySubtitle;
+
+  /// Euro currency name
+  ///
+  /// In en, this message translates to:
+  /// **'Euro'**
+  String get currencyEuro;
+
+  /// US Dollar currency name
+  ///
+  /// In en, this message translates to:
+  /// **'US Dollar'**
+  String get currencyUsd;
+
+  /// British Pound currency name
+  ///
+  /// In en, this message translates to:
+  /// **'British Pound'**
+  String get currencyGbp;
+
   /// Search hint for language selection
   ///
   /// In en, this message translates to:
