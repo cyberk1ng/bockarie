@@ -11,6 +11,7 @@ import 'package:bockaire/services/city_matcher_service.dart';
 import 'package:bockaire/services/ai_provider_interfaces.dart';
 import 'package:bockaire/providers/transcription_provider.dart';
 import 'package:bockaire/get_it.dart';
+import 'package:bockaire/widgets/voice/circular_pulse_visualizer.dart';
 
 enum VoiceModalState { idle, recording, processing, success, error }
 
@@ -338,7 +339,10 @@ class _VoiceInputModalState extends ConsumerState<VoiceInputModal> {
       case VoiceModalState.idle:
         return Column(
           children: [
-            const Icon(Icons.mic_none, size: 64, color: Colors.blue),
+            const CircularPulseVisualizer(
+              isRecording: false,
+              size: 120,
+            ),
             const SizedBox(height: 16),
             const Text(
               'Ready to record',
@@ -372,18 +376,9 @@ class _VoiceInputModalState extends ConsumerState<VoiceInputModal> {
       case VoiceModalState.recording:
         return Column(
           children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: Colors.red.shade100,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.fiber_manual_record,
-                color: Colors.red,
-                size: 40,
-              ),
+            const CircularPulseVisualizer(
+              isRecording: true,
+              size: 150,
             ),
             const SizedBox(height: 16),
             Text(
