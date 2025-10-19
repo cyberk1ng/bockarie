@@ -668,6 +668,21 @@
     "description": "Status when no quotes available"
   },
 
+  "statusInTransit": "In Transit",
+  "@statusInTransit": {
+    "description": "Shipment status: in transit"
+  },
+
+  "statusDelivered": "Delivered",
+  "@statusDelivered": {
+    "description": "Shipment status: delivered"
+  },
+
+  "statusPending": "Pending",
+  "@statusPending": {
+    "description": "Shipment status: pending"
+  },
+
   "deleteShipmentTitle": "Delete Shipment",
   "@deleteShipmentTitle": {
     "description": "Delete shipment dialog title"

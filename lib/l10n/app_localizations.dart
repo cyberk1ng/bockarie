@@ -938,6 +938,24 @@ abstract class AppLocalizations {
   /// **'No quotes available'**
   String get statusNoQuotesAvailable;
 
+  /// Shipment status: in transit
+  ///
+  /// In en, this message translates to:
+  /// **'In Transit'**
+  String get statusInTransit;
+
+  /// Shipment status: delivered
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get statusDelivered;
+
+  /// Shipment status: pending
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get statusPending;
+
   /// Delete shipment dialog title
   ///
   /// In en, this message translates to:

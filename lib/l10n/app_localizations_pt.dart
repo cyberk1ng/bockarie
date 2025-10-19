@@ -409,6 +409,15 @@ class AppLocalizationsPt extends AppLocalizations {
   String get statusNoQuotesAvailable => 'Nenhuma cotação disponível';
 
   @override
+  String get statusInTransit => 'In Transit';
+
+  @override
+  String get statusDelivered => 'Delivered';
+
+  @override
+  String get statusPending => 'Pending';
+
+  @override
   String get deleteShipmentTitle => 'Eliminar Envio';
 
   @override

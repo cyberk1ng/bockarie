@@ -2,7 +2,7 @@ name: bockaire
 description: "Shipping Optimizer - Smart China to Germany shipment planning"
 publish_to: 'none'
 
-version: 0.6.3+11
+version: 0.6.3+12
 
 environment:
   sdk: ^3.9.2
@@ -17,6 +17,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   flex_color_scheme: ^8.0.2
   country_flags: ^3.0.2
+  google_fonts: ^6.1.0
 
   # State Management
   flutter_riverpod: ^2.6.1

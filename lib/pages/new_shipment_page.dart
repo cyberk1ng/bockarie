@@ -6,7 +6,9 @@ import 'package:logger/logger.dart';
 import 'package:bockaire/database/database.dart';
 import 'package:bockaire/get_it.dart';
 import 'package:bockaire/themes/theme.dart';
-import 'package:bockaire/widgets/modal/modal_card.dart';
+import 'package:bockaire/themes/neon_theme.dart';
+import 'package:bockaire/widgets/neon/neon_card.dart';
+import 'package:bockaire/widgets/neon/sparkle_decoration.dart';
 import 'package:bockaire/widgets/shipment/city_autocomplete_field.dart';
 import 'package:bockaire/widgets/shipment/live_totals_card.dart';
 import 'package:bockaire/services/calculation_service.dart';
@@ -866,325 +868,379 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    return Form(
-      key: _formKey,
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Stack(
+      children: [
+        // Sparkle background decoration
+        if (isDark) Positioned.fill(child: SparkleDecoration(sparkleCount: 20)),
+
+        // Main content
+        Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  localizations.titleShipmentDetails,
-                  style: context.textTheme.titleLarge,
-                ),
                 Row(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(
-                      height: 40,
-                      width: 56,
-                      child: VoiceInputButton(
-                        onVoiceInputCompleted: _handleVoiceInput,
-                        hasExistingLocation: _hasExistingLocation(),
+                    Text(
+                      localizations.titleShipmentDetails,
+                      style: context.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? NeonColors.cyan : null,
+                        shadows: isDark
+                            ? [
+                                Shadow(
+                                  color: NeonColors.cyanGlow,
+                                  blurRadius: 8,
+                                ),
+                              ]
+                            : null,
                       ),
                     ),
-                    SizedBox(width: AppTheme.spacingSmall),
-                    SizedBox(
-                      height: 40,
-                      width: 56,
-                      child: ImageInputButton(
-                        onCartonsDetected: _handleImageInput,
-                      ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          height: 40,
+                          width: 56,
+                          child: VoiceInputButton(
+                            onVoiceInputCompleted: _handleVoiceInput,
+                            hasExistingLocation: _hasExistingLocation(),
+                          ),
+                        ),
+                        SizedBox(width: AppTheme.spacingSmall),
+                        SizedBox(
+                          height: 40,
+                          width: 56,
+                          child: ImageInputButton(
+                            onCartonsDetected: _handleImageInput,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-            SizedBox(height: AppTheme.spacingMedium),
-            ModalCard(
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CityAutocompleteField(
-                          cityController: _originCityController,
-                          postalController: _originPostalController,
-                          countryController: _originCountryController,
-                          stateController: _originStateController,
-                          label: localizations.labelOriginCity,
-                          validator: (value) => value?.isEmpty ?? true
-                              ? localizations.validationRequired
-                              : null,
-                        ),
-                      ),
-                      SizedBox(width: AppTheme.spacingMedium),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _originPostalController,
-                          decoration: InputDecoration(
-                            labelText: localizations.labelOriginPostal,
-                          ),
-                          validator: (value) => value?.isEmpty ?? true
-                              ? localizations.validationRequired
-                              : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: AppTheme.spacingMedium),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CityAutocompleteField(
-                          cityController: _destCityController,
-                          postalController: _destPostalController,
-                          countryController: _destCountryController,
-                          stateController: _destStateController,
-                          label: localizations.labelDestinationCity,
-                          validator: (value) => value?.isEmpty ?? true
-                              ? localizations.validationRequired
-                              : null,
-                        ),
-                      ),
-                      SizedBox(width: AppTheme.spacingMedium),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _destPostalController,
-                          decoration: InputDecoration(
-                            labelText: localizations.labelDestinationPostal,
-                          ),
-                          validator: (value) => value?.isEmpty ?? true
-                              ? localizations.validationRequired
-                              : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: AppTheme.spacingMedium),
-                  TextFormField(
-                    controller: _notesController,
-                    decoration: InputDecoration(
-                      labelText: localizations.labelNotes,
-                    ),
-                    maxLines: 3,
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: AppTheme.spacingLarge),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  localizations.labelCartons,
-                  style: context.textTheme.titleLarge,
-                ),
-                ElevatedButton.icon(
-                  onPressed: _addCarton,
-                  icon: const Icon(Icons.add),
-                  label: Text(localizations.buttonAddCarton),
-                ),
-              ],
-            ),
-            SizedBox(height: AppTheme.spacingMedium),
-            // Live totals card
-            if (_cartons.isNotEmpty) ...[
-              LiveTotalsCard(totals: _totals),
-              SizedBox(height: AppTheme.spacingLarge),
-            ],
-            ..._cartons.asMap().entries.map((entry) {
-              final index = entry.key;
-              final carton = entry.value;
-              return Padding(
-                padding: EdgeInsets.only(bottom: AppTheme.cardSpacing),
-                child: ModalCard(
+                SizedBox(height: AppTheme.spacingMedium),
+                NeonCard(
+                  borderColor: NeonColors.cyan,
+                  glowColor: NeonColors.cyanGlow,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            localizations.labelCartonNumber(index + 1),
-                            style: context.textTheme.titleMedium,
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete_outline),
-                            onPressed: () => _removeCarton(index),
-                            color: context.colorScheme.error,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: AppTheme.spacingMedium),
-                      Row(
                         children: [
                           Expanded(
-                            child: TextFormField(
-                              initialValue: carton.lengthCm > 0
-                                  ? carton.lengthCm.toString()
-                                  : '',
-                              decoration: InputDecoration(
-                                labelText: localizations.labelLength,
-                              ),
-                              keyboardType: TextInputType.number,
-                              validator: (value) {
-                                if (value?.isEmpty ?? true) {
-                                  return localizations.validationRequired;
-                                }
-                                if (double.tryParse(value!) == null) {
-                                  return localizations.validationInvalid;
-                                }
-                                return null;
-                              },
-                              onChanged: (value) {
-                                carton.lengthCm = double.tryParse(value) ?? 0.0;
-                                _onCartonChanged();
-                              },
+                            child: CityAutocompleteField(
+                              cityController: _originCityController,
+                              postalController: _originPostalController,
+                              countryController: _originCountryController,
+                              stateController: _originStateController,
+                              label: localizations.labelOriginCity,
+                              validator: (value) => value?.isEmpty ?? true
+                                  ? localizations.validationRequired
+                                  : null,
                             ),
                           ),
-                          SizedBox(width: AppTheme.spacingSmall),
+                          SizedBox(width: AppTheme.spacingMedium),
                           Expanded(
                             child: TextFormField(
-                              initialValue: carton.widthCm > 0
-                                  ? carton.widthCm.toString()
-                                  : '',
+                              controller: _originPostalController,
                               decoration: InputDecoration(
-                                labelText: localizations.labelWidth,
-                              ),
-                              keyboardType: TextInputType.number,
-                              validator: (value) {
-                                if (value?.isEmpty ?? true) {
-                                  return localizations.validationRequired;
-                                }
-                                if (double.tryParse(value!) == null) {
-                                  return localizations.validationInvalid;
-                                }
-                                return null;
-                              },
-                              onChanged: (value) {
-                                carton.widthCm = double.tryParse(value) ?? 0.0;
-                                _onCartonChanged();
-                              },
-                            ),
-                          ),
-                          SizedBox(width: AppTheme.spacingSmall),
-                          Expanded(
-                            child: TextFormField(
-                              initialValue: carton.heightCm > 0
-                                  ? carton.heightCm.toString()
-                                  : '',
-                              decoration: InputDecoration(
-                                labelText: localizations.labelHeight,
-                              ),
-                              keyboardType: TextInputType.number,
-                              validator: (value) {
-                                if (value?.isEmpty ?? true) {
-                                  return localizations.validationRequired;
-                                }
-                                if (double.tryParse(value!) == null) {
-                                  return localizations.validationInvalid;
-                                }
-                                return null;
-                              },
-                              onChanged: (value) {
-                                carton.heightCm = double.tryParse(value) ?? 0.0;
-                                _onCartonChanged();
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: AppTheme.spacingMedium),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              initialValue: carton.weightKg > 0
-                                  ? carton.weightKg.toString()
-                                  : '',
-                              decoration: InputDecoration(
-                                labelText: localizations.labelWeightKg,
-                              ),
-                              keyboardType: TextInputType.number,
-                              validator: (value) {
-                                if (value?.isEmpty ?? true) {
-                                  return localizations.validationRequired;
-                                }
-                                if (double.tryParse(value!) == null) {
-                                  return localizations.validationInvalid;
-                                }
-                                return null;
-                              },
-                              onChanged: (value) {
-                                carton.weightKg = double.tryParse(value) ?? 0.0;
-                                _onCartonChanged();
-                              },
-                            ),
-                          ),
-                          SizedBox(width: AppTheme.spacingSmall),
-                          Expanded(
-                            child: TextFormField(
-                              initialValue: carton.qty > 0
-                                  ? carton.qty.toString()
-                                  : '',
-                              decoration: InputDecoration(
-                                labelText: localizations.labelQuantity,
-                              ),
-                              keyboardType: TextInputType.number,
-                              validator: (value) {
-                                if (value?.isEmpty ?? true) {
-                                  return localizations.validationRequired;
-                                }
-                                if (int.tryParse(value!) == null) {
-                                  return localizations.validationInvalid;
-                                }
-                                return null;
-                              },
-                              onChanged: (value) {
-                                carton.qty = int.tryParse(value) ?? 1;
-                                _onCartonChanged();
-                              },
-                            ),
-                          ),
-                          SizedBox(width: AppTheme.spacingSmall),
-                          Expanded(
-                            child: TextFormField(
-                              initialValue: carton.itemType.isNotEmpty
-                                  ? carton.itemType
-                                  : '',
-                              decoration: InputDecoration(
-                                labelText: localizations.labelItemType,
+                                labelText: localizations.labelOriginPostal,
                               ),
                               validator: (value) => value?.isEmpty ?? true
                                   ? localizations.validationRequired
                                   : null,
-                              onChanged: (value) {
-                                carton.itemType = value;
-                              },
                             ),
                           ),
                         ],
                       ),
+                      SizedBox(height: AppTheme.spacingMedium),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CityAutocompleteField(
+                              cityController: _destCityController,
+                              postalController: _destPostalController,
+                              countryController: _destCountryController,
+                              stateController: _destStateController,
+                              label: localizations.labelDestinationCity,
+                              validator: (value) => value?.isEmpty ?? true
+                                  ? localizations.validationRequired
+                                  : null,
+                            ),
+                          ),
+                          SizedBox(width: AppTheme.spacingMedium),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _destPostalController,
+                              decoration: InputDecoration(
+                                labelText: localizations.labelDestinationPostal,
+                              ),
+                              validator: (value) => value?.isEmpty ?? true
+                                  ? localizations.validationRequired
+                                  : null,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: AppTheme.spacingMedium),
+                      TextFormField(
+                        controller: _notesController,
+                        decoration: InputDecoration(
+                          labelText: localizations.labelNotes,
+                        ),
+                        maxLines: 3,
+                      ),
                     ],
                   ),
                 ),
-              );
-            }),
-            SizedBox(height: AppTheme.spacingLarge),
-            SizedBox(
-              height: AppTheme.buttonHeight,
-              child: ElevatedButton(
-                onPressed: _saveShipment,
-                child: Text(localizations.buttonSaveShipment),
-              ),
+                SizedBox(height: AppTheme.spacingLarge),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      localizations.labelCartons,
+                      style: context.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? NeonColors.green : null,
+                        shadows: isDark
+                            ? [
+                                Shadow(
+                                  color: NeonColors.greenGlow,
+                                  blurRadius: 8,
+                                ),
+                              ]
+                            : null,
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: _addCarton,
+                      icon: const Icon(Icons.add),
+                      label: Text(localizations.buttonAddCarton),
+                    ),
+                  ],
+                ),
+                SizedBox(height: AppTheme.spacingMedium),
+                // Live totals card
+                if (_cartons.isNotEmpty) ...[
+                  LiveTotalsCard(totals: _totals),
+                  SizedBox(height: AppTheme.spacingLarge),
+                ],
+                ..._cartons.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final carton = entry.value;
+                  // Cycle through neon colors for cartons
+                  final colors = [
+                    NeonColors.purple,
+                    NeonColors.cyan,
+                    NeonColors.green,
+                  ];
+                  final cardColor = colors[index % colors.length];
+                  final glowColor = [
+                    NeonColors.purpleGlow,
+                    NeonColors.cyanGlow,
+                    NeonColors.greenGlow,
+                  ][index % colors.length];
+
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: AppTheme.cardSpacing),
+                    child: NeonCard(
+                      borderColor: cardColor,
+                      glowColor: glowColor,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                localizations.labelCartonNumber(index + 1),
+                                style: context.textTheme.titleMedium,
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline),
+                                onPressed: () => _removeCarton(index),
+                                color: context.colorScheme.error,
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: AppTheme.spacingMedium),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  initialValue: carton.lengthCm > 0
+                                      ? carton.lengthCm.toString()
+                                      : '',
+                                  decoration: InputDecoration(
+                                    labelText: localizations.labelLength,
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  validator: (value) {
+                                    if (value?.isEmpty ?? true) {
+                                      return localizations.validationRequired;
+                                    }
+                                    if (double.tryParse(value!) == null) {
+                                      return localizations.validationInvalid;
+                                    }
+                                    return null;
+                                  },
+                                  onChanged: (value) {
+                                    carton.lengthCm =
+                                        double.tryParse(value) ?? 0.0;
+                                    _onCartonChanged();
+                                  },
+                                ),
+                              ),
+                              SizedBox(width: AppTheme.spacingSmall),
+                              Expanded(
+                                child: TextFormField(
+                                  initialValue: carton.widthCm > 0
+                                      ? carton.widthCm.toString()
+                                      : '',
+                                  decoration: InputDecoration(
+                                    labelText: localizations.labelWidth,
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  validator: (value) {
+                                    if (value?.isEmpty ?? true) {
+                                      return localizations.validationRequired;
+                                    }
+                                    if (double.tryParse(value!) == null) {
+                                      return localizations.validationInvalid;
+                                    }
+                                    return null;
+                                  },
+                                  onChanged: (value) {
+                                    carton.widthCm =
+                                        double.tryParse(value) ?? 0.0;
+                                    _onCartonChanged();
+                                  },
+                                ),
+                              ),
+                              SizedBox(width: AppTheme.spacingSmall),
+                              Expanded(
+                                child: TextFormField(
+                                  initialValue: carton.heightCm > 0
+                                      ? carton.heightCm.toString()
+                                      : '',
+                                  decoration: InputDecoration(
+                                    labelText: localizations.labelHeight,
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  validator: (value) {
+                                    if (value?.isEmpty ?? true) {
+                                      return localizations.validationRequired;
+                                    }
+                                    if (double.tryParse(value!) == null) {
+                                      return localizations.validationInvalid;
+                                    }
+                                    return null;
+                                  },
+                                  onChanged: (value) {
+                                    carton.heightCm =
+                                        double.tryParse(value) ?? 0.0;
+                                    _onCartonChanged();
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: AppTheme.spacingMedium),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  initialValue: carton.weightKg > 0
+                                      ? carton.weightKg.toString()
+                                      : '',
+                                  decoration: InputDecoration(
+                                    labelText: localizations.labelWeightKg,
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  validator: (value) {
+                                    if (value?.isEmpty ?? true) {
+                                      return localizations.validationRequired;
+                                    }
+                                    if (double.tryParse(value!) == null) {
+                                      return localizations.validationInvalid;
+                                    }
+                                    return null;
+                                  },
+                                  onChanged: (value) {
+                                    carton.weightKg =
+                                        double.tryParse(value) ?? 0.0;
+                                    _onCartonChanged();
+                                  },
+                                ),
+                              ),
+                              SizedBox(width: AppTheme.spacingSmall),
+                              Expanded(
+                                child: TextFormField(
+                                  initialValue: carton.qty > 0
+                                      ? carton.qty.toString()
+                                      : '',
+                                  decoration: InputDecoration(
+                                    labelText: localizations.labelQuantity,
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  validator: (value) {
+                                    if (value?.isEmpty ?? true) {
+                                      return localizations.validationRequired;
+                                    }
+                                    if (int.tryParse(value!) == null) {
+                                      return localizations.validationInvalid;
+                                    }
+                                    return null;
+                                  },
+                                  onChanged: (value) {
+                                    carton.qty = int.tryParse(value) ?? 1;
+                                    _onCartonChanged();
+                                  },
+                                ),
+                              ),
+                              SizedBox(width: AppTheme.spacingSmall),
+                              Expanded(
+                                child: TextFormField(
+                                  initialValue: carton.itemType.isNotEmpty
+                                      ? carton.itemType
+                                      : '',
+                                  decoration: InputDecoration(
+                                    labelText: localizations.labelItemType,
+                                  ),
+                                  validator: (value) => value?.isEmpty ?? true
+                                      ? localizations.validationRequired
+                                      : null,
+                                  onChanged: (value) {
+                                    carton.itemType = value;
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+                SizedBox(height: AppTheme.spacingLarge),
+                SizedBox(
+                  height: AppTheme.buttonHeight,
+                  child: ElevatedButton(
+                    onPressed: _saveShipment,
+                    child: Text(localizations.buttonSaveShipment),
+                  ),
+                ),
+                SizedBox(height: AppTheme.spacingMedium),
+              ],
             ),
-            SizedBox(height: AppTheme.spacingMedium),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }
