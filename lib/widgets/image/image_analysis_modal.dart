@@ -72,20 +72,38 @@ class _ImageAnalysisModalState extends ConsumerState<ImageAnalysisModal> {
   Future<ImageSource?> _showImageSourceDialog() async {
     return await showDialog<ImageSource>(
       context: context,
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: const Text('Select Image Source'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Camera'),
-              onTap: () => Navigator.of(context).pop(ImageSource.camera),
+            const Text(
+              'Choose where to get your packing list image:',
+              style: TextStyle(fontSize: 14),
             ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Gallery'),
-              onTap: () => Navigator.of(context).pop(ImageSource.gallery),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () => Navigator.of(context).pop(ImageSource.camera),
+              icon: const Icon(Icons.camera_alt),
+              label: const Text('Take Photo'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              onPressed: () => Navigator.of(context).pop(ImageSource.gallery),
+              icon: const Icon(Icons.photo_library),
+              label: const Text('Choose from Gallery'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(null),
+              child: const Text('Cancel'),
             ),
           ],
         ),

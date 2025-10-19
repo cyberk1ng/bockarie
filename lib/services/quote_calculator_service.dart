@@ -76,11 +76,15 @@ class QuoteCalculatorService {
         final shippoRates = await _shippoService.getRates(
           originCity: originCity,
           originPostal: originPostal,
-          originCountry: originCountry ?? 'CN', // Default to China
+          originCountry: (originCountry == null || originCountry.isEmpty)
+              ? 'DE'
+              : originCountry,
           originState: originState ?? '',
           destCity: destCity,
           destPostal: destPostal,
-          destCountry: destCountry ?? 'DE', // Default to Germany
+          destCountry: (destCountry == null || destCountry.isEmpty)
+              ? 'DE'
+              : destCountry,
           destState: destState ?? '',
           cartons: cartons,
         );
