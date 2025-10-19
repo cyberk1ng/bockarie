@@ -9,6 +9,8 @@ import 'package:mocktail/mocktail.dart';
 class MockAppDatabase extends Mock implements AppDatabase {}
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late MockAppDatabase mockDb;
 
   setUp(() {
@@ -351,7 +353,9 @@ void main() {
       expect(container.read(themeModeProvider), ThemeMode.dark);
     });
 
-    test('lightThemeProvider returns ThemeData with deepBlue scheme', () {
+    testWidgets('lightThemeProvider returns ThemeData with Neon theme', (
+      tester,
+    ) async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
@@ -362,7 +366,9 @@ void main() {
       expect(theme.useMaterial3, true);
     });
 
-    test('darkThemeProvider returns ThemeData with deepBlue scheme', () {
+    testWidgets('darkThemeProvider returns ThemeData with Neon theme', (
+      tester,
+    ) async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
@@ -373,7 +379,7 @@ void main() {
       expect(theme.useMaterial3, true);
     });
 
-    test('lightThemeProvider theme data is not null', () {
+    testWidgets('lightThemeProvider theme data is not null', (tester) async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
@@ -384,7 +390,7 @@ void main() {
       expect(theme.scaffoldBackgroundColor, isNotNull);
     });
 
-    test('darkThemeProvider theme data is not null', () {
+    testWidgets('darkThemeProvider theme data is not null', (tester) async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
@@ -395,7 +401,9 @@ void main() {
       expect(theme.scaffoldBackgroundColor, isNotNull);
     });
 
-    test('light and dark themes have different brightness', () {
+    testWidgets('light and dark themes have different brightness', (
+      tester,
+    ) async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
@@ -407,7 +415,7 @@ void main() {
       expect(lightTheme.brightness, isNot(equals(darkTheme.brightness)));
     });
 
-    test('themes use Material3 design', () {
+    testWidgets('themes use Material3 design', (tester) async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 

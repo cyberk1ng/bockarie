@@ -1,8 +1,8 @@
-import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bockaire/database/database.dart';
 import 'package:bockaire/get_it.dart';
+import 'package:bockaire/themes/neon_theme.dart';
 
 // State notifier for theme mode
 class ThemeModeNotifier extends StateNotifier<ThemeMode> {
@@ -48,12 +48,12 @@ final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((
   return ThemeModeNotifier();
 });
 
-// Provider for light theme (fixed color scheme)
+// Provider for light theme (neon design system)
 final lightThemeProvider = Provider<ThemeData>((ref) {
-  return FlexThemeData.light(scheme: FlexScheme.deepBlue, useMaterial3: true);
+  return NeonTheme.lightTheme();
 });
 
-// Provider for dark theme (fixed color scheme)
+// Provider for dark theme (neon design system)
 final darkThemeProvider = Provider<ThemeData>((ref) {
-  return FlexThemeData.dark(scheme: FlexScheme.deepBlue, useMaterial3: true);
+  return NeonTheme.darkTheme();
 });

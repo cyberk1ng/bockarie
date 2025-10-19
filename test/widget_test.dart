@@ -1,4 +1,5 @@
 import 'package:bockaire/get_it.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bockaire/main.dart';
@@ -16,8 +17,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
 
-    // Verify home page loads
-    expect(find.text('Bockaire'), findsOneWidget);
+    // Verify home page loads (AppBar now shows logo image instead of text)
+    expect(find.byType(AppBar), findsOneWidget);
     expect(find.text('Recent Shipments'), findsOneWidget);
   });
 }

@@ -411,6 +411,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get statusNoQuotesAvailable => 'No hay cotizaciones disponibles';
 
   @override
+  String get statusInTransit => 'In Transit';
+
+  @override
+  String get statusDelivered => 'Delivered';
+
+  @override
+  String get statusPending => 'Pending';
+
+  @override
   String get deleteShipmentTitle => 'Eliminar Envío';
 
   @override

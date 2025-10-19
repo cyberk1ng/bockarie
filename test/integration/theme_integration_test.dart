@@ -564,10 +564,12 @@ void main() {
       final lightTheme = container.read(lightThemeProvider);
       final darkTheme = container.read(darkThemeProvider);
 
+      // Neon theme uses same accent colors in both modes
       expect(
         lightTheme.colorScheme.primary,
-        isNot(equals(darkTheme.colorScheme.primary)),
+        equals(darkTheme.colorScheme.primary),
       );
+      // But backgrounds should be different
       expect(
         lightTheme.scaffoldBackgroundColor,
         isNot(equals(darkTheme.scaffoldBackgroundColor)),

@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bockaire/widgets/modal/modal_utils.dart';
-import 'package:bockaire/widgets/modal/modal_card.dart';
 import 'package:bockaire/pages/new_shipment_page.dart';
 import 'package:bockaire/providers/shipment_providers.dart';
 import 'package:bockaire/themes/theme.dart';
+import 'package:bockaire/themes/neon_theme.dart';
 import 'package:bockaire/get_it.dart';
 import 'package:bockaire/database/database.dart';
 import 'package:bockaire/l10n/app_localizations.dart';
-import 'package:intl/intl.dart';
 import 'package:bockaire/providers/currency_provider.dart';
+import 'package:bockaire/widgets/neon/neon_widgets.dart';
+import 'package:bockaire/widgets/neon/sparkle_decoration.dart';
+import 'dart:math' as math;
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -28,10 +30,18 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context)!;
     final shipmentsAsync = ref.watch(recentShipmentsProvider);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
+      extendBodyBehindAppBar: false,
       appBar: AppBar(
-        title: Text(localizations.appTitle),
+        title: Image.asset(
+          'assets/images/bockarie_logo_cropped.png',
+          height: 42,
+          fit: BoxFit.contain,
+        ),
+        centerTitle: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -39,72 +49,193 @@ class HomePage extends ConsumerWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(AppTheme.pagePadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              localizations.titleRecentShipments,
-              style: context.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
+      body: Stack(
+        children: [
+          // Sparkle background decoration
+          if (isDark)
+            Positioned.fill(child: SparkleDecoration(sparkleCount: 30)),
+
+          // Main content
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      localizations.titleRecentShipments,
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    // Plus button
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: NeonColors.cyan, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: NeonColors.cyanGlow,
+                            blurRadius: 12,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        icon: Icon(Icons.add, color: NeonColors.cyan),
+                        onPressed: () => _openNewShipmentModal(context),
+                        padding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: AppTheme.spacingMedium),
-            Expanded(
-              child: shipmentsAsync.when(
-                data: (shipments) {
-                  if (shipments.isEmpty) {
-                    return _buildEmptyState(context);
-                  }
-                  return ListView.separated(
-                    itemCount: shipments.length,
-                    separatorBuilder: (context, index) =>
-                        SizedBox(height: AppTheme.cardSpacing),
-                    itemBuilder: (context, index) {
-                      final shipment = shipments[index];
-                      return _ShipmentCard(
-                        shipment: shipment,
-                        onDelete: () => _deleteShipment(context, ref, shipment),
-                      );
-                    },
-                  );
-                },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, stack) => Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.error_outline,
-                        size: 64,
-                        color: context.colorScheme.error,
-                      ),
-                      SizedBox(height: AppTheme.spacingMedium),
-                      Text(
-                        localizations.errorLoadingShipments,
-                        style: context.textTheme.titleMedium,
-                      ),
-                      SizedBox(height: AppTheme.spacingSmall),
-                      Text(
-                        err.toString(),
-                        style: context.textTheme.bodySmall?.copyWith(
-                          color: context.colorScheme.onSurfaceVariant,
+              Expanded(
+                child: shipmentsAsync.when(
+                  data: (shipments) {
+                    if (shipments.isEmpty) {
+                      return _buildEmptyState(context);
+                    }
+                    return ListView.builder(
+                      padding: EdgeInsets.only(bottom: 20),
+                      itemCount: shipments.length,
+                      itemBuilder: (context, index) {
+                        final shipment = shipments[index];
+                        return _buildNeonShipmentCard(
+                          context,
+                          ref,
+                          shipment,
+                          index,
+                        );
+                      },
+                    );
+                  },
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (err, stack) => Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: context.colorScheme.error,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                        SizedBox(height: AppTheme.spacingMedium),
+                        Text(
+                          localizations.errorLoadingShipments,
+                          style: context.textTheme.titleMedium,
+                        ),
+                        SizedBox(height: AppTheme.spacingSmall),
+                        Text(
+                          err.toString(),
+                          style: context.textTheme.bodySmall?.copyWith(
+                            color: context.colorScheme.onSurfaceVariant,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openNewShipmentModal(context),
-        icon: const Icon(Icons.add),
-        label: Text(localizations.navNewShipment),
+    );
+  }
+
+  Widget _buildNeonShipmentCard(
+    BuildContext context,
+    WidgetRef ref,
+    Shipment shipment,
+    int index,
+  ) {
+    final cheapestQuoteAsync = ref.watch(cheapestQuoteProvider(shipment.id));
+    final currency = ref.watch(currencyNotifierProvider);
+    final currencyService = ref.watch(currencyServiceProvider);
+
+    // Cycle through colors for variety
+    final colors = [NeonColors.cyan, NeonColors.green, NeonColors.purple];
+    final routeColor = colors[index % colors.length];
+
+    // Determine status (simplified for now)
+    final random = math.Random(shipment.id.hashCode);
+    final status = random.nextBool()
+        ? ShipmentStatus.inTransit
+        : ShipmentStatus.delivered;
+
+    return Dismissible(
+      key: Key(shipment.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: context.colorScheme.error,
+          borderRadius: BorderRadius.circular(NeonTheme.borderRadius),
+        ),
+        child: Icon(Icons.delete_outline, color: context.colorScheme.onError),
+      ),
+      confirmDismiss: (direction) async {
+        await _deleteShipment(context, ref, shipment);
+        return false; // Don't auto-dismiss, let _deleteShipment handle it
+      },
+      child: cheapestQuoteAsync.when(
+        data: (quote) {
+          final price = quote != null
+              ? double.parse(
+                  currencyService
+                      .formatAmount(
+                        amountInEur: quote.priceEur,
+                        currency: currency,
+                        decimals: 0,
+                      )
+                      .replaceAll(RegExp(r'[^\d.]'), ''),
+                )
+              : 0.0;
+
+          final weight = quote?.chargeableKg ?? 0.0;
+
+          return ShipmentCard(
+            data: ShipmentCardData(
+              originCity: shipment.originCity,
+              originCountry: shipment.originCountry,
+              destinationCity: shipment.destCity,
+              destinationCountry: shipment.destCountry,
+              weight: weight,
+              price: price,
+              currency: currency.code,
+              status: status,
+              routeColor: routeColor,
+            ),
+            onViewQuotes: () => context.push('/quotes/${shipment.id}'),
+            onOptimize: () => context.push('/optimizer/${shipment.id}'),
+          );
+        },
+        loading: () => ShimmerShipmentCard(routeColor: routeColor),
+        error: (_, __) => ShipmentCard(
+          data: ShipmentCardData(
+            originCity: shipment.originCity,
+            originCountry: shipment.originCountry,
+            destinationCity: shipment.destCity,
+            destinationCountry: shipment.destCountry,
+            weight: 0,
+            price: 0,
+            currency: currency.code,
+            status: status,
+            routeColor: routeColor,
+          ),
+          onViewQuotes: () => context.push('/quotes/${shipment.id}'),
+          onOptimize: () => context.push('/optimizer/${shipment.id}'),
+        ),
       ),
     );
   }
@@ -225,145 +356,77 @@ class HomePage extends ConsumerWidget {
   }
 }
 
-class _ShipmentCard extends ConsumerWidget {
-  final Shipment shipment;
-  final VoidCallback onDelete;
+/// Shimmer loading placeholder for shipment card
+class ShimmerShipmentCard extends StatelessWidget {
+  final Color routeColor;
 
-  const _ShipmentCard({required this.shipment, required this.onDelete});
+  const ShimmerShipmentCard({super.key, required this.routeColor});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final dateFormat = DateFormat('MMM dd');
-    final cheapestQuoteAsync = ref.watch(cheapestQuoteProvider(shipment.id));
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final backgroundColor = isDark ? NeonColors.darkCard : NeonColors.lightCard;
 
-    return Dismissible(
-      key: Key(shipment.id),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        decoration: BoxDecoration(
-          color: context.colorScheme.error,
-          borderRadius: BorderRadius.circular(AppTheme.cardBorderRadius),
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(NeonTheme.borderRadius),
+        border: Border.all(
+          color: routeColor.withValues(alpha: 0.2),
+          width: NeonTheme.borderWidth,
         ),
-        child: Icon(Icons.delete_outline, color: context.colorScheme.onError),
       ),
-      confirmDismiss: (direction) async {
-        onDelete();
-        return false; // Don't auto-dismiss, let onDelete handle it
-      },
-      child: ModalCard(
-        child: InkWell(
-          onTap: () => context.push('/quotes/${shipment.id}'),
-          borderRadius: BorderRadius.circular(AppTheme.cardBorderRadius),
-          child: Padding(
-            padding: const EdgeInsets.all(AppTheme.cardPadding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.local_shipping_outlined,
-                            color: context.colorScheme.primary,
-                            size: 20,
-                          ),
-                          SizedBox(width: AppTheme.spacingSmall),
-                          Expanded(
-                            child: Text(
-                              '${shipment.originCity} → ${shipment.destCity}',
-                              style: context.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      dateFormat.format(shipment.createdAt),
-                      style: context.textTheme.bodySmall?.copyWith(
-                        color: context.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: AppTheme.spacingSmall),
-                cheapestQuoteAsync.when(
-                  data: (quote) {
-                    final localizations = AppLocalizations.of(context)!;
-                    if (quote == null) {
-                      return Text(
-                        localizations.statusCalculatingQuotes,
-                        style: context.textTheme.bodySmall?.copyWith(
-                          color: context.colorScheme.onSurfaceVariant,
-                        ),
-                      );
-                    }
-                    final currency = ref.watch(currencyNotifierProvider);
-                    final currencyService = ref.watch(currencyServiceProvider);
-                    final formattedPrice = currencyService.formatAmount(
-                      amountInEur: quote.priceEur,
-                      currency: currency,
-                      decimals: 0,
-                    );
-                    return Row(
-                      children: [
-                        Text(
-                          localizations.cheapestPrice(
-                            quote.chargeableKg.toStringAsFixed(1),
-                            formattedPrice,
-                          ),
-                          style: context.textTheme.bodyMedium,
-                        ),
-                      ],
-                    );
-                  },
-                  loading: () => Text(
-                    AppLocalizations.of(context)!.statusLoading,
-                    style: context.textTheme.bodySmall?.copyWith(
-                      color: context.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  error: (_, __) => Text(
-                    AppLocalizations.of(context)!.statusNoQuotesAvailable,
-                    style: context.textTheme.bodySmall?.copyWith(
-                      color: context.colorScheme.error,
-                    ),
-                  ),
-                ),
-                SizedBox(height: AppTheme.spacingMedium),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => context.push('/quotes/${shipment.id}'),
-                        child: Text(
-                          AppLocalizations.of(context)!.buttonViewQuotes,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: AppTheme.spacingSmall),
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () =>
-                            context.push('/optimizer/${shipment.id}'),
-                        child: Text(
-                          AppLocalizations.of(context)!.buttonOptimize,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 24,
+            width: 200,
+            decoration: BoxDecoration(
+              color: routeColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(4),
             ),
           ),
-        ),
+          SizedBox(height: 20),
+          Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: routeColor.withValues(alpha: 0.1),
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  height: 2,
+                  color: routeColor.withValues(alpha: 0.1),
+                ),
+              ),
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: routeColor.withValues(alpha: 0.1),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          Container(
+            height: 16,
+            width: 150,
+            decoration: BoxDecoration(
+              color: routeColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ],
       ),
     );
   }

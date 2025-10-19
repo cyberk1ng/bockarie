@@ -2,7 +2,7 @@ name: bockaire
 description: "Shipping Optimizer - Smart China to Germany shipment planning"
 publish_to: 'none'
 
-version: 0.6.3+11
+version: 0.6.3+12
 
 environment:
   sdk: ^3.9.2
@@ -17,6 +17,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   flex_color_scheme: ^8.0.2
   country_flags: ^3.0.2
+  google_fonts: ^6.1.0
 
   # State Management
   flutter_riverpod: ^2.6.1
@@ -77,6 +78,9 @@ dev_dependencies:
   mocktail: ^1.0.4
   mockito: ^5.4.6
 
+  # App Icon Generator
+  flutter_launcher_icons: ^0.14.1
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -92,6 +96,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - .env
+    - assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -118,3 +123,14 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# App Icon Configuration
+flutter_launcher_icons:
+  android: true
+  ios: true
+  macos:
+    generate: true
+    image_path: "assets/images/bockarie_logo_cropped.png"
+  image_path: "assets/images/bockarie_logo_cropped.png"
+  adaptive_icon_background: "#000000"
+  adaptive_icon_foreground: "assets/images/bockarie_logo_cropped.png"

@@ -1,4 +1,4 @@
-# Bockaire
+# Bockarie
 
 A smart shipping optimizer for planning and calculating shipments from China to Germany. Built with Flutter for cross-platform support.
 
@@ -83,7 +83,7 @@ lib/
 
 ## Voice Input
 
-Bockaire supports voice input for quick shipment entry:
+Bockarie supports voice input for quick shipment entry:
 
 - **Location Input**: "From Shanghai to Hamburg"
 - **Carton Dimensions**: "50 by 30 by 20 centimeters, 5 kilos, quantity 10, laptops"

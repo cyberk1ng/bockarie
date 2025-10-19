@@ -406,6 +406,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get statusNoQuotesAvailable => '无可用报价';
 
   @override
+  String get statusInTransit => 'In Transit';
+
+  @override
+  String get statusDelivered => 'Delivered';
+
+  @override
+  String get statusPending => 'Pending';
+
+  @override
   String get deleteShipmentTitle => '删除货运';
 
   @override
