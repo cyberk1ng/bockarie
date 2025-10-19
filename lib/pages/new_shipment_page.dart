@@ -19,6 +19,8 @@ import 'package:bockaire/config/ui_constants.dart';
 import 'package:bockaire/config/ui_strings.dart';
 import 'package:bockaire/config/validation_constants.dart';
 import 'package:bockaire/l10n/app_localizations.dart';
+import 'package:bockaire/widgets/voice/voice_input_button.dart';
+import 'package:bockaire/services/ai_provider_interfaces.dart';
 import 'package:drift/drift.dart' as drift;
 
 class NewShipmentPage extends StatefulWidget {
@@ -482,6 +484,74 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
     });
   }
 
+  bool _hasExistingLocation() {
+    return _originCityController.text.isNotEmpty &&
+        _originPostalController.text.isNotEmpty &&
+        _destCityController.text.isNotEmpty &&
+        _destPostalController.text.isNotEmpty;
+  }
+
+  void _handleVoiceInput(VoiceInputResult result) {
+    _logger.i('🎤 Voice input received: $result');
+
+    // Populate location fields if available (only if not already filled)
+    if (result.hasLocation && !_hasExistingLocation()) {
+      _logger.i('📍 Populating location fields');
+      setState(() {
+        _originCityController.text = result.originCity ?? '';
+        _originPostalController.text = result.originPostal ?? '';
+        _originCountryController.text = result.originCountry ?? '';
+        _originStateController.text = result.originState ?? '';
+        _destCityController.text = result.destCity ?? '';
+        _destPostalController.text = result.destPostal ?? '';
+        _destCountryController.text = result.destCountry ?? '';
+        _destStateController.text = result.destState ?? '';
+      });
+    } else if (result.hasLocation && _hasExistingLocation()) {
+      _logger.w(
+        '🔒 Location fields already filled - ignoring voice location data (security feature)',
+      );
+    }
+
+    // Add carton if available
+    if (result.hasCarton) {
+      final cartonData = result.cartonData!;
+      _logger.i('📦 Voice carton received: $cartonData');
+
+      final newCarton = CartonInput()
+        ..lengthCm = cartonData.lengthCm ?? 0
+        ..widthCm = cartonData.widthCm ?? 0
+        ..heightCm = cartonData.heightCm ?? 0
+        ..weightKg = cartonData.weightKg ?? 0
+        ..qty = cartonData.qty ?? 1
+        ..itemType = cartonData.itemType ?? '';
+
+      _logger.i(
+        '📦 CartonInput created: L=${newCarton.lengthCm}, W=${newCarton.widthCm}, H=${newCarton.heightCm}, Wt=${newCarton.weightKg}, Qty=${newCarton.qty}, Type=${newCarton.itemType}',
+      );
+
+      setState(() {
+        _cartons.add(newCarton);
+        _updateTotals();
+      });
+
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Shipment details added:\n'
+              '${result.hasLocation ? "Route: ${result.originCity} → ${result.destCity}\n" : ""}'
+              'Carton: ${cartonData.lengthCm}×${cartonData.widthCm}×${cartonData.heightCm} cm, ${cartonData.weightKg} kg, qty: ${cartonData.qty}',
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    }
+  }
+
   void _removeCarton(int index) {
     setState(() {
       _cartons.removeAt(index);
@@ -502,6 +572,8 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
 
   void _updateTotals() {
     setState(() {
+      _logger.d('📊 Updating totals for ${_cartons.length} cartons');
+
       final cartonModels = _cartons
           .where(
             (c) =>
@@ -524,7 +596,16 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
           )
           .toList();
 
+      _logger.d('📊 Valid cartons for calculation: ${cartonModels.length}');
+      for (var i = 0; i < cartonModels.length; i++) {
+        final c = cartonModels[i];
+        _logger.d(
+          '📊 Carton ${i + 1}: ${c.lengthCm}×${c.widthCm}×${c.heightCm} cm, ${c.weightKg} kg, qty: ${c.qty}',
+        );
+      }
+
       _totals = CalculationService.calculateTotals(cartonModels);
+      _logger.i('📊 Calculated totals: ${_totals.toString()}');
     });
   }
 
@@ -603,14 +684,42 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
           db.cartons,
         )..where((c) => c.shipmentId.equals(shipmentId))).get();
 
-        _logger.d('Generating quotes for shipment $shipmentId');
+        _logger.d('📦 Generating quotes for shipment $shipmentId');
         _logger.d(
-          'Origin: ${_originCityController.text}, ${_originPostalController.text}',
+          '📍 Origin: ${_originCityController.text}, ${_originPostalController.text}, ${_originCountryController.text}, ${_originStateController.text}',
         );
         _logger.d(
-          'Dest: ${_destCityController.text}, ${_destPostalController.text}',
+          '📍 Dest: ${_destCityController.text}, ${_destPostalController.text}, ${_destCountryController.text}, ${_destStateController.text}',
         );
-        _logger.d('Cartons: ${savedCartons.length}');
+        _logger.d(
+          '📊 Totals: chargeableKg=${_totals.chargeableKg}, isOversized=${_totals.isOversized}',
+        );
+        _logger.d('📦 Cartons: ${savedCartons.length}');
+
+        // Debug: Print all carton details
+        for (var i = 0; i < savedCartons.length; i++) {
+          final c = savedCartons[i];
+          _logger.d(
+            '   Carton ${i + 1}: ${c.lengthCm}×${c.widthCm}×${c.heightCm} cm, ${c.weightKg} kg, qty: ${c.qty}',
+          );
+        }
+
+        // Validation check before calling Shippo
+        if (_originCountryController.text.isEmpty ||
+            _destCountryController.text.isEmpty) {
+          _logger.e(
+            '❌ Missing country codes! Origin: "${_originCountryController.text}", Dest: "${_destCountryController.text}"',
+          );
+          throw Exception('Country codes are required for quote calculation');
+        }
+
+        if (_totals.chargeableKg <= 0) {
+          _logger.e('❌ Invalid chargeable weight: ${_totals.chargeableKg}');
+          throw Exception('Invalid shipment weight');
+        }
+
+        _logger.i('🚀 Calling QuoteCalculatorService.calculateAllQuotes...');
+        _logger.i('✅ Validation passed - all required data present');
 
         final quoteService = getIt<QuoteCalculatorService>();
         final quotes = await quoteService.calculateAllQuotes(
@@ -625,7 +734,10 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
           destCountry: _destCountryController.text,
           destState: _destStateController.text,
           cartons: savedCartons,
+          // fallbackToLocalRates: false (default) - only use real Shippo rates
         );
+
+        _logger.i('✅ Quote service returned ${quotes.length} quotes');
 
         _logger.d('Received ${quotes.length} quotes');
 
@@ -673,16 +785,27 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
       } catch (e, stackTrace) {
         // Continue even if quote generation fails
         _logger.e(
-          'Failed to generate quotes',
+          '❌ Failed to generate quotes',
           error: e,
           stackTrace: stackTrace,
         );
+
+        // Enhanced error message with more details
+        final errorDetails = e.toString();
+        _logger.e('❌ Error details: $errorDetails');
+        _logger.e(
+          '❌ Origin data: city=${_originCityController.text}, postal=${_originPostalController.text}, country=${_originCountryController.text}, state=${_originStateController.text}',
+        );
+        _logger.e(
+          '❌ Dest data: city=${_destCityController.text}, postal=${_destPostalController.text}, country=${_destCountryController.text}, state=${_destStateController.text}',
+        );
+
         if (mounted) {
           final localizations = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                localizations.warningCouldNotGenerateQuotes(e.toString()),
+                '${localizations.warningCouldNotGenerateQuotes(errorDetails)}\n\nCheck console logs for details.',
               ),
               duration: const Duration(
                 seconds: UIConstants.snackBarDurationLong,
@@ -801,10 +924,23 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                   localizations.labelCartons,
                   style: context.textTheme.titleLarge,
                 ),
-                ElevatedButton.icon(
-                  onPressed: _addCarton,
-                  icon: const Icon(Icons.add),
-                  label: Text(localizations.buttonAddCarton),
+                Row(
+                  children: [
+                    SizedBox(
+                      height: 40,
+                      width: 56,
+                      child: VoiceInputButton(
+                        onVoiceInputCompleted: _handleVoiceInput,
+                        hasExistingLocation: _hasExistingLocation(),
+                      ),
+                    ),
+                    SizedBox(width: AppTheme.spacingSmall),
+                    ElevatedButton.icon(
+                      onPressed: _addCarton,
+                      icon: const Icon(Icons.add),
+                      label: Text(localizations.buttonAddCarton),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -842,6 +978,9 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                         children: [
                           Expanded(
                             child: TextFormField(
+                              initialValue: carton.lengthCm > 0
+                                  ? carton.lengthCm.toString()
+                                  : '',
                               decoration: InputDecoration(
                                 labelText: localizations.labelLength,
                               ),
@@ -864,6 +1003,9 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                           SizedBox(width: AppTheme.spacingSmall),
                           Expanded(
                             child: TextFormField(
+                              initialValue: carton.widthCm > 0
+                                  ? carton.widthCm.toString()
+                                  : '',
                               decoration: InputDecoration(
                                 labelText: localizations.labelWidth,
                               ),
@@ -886,6 +1028,9 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                           SizedBox(width: AppTheme.spacingSmall),
                           Expanded(
                             child: TextFormField(
+                              initialValue: carton.heightCm > 0
+                                  ? carton.heightCm.toString()
+                                  : '',
                               decoration: InputDecoration(
                                 labelText: localizations.labelHeight,
                               ),
@@ -912,6 +1057,9 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                         children: [
                           Expanded(
                             child: TextFormField(
+                              initialValue: carton.weightKg > 0
+                                  ? carton.weightKg.toString()
+                                  : '',
                               decoration: InputDecoration(
                                 labelText: localizations.labelWeightKg,
                               ),
@@ -934,6 +1082,9 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                           SizedBox(width: AppTheme.spacingSmall),
                           Expanded(
                             child: TextFormField(
+                              initialValue: carton.qty > 0
+                                  ? carton.qty.toString()
+                                  : '',
                               decoration: InputDecoration(
                                 labelText: localizations.labelQuantity,
                               ),
@@ -956,6 +1107,9 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                           SizedBox(width: AppTheme.spacingSmall),
                           Expanded(
                             child: TextFormField(
+                              initialValue: carton.itemType.isNotEmpty
+                                  ? carton.itemType
+                                  : '',
                               decoration: InputDecoration(
                                 labelText: localizations.labelItemType,
                               ),

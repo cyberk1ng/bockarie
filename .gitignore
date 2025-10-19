@@ -41,6 +41,11 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Generated plugin registrants
+**/GeneratedPluginRegistrant.swift
+**/GeneratedPluginRegistrant.java
+**/GeneratedPluginRegistrant.m
+
 # Symbolication related
 app.*.symbols
 

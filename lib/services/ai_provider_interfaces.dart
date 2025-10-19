@@ -79,6 +79,59 @@ class CartonData {
   }
 }
 
+/// Shipment location data extracted from voice
+class ShipmentLocationData {
+  final String? originCity;
+  final String? destinationCity;
+
+  const ShipmentLocationData({this.originCity, this.destinationCity});
+
+  bool get isComplete => originCity != null && destinationCity != null;
+
+  @override
+  String toString() {
+    return 'ShipmentLocationData(from: $originCity, to: $destinationCity)';
+  }
+}
+
+/// Complete voice input result with location and carton data
+class VoiceInputResult {
+  final String? originCity;
+  final String? originPostal;
+  final String? originCountry;
+  final String? originState;
+  final String? destCity;
+  final String? destPostal;
+  final String? destCountry;
+  final String? destState;
+  final CartonData? cartonData;
+
+  const VoiceInputResult({
+    this.originCity,
+    this.originPostal,
+    this.originCountry,
+    this.originState,
+    this.destCity,
+    this.destPostal,
+    this.destCountry,
+    this.destState,
+    this.cartonData,
+  });
+
+  bool get hasLocation =>
+      originCity != null &&
+      originPostal != null &&
+      destCity != null &&
+      destPostal != null;
+
+  bool get hasCarton => cartonData != null && cartonData!.isComplete;
+
+  @override
+  String toString() {
+    return 'VoiceInputResult(from: $originCity to $destCity, carton: $cartonData)';
+  }
+}
+
 /// Gemini implementation of image analyzer
 class GeminiImageAnalyzer implements AiImageAnalyzer {
   final String apiKey;
