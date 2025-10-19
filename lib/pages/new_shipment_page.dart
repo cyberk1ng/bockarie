@@ -19,6 +19,8 @@ import 'package:bockaire/config/ui_constants.dart';
 import 'package:bockaire/config/ui_strings.dart';
 import 'package:bockaire/config/validation_constants.dart';
 import 'package:bockaire/l10n/app_localizations.dart';
+import 'package:bockaire/widgets/voice/voice_input_button.dart';
+import 'package:bockaire/services/ai_provider_interfaces.dart';
 import 'package:drift/drift.dart' as drift;
 
 class NewShipmentPage extends StatefulWidget {
@@ -482,6 +484,31 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
     });
   }
 
+  void _addCartonFromVoice(CartonData cartonData) {
+    setState(() {
+      _cartons.add(CartonInput()
+        ..lengthCm = cartonData.lengthCm ?? 0
+        ..widthCm = cartonData.widthCm ?? 0
+        ..heightCm = cartonData.heightCm ?? 0
+        ..weightKg = cartonData.weightKg ?? 0
+        ..qty = cartonData.qty ?? 1
+        ..itemType = cartonData.itemType ?? '');
+      _updateTotals();
+    });
+
+    // Show success message
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Carton added: ${cartonData.lengthCm}×${cartonData.widthCm}×${cartonData.heightCm} cm, ${cartonData.weightKg} kg',
+          ),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
   void _removeCarton(int index) {
     setState(() {
       _cartons.removeAt(index);
@@ -801,10 +828,22 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                   localizations.labelCartons,
                   style: context.textTheme.titleLarge,
                 ),
-                ElevatedButton.icon(
-                  onPressed: _addCarton,
-                  icon: const Icon(Icons.add),
-                  label: Text(localizations.buttonAddCarton),
+                Row(
+                  children: [
+                    SizedBox(
+                      height: 40,
+                      width: 56,
+                      child: VoiceInputButton(
+                        onCartonDetected: _addCartonFromVoice,
+                      ),
+                    ),
+                    SizedBox(width: AppTheme.spacingSmall),
+                    ElevatedButton.icon(
+                      onPressed: _addCarton,
+                      icon: const Icon(Icons.add),
+                      label: Text(localizations.buttonAddCarton),
+                    ),
+                  ],
                 ),
               ],
             ),

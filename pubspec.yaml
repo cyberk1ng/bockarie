@@ -2,7 +2,7 @@ name: bockaire
 description: "Shipping Optimizer - Smart China to Germany shipment planning"
 publish_to: 'none'
 
-version: 0.4.3+9
+version: 0.5.3+10
 
 environment:
   sdk: ^3.9.2
@@ -42,6 +42,10 @@ dependencies:
   # HTTP & AI
   dio: ^5.7.0
   google_generative_ai: ^0.4.6
+  http: ^1.2.0
+
+  # Audio
+  record: ^6.1.2
 
   # Utils
   intl: ^0.20.2
