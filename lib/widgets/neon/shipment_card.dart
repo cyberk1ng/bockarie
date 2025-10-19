@@ -75,7 +75,7 @@ class ShipmentCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  '${data.originCity} > ${data.destinationCity}',
+                  '${data.originCity} -> ${data.destinationCity}',
                   style: theme.textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.5,
