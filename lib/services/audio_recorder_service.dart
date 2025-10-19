@@ -18,18 +18,16 @@ class AudioRecorderService {
         return false;
       }
 
-      // Create file path
-      final tempDir = await getTemporaryDirectory();
+      // Create file path - use app documents directory instead of temp
+      // (temp dir on macOS may have restrictions)
+      final appDocDir = await getApplicationDocumentsDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      _currentRecordingPath = '${tempDir.path}/carton_voice_$timestamp.m4a';
+      _currentRecordingPath = '${appDocDir.path}/carton_voice_$timestamp.m4a';
 
-      // Start recording (same config as Lotti)
+      // Start recording with simple config
+      // Let the package choose defaults - fixes macOS recording issues
       await _recorder.start(
-        const RecordConfig(
-          encoder: AudioEncoder.aacLc,
-          sampleRate: 48000, // High quality
-          autoGain: true, // Normalize volume
-        ),
+        const RecordConfig(sampleRate: 48000, autoGain: true),
         path: _currentRecordingPath!,
       );
 
@@ -44,16 +42,26 @@ class AudioRecorderService {
   /// Stop recording and return file path
   Future<String?> stopRecording() async {
     try {
-      await _recorder.stop();
+      final path = await _recorder.stop();
+      _logger.i('🛑 Recorder.stop() returned: $path');
 
-      // Check file size
+      // Check file size and details
       if (_currentRecordingPath != null) {
         final file = File(_currentRecordingPath!);
-        final size = await file.length();
-        final sizeKB = size / 1024;
-        _logger.i('Recording stopped: $sizeKB KB');
+        if (await file.exists()) {
+          final size = await file.length();
+          final sizeKB = size / 1024;
+          final sizeMB = size / (1024 * 1024);
+          _logger.i(
+            '📊 Recording stopped: $sizeKB KB (${sizeMB.toStringAsFixed(2)} MB)',
+          );
+          _logger.i('📁 File path: $_currentRecordingPath');
+          _logger.i('✅ File exists: ${await file.exists()}');
+        } else {
+          _logger.e('❌ File does NOT exist at path: $_currentRecordingPath');
+        }
       } else {
-        _logger.i('Recording stopped');
+        _logger.w('⚠️ No recording path set');
       }
 
       return _currentRecordingPath;

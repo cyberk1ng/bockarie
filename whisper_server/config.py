@@ -7,7 +7,7 @@ class WhisperConfig:
 
     # Server Configuration
     HOST = os.getenv("WHISPER_SERVER_HOST", "127.0.0.1")
-    PORT = int(os.getenv("WHISPER_SERVER_PORT", "8085"))
+    PORT = int(os.getenv("WHISPER_SERVER_PORT", "8089"))
 
     # Security Configuration
     MAX_AUDIO_FILE_SIZE_MB = int(os.getenv("MAX_AUDIO_FILE_SIZE_MB", "10"))

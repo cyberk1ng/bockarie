@@ -8,14 +8,14 @@ class CartonVoiceParserService {
   final Logger _logger = Logger();
 
   CartonVoiceParserService(String apiKey)
-      : _model = GenerativeModel(
-          model: 'gemini-2.0-flash-exp', // Fast and smart
-          apiKey: apiKey,
-          generationConfig: GenerationConfig(
-            temperature: 0.1, // Deterministic parsing
-            responseMimeType: 'application/json',
-          ),
-        );
+    : _model = GenerativeModel(
+        model: 'gemini-2.0-flash-exp', // Fast and smart
+        apiKey: apiKey,
+        generationConfig: GenerationConfig(
+          temperature: 0.1, // Deterministic parsing
+          responseMimeType: 'application/json',
+        ),
+      );
 
   /// Parse transcribed text into CartonData
   Future<CartonData?> parseCartonFromText({
@@ -24,7 +24,8 @@ class CartonVoiceParserService {
     try {
       _logger.i('Parsing carton from text: $transcribedText');
 
-      final prompt = '''
+      final prompt =
+          '''
 Extract shipping carton details from this transcribed voice input:
 "$transcribedText"
 
@@ -63,10 +64,18 @@ If any value is unclear or not mentioned, use null.
 
       // Create CartonData object
       final cartonData = CartonData(
-        lengthCm: data['lengthCm'] != null ? (data['lengthCm'] as num).toDouble() : null,
-        widthCm: data['widthCm'] != null ? (data['widthCm'] as num).toDouble() : null,
-        heightCm: data['heightCm'] != null ? (data['heightCm'] as num).toDouble() : null,
-        weightKg: data['weightKg'] != null ? (data['weightKg'] as num).toDouble() : null,
+        lengthCm: data['lengthCm'] != null
+            ? (data['lengthCm'] as num).toDouble()
+            : null,
+        widthCm: data['widthCm'] != null
+            ? (data['widthCm'] as num).toDouble()
+            : null,
+        heightCm: data['heightCm'] != null
+            ? (data['heightCm'] as num).toDouble()
+            : null,
+        weightKg: data['weightKg'] != null
+            ? (data['weightKg'] as num).toDouble()
+            : null,
         qty: data['qty'] != null ? (data['qty'] as num).toInt() : null,
         itemType: data['itemType'] as String?,
       );

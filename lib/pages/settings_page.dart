@@ -12,6 +12,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:bockaire/providers/currency_provider.dart';
 import 'package:bockaire/widgets/currency/currency_flag.dart';
 import 'package:bockaire/features/settings/ui/widgets/currency_selection_modal.dart';
+import 'package:bockaire/features/settings/ui/pages/ai_settings_page.dart';
 
 import '../classes/supported_currency.dart';
 
@@ -232,7 +233,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             subtitle: Text(localizations.settingsAiProvidersSubtitle),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // TODO: Navigate to AI providers
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AiSettingsPage()),
+              );
             },
           ),
 

@@ -33,19 +33,27 @@ A high-performance, production-ready Python FastAPI server that provides local W
 ## Setup
 
 ### **1. Install Dependencies**
+
+**For Intel/AMD CPUs or NVIDIA GPUs:**
 ```bash
 cd whisper_server
 pip install -r requirements.txt
 ```
 
+**For Apple Silicon (M1/M2/M3 Macs):**
+```bash
+cd whisper_server
+pip install -r requirements_macos_arm.txt
+```
+
 **Note**: Some optimizations require specific hardware/software:
-- **Flash Attention**: Requires CUDA and may need compilation
+- **Flash Attention**: Requires CUDA and may need compilation (NVIDIA GPUs only)
 - **8-bit Quantization**: Works best with CUDA GPUs
-- **MPS**: Automatic on Apple Silicon Macs
+- **MPS**: Automatic on Apple Silicon Macs (use requirements_macos_arm.txt)
 
 ### **2. Configure Environment (Optional)**
 ```bash
-export WHISPER_SERVER_PORT="8084"
+export WHISPER_SERVER_PORT="8089"
 export MAX_AUDIO_FILE_SIZE_MB="25"
 export LOG_LEVEL="INFO"
 export ALLOWED_ORIGINS="http://localhost:3000"
@@ -59,7 +67,7 @@ python whisper_api_server.py
 ```
 
 The server will:
-- Start on `http://127.0.0.1:8084` by default
+- Start on `http://127.0.0.1:8089` by default
 - Automatically detect and optimize for your hardware
 - Download models on first use (models are cached afterward)
 - Log performance optimizations being used
@@ -167,23 +175,23 @@ Typical transcription times for 1-minute audio:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `WHISPER_SERVER_HOST` | `127.0.0.1` | Server host address |
-| `WHISPER_SERVER_PORT` | `8084` | Server port |
+| `WHISPER_SERVER_PORT` | `8089` | Server port |
 | `MAX_AUDIO_FILE_SIZE_MB` | `25` | Maximum audio file size in MB |
 | `ALLOWED_ORIGINS` | `http://localhost:3000` | CORS allowed origins (comma-separated) |
 | `ALLOWED_HOSTS` | `*` | Trusted hosts (comma-separated) |
 | `LOG_LEVEL` | `INFO` | Logging level (DEBUG, INFO, WARNING, ERROR) |
 
-## Integration with Flutter App
+## Integration with Bockaire
 
-This server is designed to work seamlessly with the Lotti Flutter app:
+Configure the Whisper provider in the Bockaire app:
 
-1. **Configure Provider**: Add a new Whisper provider in AI settings
-2. **Base URL**: `http://localhost:8084`
-3. **No API Key Required**: Leave API key field empty
-4. **Model Selection**: Choose any supported model name
-5. **Automatic Optimization**: Server automatically optimizes for your hardware
+1. Open **Settings** > **AI Settings**
+2. Select **Whisper** as the transcription provider
+3. Set **Base URL**: `http://localhost:8089`
+4. Leave **API Key** empty (not required for local server)
+5. Choose a **Model**: `whisper-1` for speed or `whisper-small` for quality
 
-The app uses the same OpenAI-compatible API format, making integration seamless.
+The app will automatically use the OpenAI-compatible API format.
 
 ## Troubleshooting
 
@@ -204,13 +212,13 @@ The app uses the same OpenAI-compatible API format, making integration seamless.
 - Close other applications to free up memory
 
 **Port Already in Use**
-- Change port: `export WHISPER_SERVER_PORT="8085"`
+- Change port: `export WHISPER_SERVER_PORT="8090"`
 - Check if another Whisper server is running
 
 ### **Performance Tips**
 
 1. **For fastest transcription**: Use `whisper-tiny` model
-2. **For best quality**: Use `whisper-large` model  
+2. **For best quality**: Use `whisper-large` model
 3. **For CUDA GPUs**: Ensure CUDA drivers are up to date
 4. **For Apple Silicon**: Ensure macOS is updated for best MPS support
 5. **First run**: Allow extra time for model download and compilation
@@ -233,7 +241,3 @@ uvicorn>=0.15.0            # ASGI server
 ```
 
 **Note**: Some packages (flash-attn, bitsandbytes) may require compilation and are optional for basic functionality.
-
-## License
-
-This project follows the same license as the main Lotti application. 

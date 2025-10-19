@@ -10,7 +10,7 @@ class WhisperTranscriptionService {
   final Logger _logger = Logger();
 
   WhisperTranscriptionService({
-    this.baseUrl = 'http://127.0.0.1:8085',
+    this.baseUrl = 'http://127.0.0.1:8089',
     http.Client? httpClient,
   }) : _httpClient = httpClient ?? http.Client();
 
@@ -28,11 +28,7 @@ class WhisperTranscriptionService {
           .post(
             Uri.parse('$baseUrl/v1/audio/transcriptions'),
             headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({
-              'model': 'whisper-1', // Uses whisper-tiny (fastest)
-              'audio': audioBase64,
-              'language': 'auto', // Auto-detect language
-            }),
+            body: jsonEncode({'model': 'whisper-1', 'audio': audioBase64}),
           )
           .timeout(
             const Duration(minutes: 2),
@@ -57,9 +53,9 @@ class WhisperTranscriptionService {
   /// Check if Whisper server is running
   Future<bool> isServerAvailable() async {
     try {
-      final response = await _httpClient.get(
-        Uri.parse('$baseUrl/health'),
-      ).timeout(const Duration(seconds: 3));
+      final response = await _httpClient
+          .get(Uri.parse('$baseUrl/health'))
+          .timeout(const Duration(seconds: 3));
 
       return response.statusCode == 200;
     } catch (e) {
