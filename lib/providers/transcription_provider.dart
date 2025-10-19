@@ -34,3 +34,77 @@ final transcriptionProviderProvider =
       TranscriptionProviderNotifier,
       TranscriptionProviderType
     >((ref) => TranscriptionProviderNotifier());
+
+// Gemini audio model selection
+class GeminiAudioModelNotifier extends StateNotifier<String> {
+  GeminiAudioModelNotifier() : super('gemini-2.0-flash-exp') {
+    _loadModel();
+  }
+
+  static const _key = 'gemini_audio_model';
+
+  // Available Gemini models with audio support
+  static const List<String> availableModels = [
+    'gemini-2.0-flash-exp',
+    'gemini-1.5-flash',
+    'gemini-1.5-flash-8b',
+    'gemini-1.5-pro',
+    'gemini-1.5-pro-latest',
+  ];
+
+  Future<void> _loadModel() async {
+    final prefs = await SharedPreferences.getInstance();
+    final model = prefs.getString(_key);
+    if (model != null) {
+      state = model;
+    }
+  }
+
+  Future<void> setModel(String model) async {
+    state = model;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_key, model);
+  }
+}
+
+final geminiAudioModelProvider =
+    StateNotifierProvider<GeminiAudioModelNotifier, String>(
+      (ref) => GeminiAudioModelNotifier(),
+    );
+
+// Whisper model selection
+class WhisperModelNotifier extends StateNotifier<String> {
+  WhisperModelNotifier() : super('whisper-large-v3') {
+    _loadModel();
+  }
+
+  static const _key = 'whisper_model';
+
+  // Available Whisper models for local transcription
+  static const List<String> availableModels = [
+    'whisper-large-v3',
+    'whisper-medium',
+    'whisper-small',
+    'whisper-base',
+    'whisper-tiny',
+  ];
+
+  Future<void> _loadModel() async {
+    final prefs = await SharedPreferences.getInstance();
+    final model = prefs.getString(_key);
+    if (model != null) {
+      state = model;
+    }
+  }
+
+  Future<void> setModel(String model) async {
+    state = model;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_key, model);
+  }
+}
+
+final whisperModelProvider =
+    StateNotifierProvider<WhisperModelNotifier, String>(
+      (ref) => WhisperModelNotifier(),
+    );

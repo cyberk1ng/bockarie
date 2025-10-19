@@ -9,7 +9,7 @@ class AppLocalizationsBg extends AppLocalizations {
   AppLocalizationsBg([String locale = 'bg']) : super(locale);
 
   @override
-  String get appTitle => 'Bockaire';
+  String get appTitle => 'Bockarie';
 
   @override
   String get navHome => 'Home';
@@ -701,7 +701,7 @@ class AppLocalizationsBg extends AppLocalizations {
 
   @override
   String versionDisplay(String version, String buildNumber) {
-    return 'Bockaire v$version ($buildNumber)';
+    return 'Bockarie v$version ($buildNumber)';
   }
 
   @override

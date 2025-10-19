@@ -155,7 +155,7 @@ abstract class AppLocalizations {
   /// Application name
   ///
   /// In en, this message translates to:
-  /// **'Bockaire'**
+  /// **'Bockarie'**
   String get appTitle;
 
   /// Home navigation label
@@ -1397,7 +1397,7 @@ abstract class AppLocalizations {
   /// Version display format
   ///
   /// In en, this message translates to:
-  /// **'Bockaire v{version} ({buildNumber})'**
+  /// **'Bockarie v{version} ({buildNumber})'**
   String versionDisplay(String version, String buildNumber);
 
   /// Cheapest price change display

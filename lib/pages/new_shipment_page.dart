@@ -20,6 +20,7 @@ import 'package:bockaire/config/ui_strings.dart';
 import 'package:bockaire/config/validation_constants.dart';
 import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:bockaire/widgets/voice/voice_input_button.dart';
+import 'package:bockaire/widgets/image/image_input_button.dart';
 import 'package:bockaire/services/ai_provider_interfaces.dart';
 import 'package:drift/drift.dart' as drift;
 
@@ -552,6 +553,37 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
     }
   }
 
+  void _handleImageInput(List<CartonData> detectedCartons) {
+    _logger.i('📸 Image input received: ${detectedCartons.length} cartons');
+
+    setState(() {
+      for (final carton in detectedCartons) {
+        final newCarton = CartonInput()
+          ..lengthCm = carton.lengthCm ?? 0
+          ..widthCm = carton.widthCm ?? 0
+          ..heightCm = carton.heightCm ?? 0
+          ..weightKg = carton.weightKg ?? 0
+          ..qty = carton.qty ?? 1
+          ..itemType = carton.itemType ?? '';
+
+        _cartons.add(newCarton);
+      }
+      _updateTotals();
+    });
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Added ${detectedCartons.length} carton${detectedCartons.length != 1 ? 's' : ''} from packing list image',
+          ),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
   void _removeCarton(int index) {
     setState(() {
       _cartons.removeAt(index);
@@ -840,9 +872,35 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              localizations.titleShipmentDetails,
-              style: context.textTheme.titleLarge,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  localizations.titleShipmentDetails,
+                  style: context.textTheme.titleLarge,
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      height: 40,
+                      width: 56,
+                      child: VoiceInputButton(
+                        onVoiceInputCompleted: _handleVoiceInput,
+                        hasExistingLocation: _hasExistingLocation(),
+                      ),
+                    ),
+                    SizedBox(width: AppTheme.spacingSmall),
+                    SizedBox(
+                      height: 40,
+                      width: 56,
+                      child: ImageInputButton(
+                        onCartonsDetected: _handleImageInput,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
             SizedBox(height: AppTheme.spacingMedium),
             ModalCard(
@@ -924,23 +982,10 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
                   localizations.labelCartons,
                   style: context.textTheme.titleLarge,
                 ),
-                Row(
-                  children: [
-                    SizedBox(
-                      height: 40,
-                      width: 56,
-                      child: VoiceInputButton(
-                        onVoiceInputCompleted: _handleVoiceInput,
-                        hasExistingLocation: _hasExistingLocation(),
-                      ),
-                    ),
-                    SizedBox(width: AppTheme.spacingSmall),
-                    ElevatedButton.icon(
-                      onPressed: _addCarton,
-                      icon: const Icon(Icons.add),
-                      label: Text(localizations.buttonAddCarton),
-                    ),
-                  ],
+                ElevatedButton.icon(
+                  onPressed: _addCarton,
+                  icon: const Icon(Icons.add),
+                  label: Text(localizations.buttonAddCarton),
                 ),
               ],
             ),

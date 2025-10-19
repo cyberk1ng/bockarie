@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:bockaire/classes/carton.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:logger/logger.dart';
 
 /// Base interface for AI providers
 abstract class AiProvider {
@@ -59,6 +62,23 @@ class CartonData {
       weightKg != null &&
       qty != null &&
       itemType != null;
+
+  factory CartonData.fromJson(Map<String, dynamic> json) => CartonData(
+    lengthCm: json['lengthCm'] != null
+        ? (json['lengthCm'] as num).toDouble()
+        : null,
+    widthCm: json['widthCm'] != null
+        ? (json['widthCm'] as num).toDouble()
+        : null,
+    heightCm: json['heightCm'] != null
+        ? (json['heightCm'] as num).toDouble()
+        : null,
+    weightKg: json['weightKg'] != null
+        ? (json['weightKg'] as num).toDouble()
+        : null,
+    qty: json['qty'] != null ? (json['qty'] as num).toInt() : null,
+    itemType: json['itemType'] as String?,
+  );
 
   Carton toCarton({required String id, required String shipmentId}) {
     return Carton(
@@ -135,21 +155,114 @@ class VoiceInputResult {
 /// Gemini implementation of image analyzer
 class GeminiImageAnalyzer implements AiImageAnalyzer {
   final String apiKey;
+  final String model;
+  final Logger _logger = Logger();
+  late final GenerativeModel _model;
 
-  GeminiImageAnalyzer({required this.apiKey});
+  GeminiImageAnalyzer({
+    required this.apiKey,
+    this.model = 'gemini-2.0-flash-exp',
+  }) {
+    _model = GenerativeModel(model: model, apiKey: apiKey);
+  }
 
   @override
-  String get name => 'Gemini Vision';
+  String get name => 'Gemini Vision ($model)';
 
   @override
   bool get isAvailable => apiKey.isNotEmpty;
 
   @override
   Future<List<CartonData>> extractCartonsFromImage(File imageFile) async {
-    // TODO: Implement Gemini Vision API call
-    // For now, return empty list
-    throw UnimplementedError('Gemini image analysis not yet implemented');
+    try {
+      _logger.i('Analyzing packing list image with Gemini Vision');
+
+      // Read image file
+      final imageBytes = await imageFile.readAsBytes();
+
+      // Create multimodal content
+      final content = [
+        Content.multi([
+          TextPart(_packingListPrompt),
+          DataPart('image/jpeg', imageBytes),
+        ]),
+      ];
+
+      // Generate with JSON mode
+      final response = await _model.generateContent(
+        content,
+        generationConfig: GenerationConfig(
+          temperature: 0.1,
+          responseMimeType: 'application/json',
+        ),
+      );
+
+      if (response.text == null || response.text!.isEmpty) {
+        _logger.w('Gemini returned empty response');
+        throw Exception('No response from Gemini');
+      }
+
+      _logger.d('Gemini response: ${response.text}');
+
+      // Parse JSON response
+      final jsonResponse = jsonDecode(response.text!);
+      final cartonsList = jsonResponse is List ? jsonResponse : [];
+
+      final cartons = cartonsList
+          .map((json) => CartonData.fromJson(json as Map<String, dynamic>))
+          .toList();
+
+      _logger.i('Extracted ${cartons.length} cartons from image');
+      return cartons;
+    } catch (e, stackTrace) {
+      _logger.e(
+        'Error analyzing image with Gemini',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
   }
+
+  String get _packingListPrompt => '''
+You are analyzing a shipping packing list image. Extract ALL carton/box entries from the image.
+
+For each carton, extract:
+- Dimensions (length × width × height in centimeters)
+- Weight (in kilograms)
+- Quantity/count
+- Item type/description
+
+IMPORTANT:
+- Look for table rows or list items
+- Convert all dimensions to centimeters (from inches/cm/mm)
+- Convert all weights to kilograms (from kg/lbs/g)
+- If multiple cartons have same dimensions, create separate entries
+- Ignore headers, totals, and non-carton data
+
+Return ONLY valid JSON array:
+[
+  {
+    "lengthCm": number,
+    "widthCm": number,
+    "heightCm": number,
+    "weightKg": number,
+    "qty": number,
+    "itemType": "string"
+  }
+]
+
+Example packing list:
+| Dims (cm) | Weight | Qty | Item |
+| 50×30×20  | 5 kg   | 10  | Laptops |
+| 40×40×30  | 8.5 kg | 5   | Monitors |
+
+Returns:
+[
+  {"lengthCm": 50, "widthCm": 30, "heightCm": 20, "weightKg": 5, "qty": 10, "itemType": "Laptops"},
+  {"lengthCm": 40, "widthCm": 40, "heightCm": 30, "weightKg": 8.5, "qty": 5, "itemType": "Monitors"}
+]
+''';
 }
 
 /// Gemini implementation of transcriber

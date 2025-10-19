@@ -239,13 +239,6 @@ class _CityAutocompleteFieldState extends State<CityAutocompleteField> {
         focusNode: _focusNode,
         decoration: InputDecoration(
           labelText: widget.label,
-          helperText: _validSelectionMade
-              ? null
-              : localizations.helperSelectFromDropdown,
-          helperStyle: TextStyle(
-            color: context.colorScheme.onSurfaceVariant,
-            fontSize: 12,
-          ),
           suffixIcon: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

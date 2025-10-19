@@ -9,7 +9,7 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
-  String get appTitle => 'Bockaire';
+  String get appTitle => 'Bockarie';
 
   @override
   String get navHome => 'Accueil';
@@ -716,7 +716,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String versionDisplay(String version, String buildNumber) {
-    return 'Bockaire v$version ($buildNumber)';
+    return 'Bockarie v$version ($buildNumber)';
   }
 
   @override
