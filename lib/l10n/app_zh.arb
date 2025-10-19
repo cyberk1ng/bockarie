@@ -1,7 +1,7 @@
 {
   "@@locale": "zh",
 
-  "appTitle": "Bockaire",
+  "appTitle": "Bockarie",
   "navHome": "首页",
   "navNewShipment": "新货运",
   "navSettings": "设置",
@@ -182,6 +182,6 @@
   "cheapestPrice": "{weight} 千克 • 起价 {price}",
   "routeDisplay": "{origin} → {destination}",
   "cityPostalDisplay": "{city}，{postal}",
-  "versionDisplay": "Bockaire v{version} ({buildNumber})",
+  "versionDisplay": "Bockarie v{version} ({buildNumber})",
   "cheapestPriceChange": "最便宜：{oldPrice} → {newPrice}"
 }

@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
 
-  "appTitle": "Bockaire",
+  "appTitle": "Bockarie",
   "@appTitle": {
     "description": "Application name"
   },
@@ -1175,7 +1175,7 @@
     }
   },
 
-  "versionDisplay": "Bockaire v{version} ({buildNumber})",
+  "versionDisplay": "Bockarie v{version} ({buildNumber})",
   "@versionDisplay": {
     "description": "Version display format",
     "placeholders": {

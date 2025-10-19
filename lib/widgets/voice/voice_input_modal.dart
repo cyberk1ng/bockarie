@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 import 'package:bockaire/services/audio_recorder_service.dart';
 import 'package:bockaire/services/whisper_transcription_service.dart';
 import 'package:bockaire/services/gemini_audio_transcription_service.dart';
@@ -23,6 +24,7 @@ class VoiceInputModal extends ConsumerStatefulWidget {
 }
 
 class _VoiceInputModalState extends ConsumerState<VoiceInputModal> {
+  final Logger _logger = Logger();
   VoiceModalState _state = VoiceModalState.idle;
   String? _errorMessage;
 
@@ -87,7 +89,7 @@ class _VoiceInputModalState extends ConsumerState<VoiceInputModal> {
     // Stop timer
     _recordingTimer?.cancel();
 
-    print('⏱️ Recording duration: $_recordingSeconds seconds');
+    _logger.d('⏱️ Recording duration: $_recordingSeconds seconds');
 
     // Check minimum duration
     if (_recordingSeconds < 3) {
@@ -103,23 +105,23 @@ class _VoiceInputModalState extends ConsumerState<VoiceInputModal> {
 
     try {
       // Stop recording
-      print('🎙️ Stopping recording...');
+      _logger.d('🎙️ Stopping recording...');
       final audioPath = await _recorder.stopRecording();
-      print('📁 Audio path received: $audioPath');
+      _logger.d('📁 Audio path received: $audioPath');
 
       if (audioPath == null) throw Exception('No audio recorded');
 
       // Get selected transcription provider from settings
       final selectedProvider = ref.read(transcriptionProviderProvider);
-      print('🔧 Selected provider: $selectedProvider');
+      _logger.d('🔧 Selected provider: $selectedProvider');
 
       // Transcribe with the selected provider
-      print('🚀 Starting transcription with $selectedProvider...');
+      _logger.d('🚀 Starting transcription with $selectedProvider...');
       final text = selectedProvider == TranscriptionProviderType.gemini
           ? await _gemini.transcribe(audioPath)
           : await _whisper.transcribe(audioPath);
 
-      print(
+      _logger.d(
         '🔊 Transcribed text ($selectedProvider): "$text" (${text.length} chars)',
       );
 
@@ -138,22 +140,22 @@ class _VoiceInputModalState extends ConsumerState<VoiceInputModal> {
   }
 
   Future<void> _processRecording(String text) async {
-    print('🎤 Processing recording...');
-    print('🔒 Has existing location: ${widget.hasExistingLocation}');
+    _logger.d('🎤 Processing recording...');
+    _logger.d('🔒 Has existing location: ${widget.hasExistingLocation}');
 
     bool hasLocation = false;
     bool hasCarton = false;
 
     // Only try to parse location if fields are NOT already filled
     if (!widget.hasExistingLocation) {
-      print('📍 Attempting to parse location (fields are empty)...');
+      _logger.d('📍 Attempting to parse location (fields are empty)...');
       try {
         final locationData = await _locationParser.parseLocationFromText(
           transcribedText: text,
         );
 
         if (locationData != null && locationData.isComplete) {
-          print(
+          _logger.d(
             '📍 Parsed locations: ${locationData.originCity} → ${locationData.destinationCity}',
           );
 
@@ -162,7 +164,7 @@ class _VoiceInputModalState extends ConsumerState<VoiceInputModal> {
             locationData.originCity!,
           );
           if (originMatch != null) {
-            print(
+            _logger.d(
               '✅ Origin matched: ${originMatch.city}, ${originMatch.postal}, ${originMatch.country}',
             );
 
@@ -178,7 +180,7 @@ class _VoiceInputModalState extends ConsumerState<VoiceInputModal> {
             locationData.destinationCity!,
           );
           if (destMatch != null) {
-            print(
+            _logger.d(
               '✅ Destination matched: ${destMatch.city}, ${destMatch.postal}, ${destMatch.country}',
             );
 
@@ -191,11 +193,11 @@ class _VoiceInputModalState extends ConsumerState<VoiceInputModal> {
           }
         }
       } catch (e) {
-        print('⚠️ Could not parse location: $e');
+        _logger.w('⚠️ Could not parse location: $e');
         // Continue - location is optional
       }
     } else {
-      print(
+      _logger.d(
         '⏭️ Skipping location parsing - fields already filled (security feature)',
       );
     }
@@ -207,12 +209,12 @@ class _VoiceInputModalState extends ConsumerState<VoiceInputModal> {
       );
 
       if (cartonData != null && cartonData.isComplete) {
-        print('📦 Parsed carton: $cartonData');
+        _logger.d('📦 Parsed carton: $cartonData');
         _detectedCarton = cartonData;
         hasCarton = true;
       }
     } catch (e) {
-      print('⚠️ Could not parse carton: $e');
+      _logger.w('⚠️ Could not parse carton: $e');
       // Continue - carton is optional
     }
 
@@ -481,10 +483,10 @@ class _VoiceInputModalState extends ConsumerState<VoiceInputModal> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+              color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: theme.colorScheme.primary.withOpacity(0.3),
+                color: theme.colorScheme.primary.withValues(alpha: 0.3),
               ),
             ),
             child: Column(
@@ -528,10 +530,12 @@ class _VoiceInputModalState extends ConsumerState<VoiceInputModal> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: theme.colorScheme.secondaryContainer.withOpacity(0.5),
+              color: theme.colorScheme.secondaryContainer.withValues(
+                alpha: 0.5,
+              ),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: theme.colorScheme.secondary.withOpacity(0.3),
+                color: theme.colorScheme.secondary.withValues(alpha: 0.3),
               ),
             ),
             child: Column(
@@ -575,10 +579,12 @@ class _VoiceInputModalState extends ConsumerState<VoiceInputModal> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: theme.colorScheme.secondaryContainer.withOpacity(0.5),
+              color: theme.colorScheme.secondaryContainer.withValues(
+                alpha: 0.5,
+              ),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: theme.colorScheme.secondary.withOpacity(0.3),
+                color: theme.colorScheme.secondary.withValues(alpha: 0.3),
               ),
             ),
             child: Column(
