@@ -36,12 +36,6 @@ class HomePage extends ConsumerWidget {
     return Scaffold(
       extendBodyBehindAppBar: false,
       appBar: AppBar(
-        title: Image.asset(
-          'assets/images/bockarie_logo_cropped.png',
-          height: 42,
-          fit: BoxFit.contain,
-        ),
-        centerTitle: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),

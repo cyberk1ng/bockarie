@@ -339,10 +339,7 @@ class _VoiceInputModalState extends ConsumerState<VoiceInputModal> {
       case VoiceModalState.idle:
         return Column(
           children: [
-            const CircularPulseVisualizer(
-              isRecording: false,
-              size: 120,
-            ),
+            const CircularPulseVisualizer(isRecording: false, size: 120),
             const SizedBox(height: 16),
             const Text(
               'Ready to record',
@@ -376,10 +373,7 @@ class _VoiceInputModalState extends ConsumerState<VoiceInputModal> {
       case VoiceModalState.recording:
         return Column(
           children: [
-            const CircularPulseVisualizer(
-              isRecording: true,
-              size: 150,
-            ),
+            const CircularPulseVisualizer(isRecording: true, size: 150),
             const SizedBox(height: 16),
             Text(
               'Recording... $_recordingSeconds seconds',

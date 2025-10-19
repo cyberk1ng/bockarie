@@ -170,11 +170,7 @@ class _CircularPulsePainter extends CustomPainter {
 
   void _drawRecordingRings(Canvas canvas, Offset center, double baseRadius) {
     // Draw multiple expanding rings with different colors
-    final colors = [
-      NeonColors.cyan,
-      NeonColors.purple,
-      NeonColors.green,
-    ];
+    final colors = [NeonColors.cyan, NeonColors.purple, NeonColors.green];
 
     for (int i = 0; i < ringValues.length; i++) {
       final progress = ringValues[i];
@@ -233,8 +229,8 @@ class _CircularPulsePainter extends CustomPainter {
       final color = i % 3 == 0
           ? NeonColors.cyan
           : i % 3 == 1
-              ? NeonColors.purple
-              : NeonColors.green;
+          ? NeonColors.purple
+          : NeonColors.green;
 
       // Particle glow
       final glowPaint = Paint()
