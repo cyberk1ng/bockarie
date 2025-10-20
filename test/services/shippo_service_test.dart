@@ -27,6 +27,11 @@ void main() {
     late ShippoService service;
 
     setUp(() {
+      // Set production mode for these tests (they expect individual parcels, not consolidation)
+      dotenv.testLoad(
+        fileInput: 'USE_TEST_MODE=false\nSHIPPO_LIVE_API_KEY=test_live_key',
+      );
+
       mockDio = MockDio();
       mockInterceptors = MockInterceptors();
 

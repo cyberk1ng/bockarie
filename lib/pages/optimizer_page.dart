@@ -5,6 +5,10 @@ import 'package:bockaire/themes/theme.dart';
 import 'package:bockaire/widgets/modal/modal_card.dart';
 import 'package:bockaire/widgets/modal/modal_utils.dart';
 import 'package:bockaire/services/calculation_service.dart';
+import 'package:bockaire/services/ai_optimizer_interfaces.dart';
+import 'package:bockaire/services/gemini_packing_optimizer_service.dart';
+import 'package:bockaire/services/ollama_packing_optimizer_service.dart';
+import 'package:bockaire/providers/optimizer_provider.dart';
 import 'package:bockaire/get_it.dart';
 import 'package:bockaire/database/database.dart';
 import 'package:bockaire/services/quote_calculator_service.dart';
@@ -15,16 +19,31 @@ import 'package:bockaire/utils/duration_parser.dart';
 import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart' as drift;
+import 'package:bockaire/services/optimization_engine_impl.dart';
+import 'package:bockaire/classes/optimization_result.dart';
+import 'package:bockaire/providers/optimization_settings_provider.dart';
 
-class OptimizerPage extends ConsumerWidget {
+class OptimizerPage extends ConsumerStatefulWidget {
   final String shipmentId;
 
   const OptimizerPage({super.key, required this.shipmentId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OptimizerPage> createState() => _OptimizerPageState();
+}
+
+class _OptimizerPageState extends ConsumerState<OptimizerPage> {
+  PackingRecommendation? _aiRecommendation;
+  bool _isLoadingRecommendation = false;
+  OptimizationResult? _ruleBasedResult;
+  bool _isOptimizing = false;
+
+  @override
+  Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    final cartonModelsAsync = ref.watch(cartonModelsProvider(shipmentId));
+    final cartonModelsAsync = ref.watch(
+      cartonModelsProvider(widget.shipmentId),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -153,6 +172,96 @@ class OptimizerPage extends ConsumerWidget {
 
                   SizedBox(height: AppTheme.spacingLarge),
 
+                  // Quick Optimization (Rule-Based) Section
+                  Text(
+                    'Quick Optimization (Free & Instant)',
+                    style: context.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: AppTheme.spacingMedium),
+
+                  Center(
+                    child: ElevatedButton.icon(
+                      onPressed: _isOptimizing
+                          ? null
+                          : () => _runRuleBasedOptimizer(cartons),
+                      icon: _isOptimizing
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Icon(Icons.bolt),
+                      label: Text(
+                        _isOptimizing
+                            ? 'Analyzing...'
+                            : 'Run Rule-Based Optimizer',
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  if (_ruleBasedResult != null) ...[
+                    SizedBox(height: AppTheme.spacingMedium),
+                    _buildRuleBasedResultCard(
+                      _ruleBasedResult!,
+                      cartons,
+                      totals,
+                    ),
+                  ],
+
+                  SizedBox(height: AppTheme.spacingLarge),
+                  Divider(),
+                  SizedBox(height: AppTheme.spacingMedium),
+
+                  // AI Suggestions (Advanced) Section
+                  Text(
+                    'AI Suggestions (Advanced) 🪙',
+                    style: context.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: AppTheme.spacingMedium),
+
+                  // AI Recommendations Button
+                  Center(
+                    child: ElevatedButton.icon(
+                      onPressed: _isLoadingRecommendation
+                          ? null
+                          : () => _getAIRecommendations(context, cartons),
+                      icon: _isLoadingRecommendation
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Icon(Icons.auto_awesome),
+                      label: Text(
+                        _isLoadingRecommendation
+                            ? localizations.optimizerGettingAIRecommendations
+                            : localizations.optimizerGetAIRecommendations,
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.purple,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: AppTheme.spacingLarge),
+
                   // Optimization Suggestions
                   Text(
                     localizations.optimizerSuggestions,
@@ -165,7 +274,7 @@ class OptimizerPage extends ConsumerWidget {
                   if (totals.savingsHint != null)
                     _OptimizationSuggestionCard(
                       hint: totals.savingsHint!,
-                      shipmentId: shipmentId,
+                      shipmentId: widget.shipmentId,
                       cartons: cartons,
                     )
                   else
@@ -277,11 +386,501 @@ class OptimizerPage extends ConsumerWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/quotes/$shipmentId'),
+        onPressed: () => context.push('/quotes/${widget.shipmentId}'),
         icon: const Icon(Icons.assessment_outlined),
         label: Text(localizations.buttonViewQuotes),
       ),
     );
+  }
+
+  Future<void> _getAIRecommendations(
+    BuildContext context,
+    List<models.Carton> cartons,
+  ) async {
+    final localizations = AppLocalizations.of(context)!;
+
+    if (cartons.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(localizations.errorNoCartonsToOptimize)),
+        );
+      }
+      return;
+    }
+
+    setState(() {
+      _isLoadingRecommendation = true;
+    });
+
+    try {
+      // Get selected provider
+      final providerType = ref.read(optimizerProviderNotifierProvider);
+
+      PackingOptimizerAI optimizer;
+      if (providerType == OptimizerProviderType.gemini) {
+        optimizer = getIt<GeminiPackingOptimizer>();
+      } else {
+        final baseUrl = ref.read(ollamaOptimizerBaseUrlProvider);
+        final model = ref.read(ollamaOptimizerModelProvider);
+        optimizer = OllamaPackingOptimizer(baseUrl: baseUrl, model: model);
+      }
+
+      // Get recommendations
+      final optimizationContext = OptimizationContext(
+        cartons: cartons,
+        itemDescription: 'clothing items',
+        allowCompression: true,
+      );
+
+      final recommendations = await optimizer.getRecommendations(
+        context: optimizationContext,
+      );
+
+      if (mounted) {
+        setState(() {
+          _aiRecommendation = recommendations;
+          _isLoadingRecommendation = false;
+        });
+
+        // Show recommendations in dialog
+        _showRecommendationsDialog(cartons, recommendations);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingRecommendation = false;
+        });
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+        }
+      }
+    }
+  }
+
+  Future<void> _showRecommendationsDialog(
+    List<models.Carton> cartons,
+    PackingRecommendation recommendation,
+  ) async {
+    final localizations = AppLocalizations.of(context)!;
+
+    await showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.auto_awesome, color: Colors.purple),
+            SizedBox(width: 8),
+            Expanded(child: Text(localizations.optimizerAIRecommendations)),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Recommended Box Count
+              _buildDialogSection(
+                icon: Icons.inventory_2,
+                title: localizations.optimizerRecommendedBoxCount,
+                content: recommendation.recommendedBoxCount.toString(),
+                color: Colors.blue,
+              ),
+              SizedBox(height: 12),
+
+              // Estimated Savings
+              _buildDialogSection(
+                icon: Icons.savings,
+                title: localizations.optimizerEstimatedSavings,
+                content:
+                    '${recommendation.estimatedSavingsPercent.toStringAsFixed(1)}%',
+                color: Colors.green,
+              ),
+              SizedBox(height: 12),
+
+              // Explanation
+              _buildDialogSection(
+                icon: Icons.info_outline,
+                title: localizations.optimizerExplanation,
+                content: recommendation.explanation,
+                color: Colors.purple,
+              ),
+              SizedBox(height: 12),
+
+              // Compression Advice
+              _buildDialogSection(
+                icon: Icons.compress,
+                title: localizations.optimizerCompressionAdvice,
+                content: recommendation.compressionAdvice,
+                color: Colors.orange,
+              ),
+
+              // Tips
+              if (recommendation.tips.isNotEmpty) ...[
+                SizedBox(height: 12),
+                _buildDialogListSection(
+                  icon: Icons.lightbulb_outline,
+                  title: localizations.optimizerTips,
+                  items: recommendation.tips,
+                  color: Colors.amber,
+                ),
+              ],
+
+              // Warnings
+              if (recommendation.warnings.isNotEmpty) ...[
+                SizedBox(height: 12),
+                _buildDialogListSection(
+                  icon: Icons.warning_amber,
+                  title: localizations.optimizerWarnings,
+                  items: recommendation.warnings,
+                  color: Colors.red,
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+            },
+            child: Text('Close'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              _applyAIRecommendations(cartons);
+            },
+            icon: Icon(Icons.check_circle),
+            label: Text('Apply Recommendations'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.purple,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDialogSection({
+    required IconData icon,
+    required String title,
+    required String content,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 20),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+          Text(content, style: TextStyle(fontSize: 14)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDialogListSection({
+    required IconData icon,
+    required String title,
+    required List<String> items,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 20),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+          ...items.map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('• ', style: TextStyle(color: color)),
+                  Expanded(child: Text(item, style: TextStyle(fontSize: 14))),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _applyAIRecommendations(
+    List<models.Carton> currentCartons,
+  ) async {
+    if (_aiRecommendation == null) {
+      return;
+    }
+
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Apply AI Recommendations?'),
+        content: Text(
+          'This will restructure your packing to ${_aiRecommendation!.recommendedBoxCount} boxes based on AI recommendations. Your current packing will be replaced.\n\nEstimated savings: ${_aiRecommendation!.estimatedSavingsPercent.toStringAsFixed(1)}%',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
+            child: const Text('Apply'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) {
+      return;
+    }
+
+    setState(() {
+      _isLoadingRecommendation = true;
+    });
+
+    try {
+      final db = getIt<AppDatabase>();
+      final structuredData = _aiRecommendation!.structuredData;
+
+      // Calculate totals from current cartons
+      final totalWeight = currentCartons.fold<double>(
+        0,
+        (sum, c) => sum + (c.weightKg * c.qty),
+      );
+
+      // Get suggested dimensions or use average from current cartons
+      double newLength = 50.0;
+      double newWidth = 40.0;
+      double newHeight = 40.0;
+
+      if (structuredData != null &&
+          structuredData['suggestedBoxDimensions'] is List) {
+        final dims = structuredData['suggestedBoxDimensions'] as List;
+        if (dims.length >= 3) {
+          newLength = (dims[0] as num).toDouble();
+          newWidth = (dims[1] as num).toDouble();
+          newHeight = (dims[2] as num).toDouble();
+        }
+      } else {
+        // Calculate average dimensions from current cartons
+        newLength =
+            currentCartons.fold<double>(0, (sum, c) => sum + c.lengthCm) /
+            currentCartons.length;
+        newWidth =
+            currentCartons.fold<double>(0, (sum, c) => sum + c.widthCm) /
+            currentCartons.length;
+        newHeight =
+            currentCartons.fold<double>(0, (sum, c) => sum + c.heightCm) /
+            currentCartons.length;
+
+        // Apply compression if suggested
+        if (structuredData != null &&
+            structuredData['compressionRatio'] is num) {
+          final compressionRatio = (structuredData['compressionRatio'] as num)
+              .toDouble();
+          // Apply compression primarily to height
+          newHeight = newHeight * compressionRatio;
+        }
+      }
+
+      final recommendedBoxCount = _aiRecommendation!.recommendedBoxCount;
+      final weightPerBox = totalWeight / recommendedBoxCount;
+
+      // Get first carton's item type or use generic
+      final itemType = currentCartons.isNotEmpty
+          ? currentCartons.first.itemType
+          : 'Mixed';
+
+      // Delete all existing cartons for this shipment
+      await (db.delete(
+        db.cartons,
+      )..where((c) => c.shipmentId.equals(widget.shipmentId))).go();
+      // Insert new optimized cartons
+      for (int i = 0; i < recommendedBoxCount; i++) {
+        await db
+            .into(db.cartons)
+            .insert(
+              CartonsCompanion(
+                id: drift.Value(const Uuid().v4()),
+                shipmentId: drift.Value(widget.shipmentId),
+                lengthCm: drift.Value(newLength),
+                widthCm: drift.Value(newWidth),
+                heightCm: drift.Value(newHeight),
+                weightKg: drift.Value(weightPerBox),
+                qty: drift.Value(1),
+                itemType: drift.Value('$itemType (AI Optimized)'),
+              ),
+            );
+      }
+
+      // Fetch updated cartons
+      final updatedCartons = await (db.select(
+        db.cartons,
+      )..where((c) => c.shipmentId.equals(widget.shipmentId))).get();
+
+      // Convert to model cartons
+      final cartonModels = updatedCartons
+          .map(
+            (c) => models.Carton(
+              id: c.id,
+              shipmentId: c.shipmentId,
+              lengthCm: c.lengthCm,
+              widthCm: c.widthCm,
+              heightCm: c.heightCm,
+              weightKg: c.weightKg,
+              qty: c.qty,
+              itemType: c.itemType,
+            ),
+          )
+          .toList();
+
+      final totals = CalculationService.calculateTotals(cartonModels);
+
+      // Fetch shipment
+      final shipment = await (db.select(
+        db.shipments,
+      )..where((s) => s.id.equals(widget.shipmentId))).getSingle();
+      // Regenerate quotes
+      final quoteService = getIt<QuoteCalculatorService>();
+      final newQuotes = await quoteService.calculateAllQuotes(
+        chargeableKg: totals.chargeableKg,
+        isOversized: totals.isOversized,
+        originCity: shipment.originCity,
+        originPostal: shipment.originPostal,
+        originCountry: shipment.originCountry,
+        originState: shipment.originState,
+        destCity: shipment.destCity,
+        destPostal: shipment.destPostal,
+        destCountry: shipment.destCountry,
+        destState: shipment.destState,
+        cartons: updatedCartons,
+      );
+
+      // Delete old quotes
+      await (db.delete(
+        db.quotes,
+      )..where((q) => q.shipmentId.equals(widget.shipmentId))).go();
+
+      // Save new quotes
+      for (final quote in newQuotes) {
+        // Parse duration from quote
+        final (etaMin, etaMax) = parseDuration(
+          quote.estimatedDays,
+          quote.durationTerms,
+        );
+
+        // Classify transport method
+        final transportMethod = classifyTransportMethod(
+          quote.carrier,
+          quote.service,
+          quote.estimatedDays ?? 5,
+        );
+
+        await db
+            .into(db.quotes)
+            .insert(
+              QuotesCompanion(
+                id: drift.Value(const Uuid().v4()),
+                shipmentId: drift.Value(widget.shipmentId),
+                carrier: drift.Value(quote.carrier),
+                service: drift.Value(quote.service),
+                etaMin: drift.Value(etaMin),
+                etaMax: drift.Value(etaMax),
+                priceEur: drift.Value(quote.total),
+                chargeableKg: drift.Value(quote.chargeableKg),
+                transportMethod: drift.Value(transportMethod.name),
+              ),
+            );
+      }
+
+      // Invalidate providers to refresh UI
+      ref.invalidate(cartonModelsProvider(widget.shipmentId));
+      ref.invalidate(quotesProvider(widget.shipmentId));
+
+      if (mounted) {
+        setState(() {
+          _isLoadingRecommendation = false;
+          _aiRecommendation = null; // Clear recommendations after applying
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Applied AI recommendations: $recommendedBoxCount boxes created',
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingRecommendation = false;
+        });
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error applying recommendations: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 
   Widget _buildStatRow(
@@ -309,6 +908,500 @@ class OptimizerPage extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  Future<void> _runRuleBasedOptimizer(List<models.Carton> cartons) async {
+    setState(() => _isOptimizing = true);
+
+    try {
+      final params = ref.read(optimizationParamsProvider);
+      final engine = OptimizationEngineImpl();
+
+      final result = await Future.microtask(
+        () => engine.optimize(cartons, params),
+      );
+
+      if (mounted) {
+        setState(() {
+          _ruleBasedResult = result;
+          _isOptimizing = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isOptimizing = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Optimization error: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
+  Widget _buildRuleBasedResultCard(
+    OptimizationResult result,
+    List<models.Carton> cartons,
+    dynamic totals,
+  ) {
+    if (result.isActionable) {
+      // Actionable result
+      return ModalCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.check_circle,
+                    color: Colors.green,
+                    size: 24,
+                  ),
+                ),
+                SizedBox(width: AppTheme.spacingMedium),
+                Expanded(
+                  child: Text(
+                    'Optimization Found',
+                    style: context.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: AppTheme.spacingMedium),
+            _buildStatRow(
+              context,
+              'Before',
+              '${result.beforeCartonCount} cartons, ${result.beforeChargeableKg.toStringAsFixed(1)}kg',
+            ),
+            SizedBox(height: AppTheme.spacingXSmall),
+            _buildStatRow(
+              context,
+              'After',
+              '${result.afterCartonCount} cartons, ${result.afterChargeableKg.toStringAsFixed(1)}kg',
+            ),
+            SizedBox(height: AppTheme.spacingXSmall),
+            _buildStatRow(
+              context,
+              'Savings',
+              '${result.savingsPercent.toStringAsFixed(1)}%',
+              isBold: true,
+              color: Colors.green,
+            ),
+            SizedBox(height: AppTheme.spacingMedium),
+            Text(
+              'Applied: ${result.appliedStrategies.join(", ")}',
+              style: context.textTheme.bodySmall?.copyWith(
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+            if (result.warnings.isNotEmpty) ...[
+              SizedBox(height: AppTheme.spacingSmall),
+              ...result.warnings.map(
+                (warning) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Row(
+                    children: [
+                      Icon(Icons.warning_amber, color: Colors.orange, size: 16),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          warning,
+                          style: context.textTheme.bodySmall?.copyWith(
+                            color: Colors.orange,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+            SizedBox(height: AppTheme.spacingMedium),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => _showOptimizationDetails(result),
+                    child: Text('Details'),
+                  ),
+                ),
+                SizedBox(width: AppTheme.spacingSmall),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => _applyRuleBasedPlan(result),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: Text('Apply Plan'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    } else {
+      // No optimization possible
+      return ModalCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.info_outline,
+                    color: Colors.orange,
+                    size: 24,
+                  ),
+                ),
+                SizedBox(width: AppTheme.spacingMedium),
+                Expanded(
+                  child: Text(
+                    'No Optimization Possible',
+                    style: context.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.orange,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: AppTheme.spacingMedium),
+            Text(
+              'Reasons:',
+              style: context.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: AppTheme.spacingSmall),
+            Text(result.rationale, style: context.textTheme.bodyMedium),
+            SizedBox(height: AppTheme.spacingMedium),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => _getAIRecommendations(context, cartons),
+                icon: Icon(Icons.auto_awesome),
+                label: Text('Try AI Suggestions'),
+                style: OutlinedButton.styleFrom(foregroundColor: Colors.purple),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  void _showOptimizationDetails(OptimizationResult result) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Optimization Details'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildComparisonTable(result),
+              SizedBox(height: 16),
+              Text(
+                'Applied Strategies:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              ...result.appliedStrategies.map(
+                (s) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text('• $s'),
+                ),
+              ),
+              if (result.warnings.isNotEmpty) ...[
+                SizedBox(height: 16),
+                Text(
+                  'Warnings:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
+                SizedBox(height: 8),
+                ...result.warnings.map(
+                  (w) => Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text('• $w', style: TextStyle(color: Colors.orange)),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildComparisonTable(OptimizationResult result) {
+    return Table(
+      border: TableBorder.all(color: Colors.grey.shade300),
+      children: [
+        TableRow(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(8),
+              child: Text(
+                'Metric',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8),
+              child: Text(
+                'Before',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8),
+              child: Text(
+                'After',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        TableRow(
+          children: [
+            Padding(padding: EdgeInsets.all(8), child: Text('Cartons')),
+            Padding(
+              padding: EdgeInsets.all(8),
+              child: Text('${result.beforeCartonCount}'),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8),
+              child: Text('${result.afterCartonCount}'),
+            ),
+          ],
+        ),
+        TableRow(
+          children: [
+            Padding(padding: EdgeInsets.all(8), child: Text('Chargeable Wt')),
+            Padding(
+              padding: EdgeInsets.all(8),
+              child: Text('${result.beforeChargeableKg.toStringAsFixed(1)} kg'),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8),
+              child: Text('${result.afterChargeableKg.toStringAsFixed(1)} kg'),
+            ),
+          ],
+        ),
+        TableRow(
+          children: [
+            Padding(padding: EdgeInsets.all(8), child: Text('Volume')),
+            Padding(
+              padding: EdgeInsets.all(8),
+              child: Text(
+                '${(result.beforeVolumeCm3 / 1000000).toStringAsFixed(2)} m³',
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8),
+              child: Text(
+                '${(result.afterVolumeCm3 / 1000000).toStringAsFixed(2)} m³',
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Future<void> _applyRuleBasedPlan(OptimizationResult result) async {
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Apply Optimization Plan?'),
+        content: Text(
+          'This will update your packing from ${result.beforeCartonCount} to ${result.afterCartonCount} cartons.\n\n'
+          'Estimated savings: ${result.savingsPercent.toStringAsFixed(1)}%\n\n'
+          'Your current packing will be replaced.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            child: const Text('Apply'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) {
+      return;
+    }
+
+    setState(() => _isOptimizing = true);
+
+    try {
+      final db = getIt<AppDatabase>();
+
+      // Delete all existing cartons for this shipment
+      await (db.delete(
+        db.cartons,
+      )..where((c) => c.shipmentId.equals(widget.shipmentId))).go();
+
+      // Insert optimized cartons
+      for (final carton in result.afterCartons) {
+        await db
+            .into(db.cartons)
+            .insert(
+              CartonsCompanion(
+                id: drift.Value(carton.id),
+                shipmentId: drift.Value(widget.shipmentId),
+                lengthCm: drift.Value(carton.lengthCm),
+                widthCm: drift.Value(carton.widthCm),
+                heightCm: drift.Value(carton.heightCm),
+                weightKg: drift.Value(carton.weightKg),
+                qty: drift.Value(carton.qty),
+                itemType: drift.Value(carton.itemType),
+              ),
+            );
+      }
+
+      // Fetch updated cartons
+      final updatedCartons = await (db.select(
+        db.cartons,
+      )..where((c) => c.shipmentId.equals(widget.shipmentId))).get();
+
+      // Convert to model cartons
+      final cartonModels = updatedCartons
+          .map(
+            (c) => models.Carton(
+              id: c.id,
+              shipmentId: c.shipmentId,
+              lengthCm: c.lengthCm,
+              widthCm: c.widthCm,
+              heightCm: c.heightCm,
+              weightKg: c.weightKg,
+              qty: c.qty,
+              itemType: c.itemType,
+            ),
+          )
+          .toList();
+
+      final totals = CalculationService.calculateTotals(cartonModels);
+
+      // Fetch shipment
+      final shipment = await (db.select(
+        db.shipments,
+      )..where((s) => s.id.equals(widget.shipmentId))).getSingle();
+
+      // Regenerate quotes
+      final quoteService = getIt<QuoteCalculatorService>();
+      final newQuotes = await quoteService.calculateAllQuotes(
+        chargeableKg: totals.chargeableKg,
+        isOversized: totals.isOversized,
+        originCity: shipment.originCity,
+        originPostal: shipment.originPostal,
+        originCountry: shipment.originCountry,
+        originState: shipment.originState,
+        destCity: shipment.destCity,
+        destPostal: shipment.destPostal,
+        destCountry: shipment.destCountry,
+        destState: shipment.destState,
+        cartons: updatedCartons,
+      );
+
+      // Delete old quotes
+      await (db.delete(
+        db.quotes,
+      )..where((q) => q.shipmentId.equals(widget.shipmentId))).go();
+
+      // Save new quotes
+      for (final quote in newQuotes) {
+        final (etaMin, etaMax) = parseDuration(
+          quote.estimatedDays,
+          quote.durationTerms,
+        );
+
+        final transportMethod = classifyTransportMethod(
+          quote.carrier,
+          quote.service,
+          quote.estimatedDays ?? 5,
+        );
+
+        await db
+            .into(db.quotes)
+            .insert(
+              QuotesCompanion(
+                id: drift.Value(const Uuid().v4()),
+                shipmentId: drift.Value(widget.shipmentId),
+                carrier: drift.Value(quote.carrier),
+                service: drift.Value(quote.service),
+                etaMin: drift.Value(etaMin),
+                etaMax: drift.Value(etaMax),
+                priceEur: drift.Value(quote.total),
+                chargeableKg: drift.Value(quote.chargeableKg),
+                transportMethod: drift.Value(transportMethod.name),
+              ),
+            );
+      }
+
+      // Invalidate providers to refresh UI
+      ref.invalidate(cartonModelsProvider(widget.shipmentId));
+      ref.invalidate(quotesProvider(widget.shipmentId));
+
+      if (mounted) {
+        setState(() {
+          _isOptimizing = false;
+          _ruleBasedResult = null; // Clear result after applying
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Optimization applied: ${result.afterCartonCount} cartons created',
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isOptimizing = false);
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error applying optimization: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 
   void _showHelpDialog(BuildContext context) {

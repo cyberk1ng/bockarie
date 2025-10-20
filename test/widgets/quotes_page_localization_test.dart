@@ -171,4 +171,65 @@ void main() {
       }
     });
   });
+
+  group('Shippo Test Mode Localizations', () {
+    testWidgets('English has new test mode strings', (tester) async {
+      await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      final context = tester.element(find.byType(Scaffold));
+      final localizations = AppLocalizations.of(context)!;
+
+      // Verify test mode warning banner text exists
+      expect(localizations.shippoTestModeWarning, isNotEmpty);
+      expect(localizations.shippoTestModeWarning, contains('Test mode'));
+      expect(
+        localizations.shippoTestModeWarning,
+        'Test mode: Multi-parcel shipments auto-consolidated. Production will show accurate pricing.',
+      );
+
+      // Verify multi-parcel limitation message exists
+      expect(localizations.shippoTestMultiParcelLimitation, isNotEmpty);
+      expect(
+        localizations.shippoTestMultiParcelLimitation,
+        contains('Multi-parcel'),
+      );
+      expect(
+        localizations.shippoTestMultiParcelLimitation.toLowerCase().contains(
+          'test mode',
+        ),
+        true,
+      );
+      expect(
+        localizations.shippoTestMultiParcelLimitation,
+        contains('quantities to 1'),
+      );
+
+      // Verify general test mode no quotes message exists
+      expect(localizations.shippoTestNoQuotes, isNotEmpty);
+      expect(localizations.shippoTestNoQuotes, contains('test mode'));
+      expect(localizations.shippoTestNoQuotes, contains('production'));
+    });
+
+    testWidgets('English test mode strings have expected content', (
+      tester,
+    ) async {
+      await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      final context = tester.element(find.byType(Scaffold));
+      final localizations = AppLocalizations.of(context)!;
+
+      // Verify specific expected content
+      expect(
+        localizations.shippoTestMultiParcelLimitation,
+        'Test mode limitation: Multi-parcel shipments may not return quotes. This will work in production with real carrier accounts. For testing, try setting all quantities to 1.',
+      );
+
+      expect(
+        localizations.shippoTestNoQuotes,
+        'No quotes available in test mode. Some routes or configurations require production carrier accounts. Switch to production mode for real quotes.',
+      );
+    });
+  });
 }

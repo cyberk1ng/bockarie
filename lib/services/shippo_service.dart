@@ -127,32 +127,63 @@ class ShippoService {
 
   /// Convert app cartons to Shippo parcels
   ///
-  /// If a carton has qty > 1, we create multiple parcels
+  /// In TEST MODE: Consolidates multiple quantities into single parcels to work around
+  /// Shippo test carrier limitations that don't support multi-parcel shipments.
+  ///
+  /// In PRODUCTION MODE: Creates individual parcels for each quantity (correct behavior)
+  /// since real carriers need accurate parcel counts for pricing and logistics.
   List<ShippoParcel> _convertCartonsToShippoParcels(List<Carton> cartons) {
     final parcels = <ShippoParcel>[];
+    final isTestMode = ShippoConfig.useTestMode;
 
     for (final carton in cartons) {
       _logger.d(
-        'Converting carton: ${carton.lengthCm}x${carton.widthCm}x${carton.heightCm}cm, ${carton.weightKg}kg, qty=${carton.qty}',
+        'Converting carton: ${carton.lengthCm}x${carton.widthCm}x${carton.heightCm}cm, '
+        '${carton.weightKg}kg, qty=${carton.qty}',
       );
 
-      // Create parcels based on quantity
-      for (int i = 0; i < carton.qty; i++) {
+      if (isTestMode && carton.qty > 1) {
+        // TEST MODE WORKAROUND: Consolidate multiple quantities into single parcel
+        // This is a workaround for Shippo's test carrier limitation
+        // Real carriers in production mode will receive accurate multi-parcel shipments
+        final consolidatedWeight = carton.weightKg * carton.qty;
+
+        _logger.w(
+          'TEST MODE: Consolidating qty=${carton.qty} cartons into single parcel '
+          '(${consolidatedWeight.toStringAsFixed(2)}kg total). '
+          'Production mode will send ${carton.qty} separate parcels.',
+        );
+
         parcels.add(
           ShippoParcel(
             length: carton.lengthCm.toStringAsFixed(0),
             width: carton.widthCm.toStringAsFixed(0),
             height: carton.heightCm.toStringAsFixed(0),
-            weight: carton.weightKg.toStringAsFixed(2),
+            weight: consolidatedWeight.toStringAsFixed(2),
             distanceUnit: 'cm',
             massUnit: 'kg',
           ),
         );
+      } else {
+        // PRODUCTION MODE or qty=1: Create individual parcels (correct behavior)
+        for (int i = 0; i < carton.qty; i++) {
+          parcels.add(
+            ShippoParcel(
+              length: carton.lengthCm.toStringAsFixed(0),
+              width: carton.widthCm.toStringAsFixed(0),
+              height: carton.heightCm.toStringAsFixed(0),
+              weight: carton.weightKg.toStringAsFixed(2),
+              distanceUnit: 'cm',
+              massUnit: 'kg',
+            ),
+          );
+        }
       }
     }
 
+    final modeLabel = isTestMode ? 'TEST' : 'PRODUCTION';
     _logger.i(
-      'Created ${parcels.length} parcels from ${cartons.length} carton entries',
+      'Created ${parcels.length} parcels from ${cartons.length} carton entries ($modeLabel mode)',
     );
 
     return parcels;

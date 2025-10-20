@@ -139,7 +139,9 @@ void main() {
       final context = tester.element(find.byType(SettingsPage));
       final localizations = AppLocalizations.of(context)!;
 
-      // Scroll down to make About section visible
+      // Scroll down to make About section visible - scroll multiple times to ensure we reach the bottom
+      await tester.drag(find.byType(ListView), const Offset(0, -500));
+      await tester.pumpAndSettle();
       await tester.drag(find.byType(ListView), const Offset(0, -500));
       await tester.pumpAndSettle();
 

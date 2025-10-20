@@ -418,13 +418,43 @@ class _ImageAnalysisModalState extends ConsumerState<ImageAnalysisModal> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Carton ${index + 1}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onSurface,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      carton.ctnNo != null
+                          ? 'CTN ${carton.ctnNo}'
+                          : 'Carton ${index + 1}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                    if (carton.confidence != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: carton.needsReview
+                              ? Colors.orange.shade100
+                              : Colors.green.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '${(carton.confidence! * 100).toInt()}%',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: carton.needsReview
+                                ? Colors.orange.shade900
+                                : Colors.green.shade900,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 12),
                 _buildDetailRow(
@@ -434,9 +464,32 @@ class _ImageAnalysisModalState extends ConsumerState<ImageAnalysisModal> {
                 const SizedBox(height: 8),
                 _buildDetailRow('Weight', '${carton.weightKg} kg'),
                 const SizedBox(height: 8),
-                _buildDetailRow('Quantity', '${carton.qty}'),
-                const SizedBox(height: 8),
-                _buildDetailRow('Item Type', carton.itemType ?? 'Unknown'),
+                if (carton.items != null && carton.items!.isNotEmpty) ...[
+                  Text(
+                    'Items:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  ...carton.items!.map(
+                    (item) => Padding(
+                      padding: const EdgeInsets.only(left: 16, bottom: 4),
+                      child: Text(
+                        '• ${item.itemType}: ${item.qty} pcs',
+                        style: TextStyle(color: theme.colorScheme.onSurface),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  _buildDetailRow('Total Qty', '${carton.totalQty}'),
+                ] else
+                  _buildDetailRow('Quantity', '${carton.effectiveQty}'),
+                if (carton.items == null || carton.items!.isEmpty) ...[
+                  const SizedBox(height: 8),
+                  _buildDetailRow('Item Type', carton.effectiveItemType),
+                ],
               ],
             ),
           );

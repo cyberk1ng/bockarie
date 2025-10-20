@@ -18,6 +18,7 @@ import 'package:bockaire/config/route_constants.dart';
 import 'package:bockaire/config/validation_constants.dart';
 import 'package:bockaire/config/color_constants.dart';
 import 'package:bockaire/config/ui_constants.dart';
+import 'package:bockaire/config/shippo_config.dart';
 import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart' as drift;
@@ -82,56 +83,99 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(AppTheme.pagePadding),
+      body: Column(
         children: [
-          // Shipment Summary Card
-          shipmentAsync.when(
-            data: (shipment) => cartonModelsAsync.when(
-              data: (cartons) =>
-                  _buildShipmentSummary(context, shipment, cartons),
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => _buildErrorCard(context, err.toString()),
-            ),
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => _buildErrorCard(context, err.toString()),
-          ),
-          const SizedBox(height: 24),
-
-          // Filter and Sort Controls
-          quotesAsync.when(
-            data: (quotes) {
-              if (quotes.isEmpty) return const SizedBox.shrink();
-              return _buildFilterSortControls(quotes);
-            },
-            loading: () => const SizedBox.shrink(),
-            error: (_, __) => const SizedBox.shrink(),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Quotes Section
-          quotesAsync.when(
-            data: (quotes) {
-              if (quotes.isEmpty) {
-                return _buildEmptyState(context);
-              }
-
-              final filteredAndSorted = _filterAndSortQuotes(quotes);
-
-              if (_groupByTransportMethod) {
-                return _buildGroupedQuotes(filteredAndSorted);
-              } else {
-                return _buildQuotesList(filteredAndSorted);
-              }
-            },
-            loading: () => const Center(
-              child: Padding(
-                padding: EdgeInsets.all(32.0),
-                child: CircularProgressIndicator(),
+          // TEST MODE BANNER
+          if (ShippoConfig.useTestMode)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.15),
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.science, color: Colors.orange.shade700, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      '🧪 ${localizations.shippoTestModeWarning}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.orange.shade900,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            error: (err, stack) => _buildErrorCard(context, err.toString()),
+
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(AppTheme.pagePadding),
+              children: [
+                // Shipment Summary Card
+                shipmentAsync.when(
+                  data: (shipment) => cartonModelsAsync.when(
+                    data: (cartons) =>
+                        _buildShipmentSummary(context, shipment, cartons),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (err, stack) =>
+                        _buildErrorCard(context, err.toString()),
+                  ),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (err, stack) =>
+                      _buildErrorCard(context, err.toString()),
+                ),
+                const SizedBox(height: 24),
+
+                // Filter and Sort Controls
+                quotesAsync.when(
+                  data: (quotes) {
+                    if (quotes.isEmpty) return const SizedBox.shrink();
+                    return _buildFilterSortControls(quotes);
+                  },
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, __) => const SizedBox.shrink(),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Quotes Section
+                quotesAsync.when(
+                  data: (quotes) {
+                    if (quotes.isEmpty) {
+                      return _buildEmptyState(context, cartonModelsAsync);
+                    }
+
+                    final filteredAndSorted = _filterAndSortQuotes(quotes);
+
+                    if (_groupByTransportMethod) {
+                      return _buildGroupedQuotes(filteredAndSorted);
+                    } else {
+                      return _buildQuotesList(filteredAndSorted);
+                    }
+                  },
+                  loading: () => const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(32.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                  error: (err, stack) =>
+                      _buildErrorCard(context, err.toString()),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -1177,7 +1221,10 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _buildEmptyState(
+    BuildContext context,
+    AsyncValue<List<models.Carton>> cartonModelsAsync,
+  ) {
     final localizations = AppLocalizations.of(context)!;
     return ModalCard(
       child: Padding(
@@ -1198,7 +1245,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
             ),
             const SizedBox(height: 12),
             Text(
-              localizations.shippoTestLimitationShort,
+              _getNoQuotesMessage(cartonModelsAsync, context),
               style: context.textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
@@ -1301,6 +1348,29 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
         ),
       ),
     );
+  }
+
+  String _getNoQuotesMessage(
+    AsyncValue<List<models.Carton>> cartonModelsAsync,
+    BuildContext context,
+  ) {
+    final localizations = AppLocalizations.of(context)!;
+
+    // Check if we're in test mode with multiple parcels
+    if (ShippoConfig.useTestMode) {
+      final cartons = cartonModelsAsync.valueOrNull;
+      if (cartons != null) {
+        final totalParcels = cartons.fold<int>(0, (sum, c) => sum + c.qty);
+        if (totalParcels > 1) {
+          return localizations.shippoTestMultiParcelLimitation;
+        }
+      }
+
+      return localizations.shippoTestNoQuotes;
+    }
+
+    // Production mode - use existing message
+    return localizations.emptyStateNoQuotes;
   }
 
   Future<void> _exportPDF(BuildContext context, WidgetRef ref) async {
