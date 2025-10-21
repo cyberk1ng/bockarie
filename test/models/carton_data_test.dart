@@ -403,7 +403,7 @@ void main() {
 
       expect(
         carton.toString(),
-        'CartonData(50.0×30.0×20.0 cm, 5.5 kg, qty:10, type:Laptops)',
+        'CartonData(50.0×30.0×20.0 cm, 5.5 kg, type:Laptops, qty:10)',
       );
     });
 
@@ -412,7 +412,7 @@ void main() {
 
       expect(
         carton.toString(),
-        'CartonData(50.0×null×null cm, null kg, qty:null, type:Boxes)',
+        'CartonData(50.0×null×null cm, null kg, type:Boxes, qty:1)',
       );
     });
 
@@ -421,7 +421,7 @@ void main() {
 
       expect(
         carton.toString(),
-        'CartonData(null×null×null cm, null kg, qty:null, type:null)',
+        'CartonData(null×null×null cm, null kg, qty:1)',
       );
     });
 
@@ -437,7 +437,7 @@ void main() {
 
       expect(
         carton.toString(),
-        'CartonData(0.0×0.0×0.0 cm, 0.0 kg, qty:0, type:Empty)',
+        'CartonData(0.0×0.0×0.0 cm, 0.0 kg, type:Empty, qty:0)',
       );
     });
 
@@ -453,7 +453,7 @@ void main() {
 
       expect(
         carton.toString(),
-        'CartonData(50.5×30.25×20.75 cm, 5.125 kg, qty:10, type:Precise)',
+        'CartonData(50.5×30.25×20.75 cm, 5.125 kg, type:Precise, qty:10)',
       );
     });
   });

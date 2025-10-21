@@ -310,7 +310,7 @@ void main() {
 
       expect(
         carton.toString(),
-        'CartonData(50.0×30.0×20.0 cm, 5.5 kg, qty:10, type:Laptops)',
+        'CartonData(50.0×30.0×20.0 cm, 5.5 kg, type:Laptops, qty:10)',
       );
     });
 
@@ -319,7 +319,7 @@ void main() {
 
       expect(
         carton.toString(),
-        'CartonData(50.0×null×null cm, null kg, qty:null, type:Boxes)',
+        'CartonData(50.0×null×null cm, null kg, type:Boxes, qty:1)',
       );
     });
   });

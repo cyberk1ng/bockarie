@@ -10,6 +10,10 @@ import 'package:bockaire/services/gemini_audio_transcription_service.dart';
 import 'package:bockaire/services/carton_voice_parser_service.dart';
 import 'package:bockaire/services/location_voice_parser_service.dart';
 import 'package:bockaire/services/city_matcher_service.dart';
+import 'package:bockaire/services/gemini_packing_optimizer_service.dart';
+import 'package:bockaire/services/ollama_packing_optimizer_service.dart';
+import 'package:bockaire/services/optimization_engine.dart';
+import 'package:bockaire/services/optimization_engine_impl.dart';
 
 final getIt = GetIt.instance;
 
@@ -41,4 +45,20 @@ Future<void> setupGetIt() async {
     () => LocationVoiceParserService(dotenv.env['GEMINI_API_KEY'] ?? ''),
   );
   getIt.registerLazySingleton<CityMatcherService>(() => CityMatcherService());
+
+  // AI Packing Optimizer Services
+  getIt.registerLazySingleton<GeminiPackingOptimizer>(
+    () => GeminiPackingOptimizer(apiKey: dotenv.env['GEMINI_API_KEY'] ?? ''),
+  );
+  getIt.registerLazySingleton<OllamaPackingOptimizer>(
+    () => OllamaPackingOptimizer(
+      baseUrl: 'http://localhost:11434',
+      model: 'llama3.1:8b',
+    ),
+  );
+
+  // Rule-Based Optimization Engine
+  getIt.registerLazySingleton<OptimizationEngine>(
+    () => OptimizationEngineImpl(),
+  );
 }

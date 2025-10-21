@@ -1555,6 +1555,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please select a city from the dropdown'**
   String get validationSelectFromDropdown;
+
+  /// Button text to get AI recommendations for packing optimization
+  ///
+  /// In en, this message translates to:
+  /// **'Get AI Recommendations'**
+  String get optimizerGetAIRecommendations;
+
+  /// Loading message while getting AI recommendations
+  ///
+  /// In en, this message translates to:
+  /// **'Getting AI recommendations...'**
+  String get optimizerGettingAIRecommendations;
+
+  /// Title for AI recommendations section
+  ///
+  /// In en, this message translates to:
+  /// **'AI Recommendations'**
+  String get optimizerAIRecommendations;
+
+  /// Label for compression advice
+  ///
+  /// In en, this message translates to:
+  /// **'Compression Advice'**
+  String get optimizerCompressionAdvice;
+
+  /// Label for estimated savings percentage
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated Savings'**
+  String get optimizerEstimatedSavings;
+
+  /// Label for warnings section
+  ///
+  /// In en, this message translates to:
+  /// **'Warnings'**
+  String get optimizerWarnings;
+
+  /// Label for tips section
+  ///
+  /// In en, this message translates to:
+  /// **'Tips'**
+  String get optimizerTips;
+
+  /// Label for explanation section
+  ///
+  /// In en, this message translates to:
+  /// **'Explanation'**
+  String get optimizerExplanation;
+
+  /// Label for recommended box count
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended Box Count'**
+  String get optimizerRecommendedBoxCount;
+
+  /// Error message when trying to optimize with no cartons
+  ///
+  /// In en, this message translates to:
+  /// **'Add cartons first before optimizing'**
+  String get errorNoCartonsToOptimize;
+
+  /// Label for optimizer provider setting
+  ///
+  /// In en, this message translates to:
+  /// **'Optimizer Provider'**
+  String get settingsOptimizerProvider;
+
+  /// Label for optimizer model setting
+  ///
+  /// In en, this message translates to:
+  /// **'Optimizer Model'**
+  String get settingsOptimizerModel;
+
+  /// Label for Ollama base URL setting
+  ///
+  /// In en, this message translates to:
+  /// **'Base URL (Ollama)'**
+  String get settingsOptimizerBaseUrl;
+
+  /// Button text to test Ollama connection
+  ///
+  /// In en, this message translates to:
+  /// **'Test Connection'**
+  String get settingsOptimizerTestConnection;
+
+  /// Warning banner shown when using Shippo test mode
+  ///
+  /// In en, this message translates to:
+  /// **'Test mode: Multi-parcel shipments auto-consolidated. Production will show accurate pricing.'**
+  String get shippoTestModeWarning;
+
+  /// Error message when test mode fails due to multi-parcel limitation
+  ///
+  /// In en, this message translates to:
+  /// **'Test mode limitation: Multi-parcel shipments may not return quotes. This will work in production with real carrier accounts. For testing, try setting all quantities to 1.'**
+  String get shippoTestMultiParcelLimitation;
+
+  /// Generic test mode no quotes message
+  ///
+  /// In en, this message translates to:
+  /// **'No quotes available in test mode. Some routes or configurations require production carrier accounts. Switch to production mode for real quotes.'**
+  String get shippoTestNoQuotes;
 }
 
 class _AppLocalizationsDelegate

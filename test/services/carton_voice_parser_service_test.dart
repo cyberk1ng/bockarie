@@ -150,7 +150,7 @@ void main() {
 
       expect(
         data.toString(),
-        'CartonData(50.0×30.0×20.0 cm, 5.0 kg, qty:10, type:laptops)',
+        'CartonData(50.0×30.0×20.0 cm, 5.0 kg, type:laptops, qty:10)',
       );
     });
 
@@ -164,10 +164,7 @@ void main() {
         itemType: null,
       );
 
-      expect(
-        data.toString(),
-        'CartonData(null×null×null cm, null kg, qty:null, type:null)',
-      );
+      expect(data.toString(), 'CartonData(null×null×null cm, null kg, qty:1)');
     });
 
     test('toCarton converts complete data to Carton object', () {

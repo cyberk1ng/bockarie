@@ -37,8 +37,49 @@ abstract class AiCostExplainer extends AiProvider {
   });
 }
 
+/// Item data within a carton
+class ItemData {
+  final String itemType;
+  final int qty;
+
+  const ItemData({required this.itemType, required this.qty});
+
+  factory ItemData.fromJson(Map<String, dynamic> json) => ItemData(
+    itemType: json['itemType'] as String? ?? 'Unknown',
+    qty: json['qty'] != null ? (json['qty'] as num).toInt() : 0,
+  );
+
+  Map<String, dynamic> toJson() => {'itemType': itemType, 'qty': qty};
+
+  @override
+  String toString() => '$itemType ($qty)';
+}
+
+/// Unit information for detected measurements
+class DetectedUnits {
+  final String dimensions;
+  final String weight;
+
+  const DetectedUnits({required this.dimensions, required this.weight});
+
+  factory DetectedUnits.fromJson(Map<String, dynamic> json) => DetectedUnits(
+    dimensions: json['dimensions'] as String? ?? 'cm',
+    weight: json['weight'] as String? ?? 'kg',
+  );
+
+  Map<String, dynamic> toJson() => {'dimensions': dimensions, 'weight': weight};
+}
+
 /// Carton data extracted from AI
 class CartonData {
+  // New fields (CTN-based format)
+  final String? ctnNo;
+  final List<ItemData>? items;
+  final int? totalQty;
+  final double? confidence;
+  final DetectedUnits? detectedUnits;
+
+  // Legacy fields (backward compatibility)
   final double? lengthCm;
   final double? widthCm;
   final double? heightCm;
@@ -47,6 +88,13 @@ class CartonData {
   final String? itemType;
 
   const CartonData({
+    // New fields
+    this.ctnNo,
+    this.items,
+    this.totalQty,
+    this.confidence,
+    this.detectedUnits,
+    // Legacy fields
     this.lengthCm,
     this.widthCm,
     this.heightCm,
@@ -55,30 +103,73 @@ class CartonData {
     this.itemType,
   });
 
+  /// Get effective quantity (totalQty for new format, qty for legacy)
+  int get effectiveQty => totalQty ?? qty ?? 1;
+
+  /// Get effective item type (from items or legacy itemType)
+  String get effectiveItemType {
+    if (items != null && items!.isNotEmpty) {
+      return items!.map((i) => i.itemType).join(', ');
+    }
+    return itemType ?? 'Unknown';
+  }
+
+  /// Check if this is low confidence extraction
+  bool get needsReview => confidence != null && confidence! < 0.7;
+
   bool get isComplete =>
       lengthCm != null &&
       widthCm != null &&
       heightCm != null &&
       weightKg != null &&
-      qty != null &&
-      itemType != null;
+      (qty != null || totalQty != null) &&
+      (itemType != null || (items != null && items!.isNotEmpty));
 
-  factory CartonData.fromJson(Map<String, dynamic> json) => CartonData(
-    lengthCm: json['lengthCm'] != null
-        ? (json['lengthCm'] as num).toDouble()
-        : null,
-    widthCm: json['widthCm'] != null
-        ? (json['widthCm'] as num).toDouble()
-        : null,
-    heightCm: json['heightCm'] != null
-        ? (json['heightCm'] as num).toDouble()
-        : null,
-    weightKg: json['weightKg'] != null
-        ? (json['weightKg'] as num).toDouble()
-        : null,
-    qty: json['qty'] != null ? (json['qty'] as num).toInt() : null,
-    itemType: json['itemType'] as String?,
-  );
+  factory CartonData.fromJson(Map<String, dynamic> json) {
+    // Parse items if present (new format)
+    List<ItemData>? items;
+    if (json['items'] != null && json['items'] is List) {
+      items = (json['items'] as List)
+          .map((item) => ItemData.fromJson(item as Map<String, dynamic>))
+          .toList();
+    }
+
+    // Parse detected units if present
+    DetectedUnits? detectedUnits;
+    if (json['detectedUnits'] != null && json['detectedUnits'] is Map) {
+      detectedUnits = DetectedUnits.fromJson(
+        json['detectedUnits'] as Map<String, dynamic>,
+      );
+    }
+
+    return CartonData(
+      // New fields
+      ctnNo: json['ctnNo'] as String?,
+      items: items,
+      totalQty: json['totalQty'] != null
+          ? (json['totalQty'] as num).toInt()
+          : null,
+      confidence: json['confidence'] != null
+          ? (json['confidence'] as num).toDouble()
+          : null,
+      detectedUnits: detectedUnits,
+      // Legacy fields
+      lengthCm: json['lengthCm'] != null
+          ? (json['lengthCm'] as num).toDouble()
+          : null,
+      widthCm: json['widthCm'] != null
+          ? (json['widthCm'] as num).toDouble()
+          : null,
+      heightCm: json['heightCm'] != null
+          ? (json['heightCm'] as num).toDouble()
+          : null,
+      weightKg: json['weightKg'] != null
+          ? (json['weightKg'] as num).toDouble()
+          : null,
+      qty: json['qty'] != null ? (json['qty'] as num).toInt() : null,
+      itemType: json['itemType'] as String?,
+    );
+  }
 
   Carton toCarton({required String id, required String shipmentId}) {
     return Carton(
@@ -88,14 +179,36 @@ class CartonData {
       widthCm: widthCm ?? 0,
       heightCm: heightCm ?? 0,
       weightKg: weightKg ?? 0,
-      qty: qty ?? 1,
-      itemType: itemType ?? 'Unknown',
+      qty: effectiveQty,
+      itemType: effectiveItemType,
     );
   }
 
   @override
   String toString() {
-    return 'CartonData($lengthCm×$widthCm×$heightCm cm, $weightKg kg, qty:$qty, type:$itemType)';
+    final buffer = StringBuffer();
+    buffer.write('CartonData(');
+
+    if (ctnNo != null) {
+      buffer.write('CTN:$ctnNo, ');
+    }
+
+    buffer.write('$lengthCm×$widthCm×$heightCm cm, $weightKg kg');
+
+    if (items != null && items!.isNotEmpty) {
+      buffer.write(', items:[${items!.join(", ")}]');
+    } else if (itemType != null) {
+      buffer.write(', type:$itemType');
+    }
+
+    buffer.write(', qty:$effectiveQty');
+
+    if (confidence != null) {
+      buffer.write(', confidence:${(confidence! * 100).toStringAsFixed(0)}%');
+    }
+
+    buffer.write(')');
+    return buffer.toString();
   }
 }
 
@@ -208,11 +321,38 @@ class GeminiImageAnalyzer implements AiImageAnalyzer {
       final jsonResponse = jsonDecode(response.text!);
       final cartonsList = jsonResponse is List ? jsonResponse : [];
 
-      final cartons = cartonsList
+      var cartons = cartonsList
           .map((json) => CartonData.fromJson(json as Map<String, dynamic>))
           .toList();
 
+      // Post-process: consolidate by ctnNo if needed (fallback)
+      cartons = _consolidateByCtnNo(cartons);
+
       _logger.i('Extracted ${cartons.length} cartons from image');
+
+      // Log each carton for debugging
+      double totalWeight = 0;
+      for (int i = 0; i < cartons.length; i++) {
+        final c = cartons[i];
+        totalWeight += c.weightKg ?? 0;
+        _logger.i(
+          'Carton ${i + 1} (CTN ${c.ctnNo ?? 'N/A'}): '
+          '${c.lengthCm}×${c.widthCm}×${c.heightCm}cm, '
+          '${c.weightKg}kg, '
+          'items: ${c.totalQty ?? c.qty ?? 0} pcs, '
+          'confidence: ${c.confidence != null ? "${(c.confidence! * 100).toInt()}%" : "N/A"}',
+        );
+      }
+      _logger.i('Total weight from AI: ${totalWeight.toStringAsFixed(1)} kg');
+
+      // Log low-confidence extractions
+      final lowConfidence = cartons.where((c) => c.needsReview).toList();
+      if (lowConfidence.isNotEmpty) {
+        _logger.w(
+          'Found ${lowConfidence.length} cartons with low confidence that may need review',
+        );
+      }
+
       return cartons;
     } catch (e, stackTrace) {
       _logger.e(
@@ -224,44 +364,162 @@ class GeminiImageAnalyzer implements AiImageAnalyzer {
     }
   }
 
+  /// Consolidate cartons by CTN NO as a fallback if AI doesn't group properly
+  List<CartonData> _consolidateByCtnNo(List<CartonData> cartons) {
+    // If no ctnNo field is present in any carton, return as-is (legacy format)
+    if (cartons.every((c) => c.ctnNo == null)) {
+      return cartons;
+    }
+
+    final Map<String, List<CartonData>> grouped = {};
+
+    for (final carton in cartons) {
+      final ctnNo = carton.ctnNo ?? 'UNKNOWN';
+      grouped.putIfAbsent(ctnNo, () => []).add(carton);
+    }
+
+    final consolidated = <CartonData>[];
+
+    for (final entry in grouped.entries) {
+      final ctnNo = entry.key;
+      final ctnCartons = entry.value;
+
+      if (ctnCartons.length == 1) {
+        // Already consolidated, use as-is
+        consolidated.add(ctnCartons.first);
+      } else {
+        // Multiple entries for same CTN - consolidate them
+        _logger.w('Consolidating ${ctnCartons.length} entries for CTN $ctnNo');
+
+        // Use first carton as base
+        final base = ctnCartons.first;
+
+        // Collect all items
+        final allItems = <ItemData>[];
+        for (final c in ctnCartons) {
+          if (c.items != null && c.items!.isNotEmpty) {
+            allItems.addAll(c.items!);
+          } else if (c.itemType != null && c.qty != null) {
+            // Convert legacy format to ItemData
+            allItems.add(ItemData(itemType: c.itemType!, qty: c.qty!));
+          }
+        }
+
+        // Calculate total quantity
+        final totalQty = allItems.fold<int>(0, (sum, item) => sum + item.qty);
+
+        // Average confidence (or use minimum for safety)
+        final confidences = ctnCartons
+            .where((c) => c.confidence != null)
+            .map((c) => c.confidence!)
+            .toList();
+        final avgConfidence = confidences.isNotEmpty
+            ? confidences.reduce((a, b) => a < b ? a : b) // Use minimum
+            : null;
+
+        consolidated.add(
+          CartonData(
+            ctnNo: ctnNo,
+            lengthCm: base.lengthCm,
+            widthCm: base.widthCm,
+            heightCm: base.heightCm,
+            weightKg: base.weightKg,
+            items: allItems,
+            totalQty: totalQty,
+            confidence: avgConfidence,
+            detectedUnits: base.detectedUnits,
+          ),
+        );
+      }
+    }
+
+    return consolidated;
+  }
+
   String get _packingListPrompt => '''
-You are analyzing a shipping packing list image. Extract ALL carton/box entries from the image.
+You are analyzing a shipping packing list image. Extract carton data by grouping rows by CTN NO (carton number).
 
-For each carton, extract:
-- Dimensions (length × width × height in centimeters)
-- Weight (in kilograms)
-- Quantity/count
-- Item type/description
+CRITICAL: Group by CTN NO./Carton Number FIRST, then extract data for each carton.
 
-IMPORTANT:
-- Look for table rows or list items
-- Convert all dimensions to centimeters (from inches/cm/mm)
-- Convert all weights to kilograms (from kg/lbs/g)
-- If multiple cartons have same dimensions, create separate entries
-- Ignore headers, totals, and non-carton data
+HEADER RECOGNITION:
+Look for columns named: CTN, CTN NO, Carton No, C/N, Box No, Ctn#, CARTON NUMBER (case-insensitive)
+Also look for: weight, kg, GW, gross weight, weight(kgs)
+Dimensions: carton measurement, dims, dimensions, size, L×W×H, LWH
+Quantity: quantity, qty, pcs, ctns
+Items: style, item, description, product
 
-Return ONLY valid JSON array:
+GROUPING RULES:
+1. Each unique CTN NO = ONE carton entry in output
+2. If a CTN NO cell is blank/empty, it belongs to the PREVIOUS carton number (merged cell concept)
+3. A single CTN can have multiple rows with different items - these are items in the SAME carton
+4. Count unique CTN numbers, NOT table rows
+
+FIELD PARSING:
+- Dimensions: Accept formats like "61×42×42cm", "614242", "51*41*41cm", "cm 614242"
+  Convert to centimeters. Preserve order as-is (don't reorder L/W/H)
+- Weight: Convert to kilograms (from kg/lbs/g). This is weight of ONE carton.
+  If weight is missing for some rows but present for the CTN, use that weight.
+- Quantity: For multi-row cartons, extract qty per item
+- Items: For multi-row cartons, collect all item types
+
+CRITICAL - Understanding Quantities:
+- Each CTN NO = ONE physical carton/box to ship
+- The "quantity" column shows how many ITEMS are INSIDE that carton (e.g., 67 t-shirts inside CTN 1)
+- DO NOT multiply weight by item quantity - the weight is already for the entire carton
+- For shipping purposes, we're counting CARTONS, not individual items
+
+Return ONLY valid JSON array in this format:
 [
   {
+    "ctnNo": "string (e.g., '1', '2', 'CTN-1')",
     "lengthCm": number,
     "widthCm": number,
     "heightCm": number,
-    "weightKg": number,
-    "qty": number,
-    "itemType": "string"
+    "weightKg": number (weight of ONE carton - DO NOT multiply by item quantity),
+    "items": [
+      {"itemType": "string", "qty": number (items inside this carton)}
+    ],
+    "totalQty": number (sum of all item quantities - this is items inside, NOT carton count),
+    "confidence": number (0.0-1.0, how confident you are in this extraction),
+    "detectedUnits": {"dimensions": "cm", "weight": "kg"}
   }
 ]
 
-Example packing list:
-| Dims (cm) | Weight | Qty | Item |
-| 50×30×20  | 5 kg   | 10  | Laptops |
-| 40×40×30  | 8.5 kg | 5   | Monitors |
+EXAMPLE 1 - Multi-row cartons:
+| CTN NO | weight (kgs) | style      | quantity | carton measurement |
+|--------|--------------|------------|----------|-------------------|
+| 1      | 19.5         | t-shirt    | 67       | 51*41*41cm       |
+| 2      | 19           | t-shirt    | 32       | 51*41*41cm       |
+|        |              | t-shirt    | 34       | 51*41*41cm       | <- blank CTN = still CTN 2
+| 3      | 18.5         | t-shirt    | 66       | 51*41*41cm       |
+| 4      | 16.5         | hoodie     | 20       | 61*42*42cm       |
+
+Returns exactly 4 entries (one per unique CTN NO):
+[
+  {"ctnNo": "1", "lengthCm": 51, "widthCm": 41, "heightCm": 41, "weightKg": 19.5, "items": [{"itemType": "t-shirt", "qty": 67}], "totalQty": 67, "confidence": 0.95, "detectedUnits": {"dimensions": "cm", "weight": "kg"}},
+  {"ctnNo": "2", "lengthCm": 51, "widthCm": 41, "heightCm": 41, "weightKg": 19, "items": [{"itemType": "t-shirt", "qty": 32}, {"itemType": "t-shirt", "qty": 34}], "totalQty": 66, "confidence": 0.95, "detectedUnits": {"dimensions": "cm", "weight": "kg"}},
+  {"ctnNo": "3", "lengthCm": 51, "widthCm": 41, "heightCm": 41, "weightKg": 18.5, "items": [{"itemType": "t-shirt", "qty": 66}], "totalQty": 66, "confidence": 0.95, "detectedUnits": {"dimensions": "cm", "weight": "kg"}},
+  {"ctnNo": "4", "lengthCm": 61, "widthCm": 42, "heightCm": 42, "weightKg": 16.5, "items": [{"itemType": "hoodie", "qty": 20}], "totalQty": 20, "confidence": 0.95, "detectedUnits": {"dimensions": "cm", "weight": "kg"}}
+]
+
+EXAMPLE 2 - Simple single-row cartons:
+| CTN | Dims (cm) | Weight | Qty | Item |
+| A1  | 50×30×20  | 5 kg   | 10  | Laptops |
+| A2  | 40×40×30  | 8.5 kg | 15  | Monitors |
 
 Returns:
 [
-  {"lengthCm": 50, "widthCm": 30, "heightCm": 20, "weightKg": 5, "qty": 10, "itemType": "Laptops"},
-  {"lengthCm": 40, "widthCm": 40, "heightCm": 30, "weightKg": 8.5, "qty": 5, "itemType": "Monitors"}
+  {"ctnNo": "A1", "lengthCm": 50, "widthCm": 30, "heightCm": 20, "weightKg": 5, "items": [{"itemType": "Laptops", "qty": 10}], "totalQty": 10, "confidence": 0.95, "detectedUnits": {"dimensions": "cm", "weight": "kg"}},
+  {"ctnNo": "A2", "lengthCm": 40, "widthCm": 40, "heightCm": 30, "weightKg": 8.5, "items": [{"itemType": "Monitors", "qty": 15}], "totalQty": 15, "confidence": 0.95, "detectedUnits": {"dimensions": "cm", "weight": "kg"}}
 ]
+
+CONFIDENCE SCORING:
+- 1.0: All fields present and clear
+- 0.8-0.9: Minor uncertainty (missing weight but can estimate, slightly unclear dimensions)
+- 0.5-0.7: Significant uncertainty (multiple missing fields, hard to read)
+- <0.5: Very uncertain (major data gaps)
+
+If weight is missing, estimate based on similar cartons or item type, and reduce confidence to 0.7-0.8.
 ''';
 }
 

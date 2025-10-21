@@ -15,6 +15,7 @@ import 'package:bockaire/providers/currency_provider.dart';
 import 'package:bockaire/widgets/currency/currency_flag.dart';
 import 'package:bockaire/features/settings/ui/widgets/currency_selection_modal.dart';
 import 'package:bockaire/features/settings/ui/pages/ai_settings_page.dart';
+import 'package:bockaire/features/settings/ui/pages/optimization_settings_page.dart';
 
 import '../classes/supported_currency.dart';
 
@@ -301,6 +302,33 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const AiSettingsPage(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              const SizedBox(height: AppTheme.spacingMedium),
+
+              NeonCard(
+                borderColor: NeonColors.green,
+                glowColor: NeonColors.greenGlow,
+                margin: EdgeInsets.zero,
+                child: ListTile(
+                  leading: Icon(
+                    Icons.tune,
+                    color: isDark ? NeonColors.green : null,
+                  ),
+                  title: const Text('Optimization Settings'),
+                  subtitle: const Text(
+                    'Configure rule-based packing optimizer',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const OptimizationSettingsPage(),
                       ),
                     );
                   },

@@ -560,15 +560,24 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
 
     setState(() {
       for (final carton in detectedCartons) {
+        // For CTN-based packing lists, each CTN = 1 physical carton
+        // The totalQty/qty represents items INSIDE, not carton count
+        final cartonQty = carton.ctnNo != null ? 1 : (carton.qty ?? 1);
+
         final newCarton = CartonInput()
           ..lengthCm = carton.lengthCm ?? 0
           ..widthCm = carton.widthCm ?? 0
           ..heightCm = carton.heightCm ?? 0
           ..weightKg = carton.weightKg ?? 0
-          ..qty = carton.qty ?? 1
-          ..itemType = carton.itemType ?? '';
+          ..qty = cartonQty
+          ..itemType = _categorizeItemType(carton);
 
         _cartons.add(newCarton);
+
+        _logger.i(
+          '  📦 CTN ${carton.ctnNo ?? 'N/A'}: ${newCarton.lengthCm}×${newCarton.widthCm}×${newCarton.heightCm}cm, '
+          '${newCarton.weightKg}kg, qty=${newCarton.qty}, items: ${carton.totalQty ?? carton.qty ?? 0} pcs',
+        );
       }
       _updateTotals();
     });
@@ -584,6 +593,124 @@ class _NewShipmentContentState extends State<NewShipmentContent> {
         ),
       );
     }
+  }
+
+  /// Intelligently categorize item type from CartonData
+  String _categorizeItemType(CartonData carton) {
+    // If we have items array, analyze them
+    if (carton.items != null && carton.items!.isNotEmpty) {
+      final itemTypes = carton.items!
+          .map((i) => i.itemType.toLowerCase())
+          .toList();
+
+      // Check if all items are the same type
+      if (itemTypes.toSet().length == 1) {
+        return _normalizeItemType(itemTypes.first);
+      }
+
+      // Mixed items - try to find common category
+      final categories = itemTypes.map(_detectCategory).toSet();
+
+      if (categories.length == 1 && categories.first != 'Other') {
+        // All items in same category (e.g., all clothing)
+        return categories.first;
+      }
+
+      // Different categories - use detailed list
+      return itemTypes.map(_normalizeItemType).join(', ');
+    }
+
+    // Fallback to effective item type
+    return _normalizeItemType(carton.effectiveItemType);
+  }
+
+  /// Normalize item type to proper capitalization
+  String _normalizeItemType(String itemType) {
+    final normalized = itemType.trim().toLowerCase();
+
+    // Common clothing items
+    final clothingMap = {
+      't-shirt': 'T-Shirt',
+      'tshirt': 'T-Shirt',
+      'hoodie': 'Hoodie',
+      'sweatpants': 'Sweatpants',
+      'pants': 'Pants',
+      'jeans': 'Jeans',
+      'jacket': 'Jacket',
+      'sweater': 'Sweater',
+      'dress': 'Dress',
+      'shirt': 'Shirt',
+      'shorts': 'Shorts',
+      'socks': 'Socks',
+      'underwear': 'Underwear',
+      'hat': 'Hat',
+      'cap': 'Cap',
+      'shoes': 'Shoes',
+      'sneakers': 'Sneakers',
+      'boots': 'Boots',
+    };
+
+    if (clothingMap.containsKey(normalized)) {
+      return clothingMap[normalized]!;
+    }
+
+    // Capitalize first letter
+    if (normalized.isEmpty) return 'Unknown';
+    return normalized[0].toUpperCase() + normalized.substring(1);
+  }
+
+  /// Detect category from item type
+  String _detectCategory(String itemType) {
+    final normalized = itemType.toLowerCase();
+
+    final clothingKeywords = [
+      't-shirt',
+      'tshirt',
+      'hoodie',
+      'sweatpants',
+      'pants',
+      'jeans',
+      'jacket',
+      'sweater',
+      'dress',
+      'shirt',
+      'shorts',
+      'socks',
+      'underwear',
+      'clothing',
+      'apparel',
+      'garment',
+    ];
+
+    final footwearKeywords = [
+      'shoes',
+      'sneakers',
+      'boots',
+      'sandals',
+      'slippers',
+    ];
+    final accessoriesKeywords = [
+      'hat',
+      'cap',
+      'bag',
+      'belt',
+      'scarf',
+      'gloves',
+    ];
+
+    for (final keyword in clothingKeywords) {
+      if (normalized.contains(keyword)) return 'Clothing';
+    }
+
+    for (final keyword in footwearKeywords) {
+      if (normalized.contains(keyword)) return 'Footwear';
+    }
+
+    for (final keyword in accessoriesKeywords) {
+      if (normalized.contains(keyword)) return 'Accessories';
+    }
+
+    return 'Other';
   }
 
   void _removeCarton(int index) {

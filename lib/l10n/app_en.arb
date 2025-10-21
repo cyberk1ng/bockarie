@@ -1346,5 +1346,90 @@
   "validationSelectFromDropdown": "Please select a city from the dropdown",
   "@validationSelectFromDropdown": {
     "description": "Validation message to select from dropdown"
+  },
+
+  "optimizerGetAIRecommendations": "Get AI Recommendations",
+  "@optimizerGetAIRecommendations": {
+    "description": "Button text to get AI recommendations for packing optimization"
+  },
+
+  "optimizerGettingAIRecommendations": "Getting AI recommendations...",
+  "@optimizerGettingAIRecommendations": {
+    "description": "Loading message while getting AI recommendations"
+  },
+
+  "optimizerAIRecommendations": "AI Recommendations",
+  "@optimizerAIRecommendations": {
+    "description": "Title for AI recommendations section"
+  },
+
+  "optimizerCompressionAdvice": "Compression Advice",
+  "@optimizerCompressionAdvice": {
+    "description": "Label for compression advice"
+  },
+
+  "optimizerEstimatedSavings": "Estimated Savings",
+  "@optimizerEstimatedSavings": {
+    "description": "Label for estimated savings percentage"
+  },
+
+  "optimizerWarnings": "Warnings",
+  "@optimizerWarnings": {
+    "description": "Label for warnings section"
+  },
+
+  "optimizerTips": "Tips",
+  "@optimizerTips": {
+    "description": "Label for tips section"
+  },
+
+  "optimizerExplanation": "Explanation",
+  "@optimizerExplanation": {
+    "description": "Label for explanation section"
+  },
+
+  "optimizerRecommendedBoxCount": "Recommended Box Count",
+  "@optimizerRecommendedBoxCount": {
+    "description": "Label for recommended box count"
+  },
+
+  "errorNoCartonsToOptimize": "Add cartons first before optimizing",
+  "@errorNoCartonsToOptimize": {
+    "description": "Error message when trying to optimize with no cartons"
+  },
+
+  "settingsOptimizerProvider": "Optimizer Provider",
+  "@settingsOptimizerProvider": {
+    "description": "Label for optimizer provider setting"
+  },
+
+  "settingsOptimizerModel": "Optimizer Model",
+  "@settingsOptimizerModel": {
+    "description": "Label for optimizer model setting"
+  },
+
+  "settingsOptimizerBaseUrl": "Base URL (Ollama)",
+  "@settingsOptimizerBaseUrl": {
+    "description": "Label for Ollama base URL setting"
+  },
+
+  "settingsOptimizerTestConnection": "Test Connection",
+  "@settingsOptimizerTestConnection": {
+    "description": "Button text to test Ollama connection"
+  },
+
+  "shippoTestModeWarning": "Test mode: Multi-parcel shipments auto-consolidated. Production will show accurate pricing.",
+  "@shippoTestModeWarning": {
+    "description": "Warning banner shown when using Shippo test mode"
+  },
+
+  "shippoTestMultiParcelLimitation": "Test mode limitation: Multi-parcel shipments may not return quotes. This will work in production with real carrier accounts. For testing, try setting all quantities to 1.",
+  "@shippoTestMultiParcelLimitation": {
+    "description": "Error message when test mode fails due to multi-parcel limitation"
+  },
+
+  "shippoTestNoQuotes": "No quotes available in test mode. Some routes or configurations require production carrier accounts. Switch to production mode for real quotes.",
+  "@shippoTestNoQuotes": {
+    "description": "Generic test mode no quotes message"
   }
 }

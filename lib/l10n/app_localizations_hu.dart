@@ -791,4 +791,59 @@ class AppLocalizationsHu extends AppLocalizations {
   @override
   String get validationSelectFromDropdown =>
       'Please select a city from the dropdown';
+
+  @override
+  String get optimizerGetAIRecommendations => 'Get AI Recommendations';
+
+  @override
+  String get optimizerGettingAIRecommendations =>
+      'Getting AI recommendations...';
+
+  @override
+  String get optimizerAIRecommendations => 'AI Recommendations';
+
+  @override
+  String get optimizerCompressionAdvice => 'Compression Advice';
+
+  @override
+  String get optimizerEstimatedSavings => 'Estimated Savings';
+
+  @override
+  String get optimizerWarnings => 'Warnings';
+
+  @override
+  String get optimizerTips => 'Tips';
+
+  @override
+  String get optimizerExplanation => 'Explanation';
+
+  @override
+  String get optimizerRecommendedBoxCount => 'Recommended Box Count';
+
+  @override
+  String get errorNoCartonsToOptimize => 'Add cartons first before optimizing';
+
+  @override
+  String get settingsOptimizerProvider => 'Optimizer Provider';
+
+  @override
+  String get settingsOptimizerModel => 'Optimizer Model';
+
+  @override
+  String get settingsOptimizerBaseUrl => 'Base URL (Ollama)';
+
+  @override
+  String get settingsOptimizerTestConnection => 'Test Connection';
+
+  @override
+  String get shippoTestModeWarning =>
+      'Test mode: Multi-parcel shipments auto-consolidated. Production will show accurate pricing.';
+
+  @override
+  String get shippoTestMultiParcelLimitation =>
+      'Test mode limitation: Multi-parcel shipments may not return quotes. This will work in production with real carrier accounts. For testing, try setting all quantities to 1.';
+
+  @override
+  String get shippoTestNoQuotes =>
+      'No quotes available in test mode. Some routes or configurations require production carrier accounts. Switch to production mode for real quotes.';
 }
