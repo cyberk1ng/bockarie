@@ -266,26 +266,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               const SizedBox(height: AppTheme.spacingMedium),
 
               NeonCard(
-                borderColor: NeonColors.cyan,
-                glowColor: NeonColors.cyanGlow,
-                margin: EdgeInsets.zero,
-                child: ListTile(
-                  leading: Icon(
-                    Icons.table_chart,
-                    color: isDark ? NeonColors.cyan : null,
-                  ),
-                  title: Text(localizations.settingsRateTables),
-                  subtitle: Text(localizations.settingsRateTablesSubtitle),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    // TODO: Navigate to rate tables
-                  },
-                ),
-              ),
-
-              const SizedBox(height: AppTheme.spacingMedium),
-
-              NeonCard(
                 borderColor: NeonColors.purple,
                 glowColor: NeonColors.purpleGlow,
                 margin: EdgeInsets.zero,

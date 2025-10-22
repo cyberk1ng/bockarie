@@ -19,11 +19,13 @@ class OllamaPackingListService implements AiImageAnalyzer {
   final String model;
   final http.Client _httpClient;
   final Logger _logger = Logger();
+  final Duration Function(int attempt)? retryDelayFn;
 
   OllamaPackingListService({
     required this.baseUrl,
     required this.model,
     http.Client? httpClient,
+    this.retryDelayFn,
   }) : _httpClient = httpClient ?? http.Client();
 
   @override
@@ -168,14 +170,20 @@ class OllamaPackingListService implements AiImageAnalyzer {
           rethrow;
         }
         _logger.w('Timeout on attempt $attempt, retrying...');
-        await Future.delayed(Duration(seconds: 2 * (1 << attempt)));
+        final delay =
+            retryDelayFn?.call(attempt) ??
+            Duration(seconds: 2 * (1 << attempt));
+        await Future.delayed(delay);
       } on SocketException {
         attempt++;
         if (attempt >= 3) {
           rethrow;
         }
         _logger.w('Network error on attempt $attempt, retrying...');
-        await Future.delayed(Duration(seconds: 2 * (1 << attempt)));
+        final delay =
+            retryDelayFn?.call(attempt) ??
+            Duration(seconds: 2 * (1 << attempt));
+        await Future.delayed(delay);
       }
     }
     throw Exception('Unexpected retry failure');

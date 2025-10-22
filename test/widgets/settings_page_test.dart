@@ -102,18 +102,6 @@ void main() {
       expect(find.text(localizations.settingsConfiguration), findsOneWidget);
     });
 
-    testWidgets('renders Rate Tables list tile', (tester) async {
-      await tester.pumpWidget(createTestWidget());
-      await tester.pumpAndSettle();
-
-      // Scroll down to make Rate Tables visible (currency picker pushed it down)
-      await tester.drag(find.byType(ListView), const Offset(0, -300));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Rate Tables'), findsOneWidget);
-      expect(find.text('Manage carrier rates'), findsOneWidget);
-    });
-
     testWidgets('renders AI Providers list tile', (tester) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
@@ -415,18 +403,13 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Scroll down to make table_chart icon visible
+      // Scroll down to make AI Providers icon visible
       await tester.drag(find.byType(ListView), const Offset(0, -300));
-      await tester.pumpAndSettle();
-
-      expect(find.byIcon(Icons.table_chart), findsOneWidget);
-
-      // Scroll down to make other icons visible
-      await tester.drag(find.byType(ListView), const Offset(0, -200));
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.psychology), findsOneWidget);
 
+      // Scroll down to make info icon visible
       await tester.drag(find.byType(ListView), const Offset(0, -200));
       await tester.pumpAndSettle();
 
@@ -435,10 +418,11 @@ void main() {
 
     testWidgets('list tiles have trailing chevrons', (tester) async {
       await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
 
-      // Rate Tables and AI Providers should have chevrons
-      final chevrons = find.byIcon(Icons.chevron_right);
-      expect(chevrons, findsNWidgets(2));
+      // Language, Currency, AI Providers, and Optimization Settings all have chevrons
+      // We can see at least 2 in the viewport (Language and Currency)
+      expect(find.byIcon(Icons.chevron_right), findsAtLeastNWidgets(2));
     });
   });
 
