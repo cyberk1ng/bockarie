@@ -9,11 +9,19 @@ import 'package:bockaire/services/carton_voice_parser_service.dart';
 import 'package:bockaire/services/location_voice_parser_service.dart';
 import 'package:bockaire/services/city_matcher_service.dart';
 import 'package:bockaire/services/ai_provider_interfaces.dart';
+import 'package:bockaire/services/whisper_server_manager.dart';
 import 'package:bockaire/providers/transcription_provider.dart';
 import 'package:bockaire/get_it.dart';
 import 'package:bockaire/widgets/voice/circular_pulse_visualizer.dart';
 
-enum VoiceModalState { idle, recording, processing, success, error }
+enum VoiceModalState {
+  idle,
+  startingServer,
+  recording,
+  processing,
+  success,
+  error,
+}
 
 class VoiceInputModal extends ConsumerStatefulWidget {
   final bool hasExistingLocation;
@@ -52,16 +60,18 @@ class _VoiceInputModalState extends ConsumerState<VoiceInputModal> {
   late final CartonVoiceParserService _cartonParser;
   late final LocationVoiceParserService _locationParser;
   late final CityMatcherService _cityMatcher;
+  late final WhisperServerManager _serverManager;
 
   @override
   void initState() {
     super.initState();
     _recorder = getIt<AudioRecorderService>();
-    _whisper = getIt<WhisperTranscriptionService>();
+    _whisper = ref.read(whisperTranscriptionServiceProvider);
     _gemini = getIt<GeminiAudioTranscriptionService>();
     _cartonParser = getIt<CartonVoiceParserService>();
     _locationParser = getIt<LocationVoiceParserService>();
     _cityMatcher = getIt<CityMatcherService>();
+    _serverManager = getIt<WhisperServerManager>();
   }
 
   Future<void> _startRecording() async {
@@ -115,6 +125,30 @@ class _VoiceInputModalState extends ConsumerState<VoiceInputModal> {
       // Get selected transcription provider from settings
       final selectedProvider = ref.read(transcriptionProviderProvider);
       _logger.d('🔧 Selected provider: $selectedProvider');
+
+      // Ensure Whisper server is running if selected
+      if (selectedProvider == TranscriptionProviderType.whisper) {
+        if (!_serverManager.isRunning) {
+          setState(() => _state = VoiceModalState.startingServer);
+          _logger.d('🚀 Starting Whisper server...');
+
+          final started = await _serverManager.startServer();
+          if (!started) {
+            throw Exception(
+              'Failed to start Whisper server. '
+              'Please check Python installation or try Gemini provider.',
+            );
+          }
+
+          final ready = await _serverManager.waitForReady();
+          if (!ready) {
+            throw Exception('Whisper server failed to start within 30 seconds');
+          }
+
+          _logger.d('✅ Whisper server ready');
+          setState(() => _state = VoiceModalState.processing);
+        }
+      }
 
       // Transcribe with the selected provider
       _logger.d('🚀 Starting transcription with $selectedProvider...');
@@ -366,6 +400,21 @@ class _VoiceInputModalState extends ConsumerState<VoiceInputModal> {
                   vertical: 16,
                 ),
               ),
+            ),
+          ],
+        );
+
+      case VoiceModalState.startingServer:
+        return Column(
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            const Text('Starting Whisper server...'),
+            const SizedBox(height: 8),
+            const Text(
+              'First time may take 30 seconds',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+              textAlign: TextAlign.center,
             ),
           ],
         );

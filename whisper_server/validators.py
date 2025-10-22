@@ -53,12 +53,13 @@ def validate_base64_audio(audio_base64: str) -> Tuple[bool, Optional[str]]:
     return True, None
 
 
-def validate_model_name(model: str) -> Tuple[bool, Optional[str]]:
+def validate_model_name(model: str, allowed_models: list = None) -> Tuple[bool, Optional[str]]:
     """
     Validate Whisper model name
 
     Args:
         model: Model name to validate
+        allowed_models: List of allowed model names (optional, defaults to all supported models)
 
     Returns:
         Tuple of (is_valid, error_message)
@@ -66,8 +67,16 @@ def validate_model_name(model: str) -> Tuple[bool, Optional[str]]:
     if not model:
         return False, "Model name is required"
 
-    # Only allow whisper-1 for now (can be expanded)
-    allowed_models = ["whisper-1"]
+    # Default allowed models (can be overridden by caller)
+    if allowed_models is None:
+        allowed_models = [
+            "whisper-1",
+            "whisper-tiny",
+            "whisper-small",
+            "whisper-medium",
+            "whisper-large",
+        ]
+
     if model not in allowed_models:
         return False, f"Invalid model. Allowed models: {', '.join(allowed_models)}"
 
