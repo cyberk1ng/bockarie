@@ -26,6 +26,7 @@ void main() {
       baseUrl: 'http://localhost:11434',
       model: 'llava:13b',
       httpClient: mockHttpClient,
+      retryDelayFn: (_) => Duration.zero, // No delay for tests
     );
   });
 
@@ -43,6 +44,7 @@ void main() {
         baseUrl: '',
         model: 'llava:13b',
         httpClient: mockHttpClient,
+        retryDelayFn: (_) => Duration.zero,
       );
       expect(emptyService.isAvailable, false);
     });
@@ -52,6 +54,7 @@ void main() {
         baseUrl: 'http://localhost:11434',
         model: '',
         httpClient: mockHttpClient,
+        retryDelayFn: (_) => Duration.zero,
       );
       expect(emptyService.isAvailable, false);
     });
