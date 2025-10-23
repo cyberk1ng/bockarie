@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bockaire/services/whisper_transcription_service.dart';
 
 enum TranscriptionProviderType { gemini, whisper }
 
@@ -74,7 +75,7 @@ final geminiAudioModelProvider =
 
 // Whisper model selection
 class WhisperModelNotifier extends StateNotifier<String> {
-  WhisperModelNotifier() : super('whisper-large-v3') {
+  WhisperModelNotifier() : super('whisper-small') {
     _loadModel();
   }
 
@@ -82,11 +83,10 @@ class WhisperModelNotifier extends StateNotifier<String> {
 
   // Available Whisper models for local transcription
   static const List<String> availableModels = [
-    'whisper-large-v3',
-    'whisper-medium',
-    'whisper-small',
-    'whisper-base',
-    'whisper-tiny',
+    'whisper-tiny', // ~2-4s, fastest
+    'whisper-small', // ~4-6s, balanced (default)
+    'whisper-medium', // ~6-10s, better accuracy
+    'whisper-large', // ~10-15s, best accuracy
   ];
 
   Future<void> _loadModel() async {
@@ -108,3 +108,9 @@ final whisperModelProvider =
     StateNotifierProvider<WhisperModelNotifier, String>(
       (ref) => WhisperModelNotifier(),
     );
+
+// Whisper Transcription Service Provider
+final whisperTranscriptionServiceProvider =
+    Provider<WhisperTranscriptionService>((ref) {
+      return WhisperTranscriptionService(ref: ref);
+    });

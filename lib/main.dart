@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:bockaire/get_it.dart';
 import 'package:bockaire/utils/router.dart';
+import 'package:bockaire/utils/app_lifecycle_observer.dart';
 import 'package:bockaire/providers/theme_providers.dart';
 import 'package:bockaire/providers/locale_provider.dart';
 import 'package:bockaire/providers/currency_provider.dart';
@@ -26,6 +27,10 @@ void main() async {
 
   // Initialize SharedPreferences for currency repository
   final prefs = await SharedPreferences.getInstance();
+
+  // Register lifecycle observer for server cleanup
+  final observer = AppLifecycleObserver();
+  WidgetsBinding.instance.addObserver(observer);
 
   runApp(
     ProviderScope(

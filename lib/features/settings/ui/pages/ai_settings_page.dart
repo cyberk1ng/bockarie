@@ -5,6 +5,8 @@ import 'package:bockaire/providers/image_analysis_provider.dart';
 import 'package:bockaire/providers/optimizer_provider.dart';
 import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:bockaire/themes/theme.dart';
+import 'package:bockaire/get_it.dart';
+import 'package:bockaire/services/whisper_server_manager.dart';
 
 class AiSettingsPage extends ConsumerStatefulWidget {
   const AiSettingsPage({super.key});
@@ -309,6 +311,51 @@ class _AiSettingsPageState extends ConsumerState<AiSettingsPage> {
                     ),
                     const SizedBox(height: 8),
                     _buildWhisperModelSelector(ref, color),
+                    const SizedBox(height: 16),
+                    const Divider(),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Server Status:',
+                      style: context.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    FutureBuilder<bool>(
+                      future: getIt<WhisperServerManager>().checkHealth(),
+                      builder: (context, snapshot) {
+                        final isRunning = snapshot.data ?? false;
+                        return Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: (isRunning ? Colors.green : Colors.orange)
+                                .withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isRunning ? Colors.green : Colors.orange,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                isRunning ? Icons.check_circle : Icons.warning,
+                                color: isRunning ? Colors.green : Colors.orange,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  isRunning
+                                      ? 'Server running on http://127.0.0.1:8089'
+                                      : 'Server will start automatically when needed',
+                                  style: context.textTheme.bodySmall,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ],
                   const SizedBox(height: 16),
                   ElevatedButton(

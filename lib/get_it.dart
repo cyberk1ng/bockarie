@@ -5,7 +5,6 @@ import 'package:bockaire/logic/optimizer.dart';
 import 'package:bockaire/services/shippo_service.dart';
 import 'package:bockaire/services/quote_calculator_service.dart';
 import 'package:bockaire/services/audio_recorder_service.dart';
-import 'package:bockaire/services/whisper_transcription_service.dart';
 import 'package:bockaire/services/gemini_audio_transcription_service.dart';
 import 'package:bockaire/services/carton_voice_parser_service.dart';
 import 'package:bockaire/services/location_voice_parser_service.dart';
@@ -14,6 +13,7 @@ import 'package:bockaire/services/gemini_packing_optimizer_service.dart';
 import 'package:bockaire/services/ollama_packing_optimizer_service.dart';
 import 'package:bockaire/services/optimization_engine.dart';
 import 'package:bockaire/services/optimization_engine_impl.dart';
+import 'package:bockaire/services/whisper_server_manager.dart';
 
 final getIt = GetIt.instance;
 
@@ -32,9 +32,15 @@ Future<void> setupGetIt() async {
   getIt.registerLazySingleton<AudioRecorderService>(
     () => AudioRecorderService(),
   );
-  getIt.registerLazySingleton<WhisperTranscriptionService>(
-    () => WhisperTranscriptionService(),
+
+  // Register Whisper server manager
+  getIt.registerLazySingleton<WhisperServerManager>(
+    () => WhisperServerManager(),
   );
+
+  // Note: WhisperTranscriptionService is created directly in widgets
+  // since it needs a WidgetRef for accessing providers
+
   getIt.registerLazySingleton<GeminiAudioTranscriptionService>(
     () => GeminiAudioTranscriptionService(dotenv.env['GEMINI_API_KEY'] ?? ''),
   );

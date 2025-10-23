@@ -3,21 +3,29 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:bockaire/providers/transcription_provider.dart';
 
 class WhisperTranscriptionService {
   final String baseUrl;
   final http.Client _httpClient;
   final Logger _logger = Logger();
+  final Ref ref;
 
   WhisperTranscriptionService({
     this.baseUrl = 'http://127.0.0.1:8089',
     http.Client? httpClient,
+    required this.ref,
   }) : _httpClient = httpClient ?? http.Client();
 
   /// Transcribes audio file to text using local Whisper server
   Future<String> transcribe(String audioFilePath) async {
     try {
       _logger.i('Transcribing audio: $audioFilePath');
+
+      // Get user-selected model from settings
+      final selectedModel = ref.read(whisperModelProvider);
+      _logger.i('Using Whisper model: $selectedModel');
 
       // Read and encode audio file
       final audioBytes = await File(audioFilePath).readAsBytes();
@@ -28,7 +36,7 @@ class WhisperTranscriptionService {
           .post(
             Uri.parse('$baseUrl/v1/audio/transcriptions'),
             headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({'model': 'whisper-1', 'audio': audioBase64}),
+            body: jsonEncode({'model': selectedModel, 'audio': audioBase64}),
           )
           .timeout(
             const Duration(minutes: 2),

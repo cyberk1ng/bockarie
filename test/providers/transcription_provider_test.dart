@@ -183,4 +183,236 @@ void main() {
       await future;
     });
   });
+
+  group('GeminiAudioModelNotifier', () {
+    test('initializes with gemini-2.0-flash-exp as default model', () async {
+      final notifier = GeminiAudioModelNotifier();
+
+      // Give time for _loadModel to complete
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      expect(notifier.state, 'gemini-2.0-flash-exp');
+    });
+
+    test('loads saved model from SharedPreferences', () async {
+      SharedPreferences.setMockInitialValues({
+        'gemini_audio_model': 'gemini-1.5-pro',
+      });
+
+      final notifier = GeminiAudioModelNotifier();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      expect(notifier.state, 'gemini-1.5-pro');
+    });
+
+    test('setModel updates state and persists to SharedPreferences', () async {
+      final notifier = GeminiAudioModelNotifier();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      expect(notifier.state, 'gemini-2.0-flash-exp');
+
+      await notifier.setModel('gemini-1.5-flash-8b');
+
+      expect(notifier.state, 'gemini-1.5-flash-8b');
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('gemini_audio_model'), 'gemini-1.5-flash-8b');
+    });
+
+    test('availableModels contains 5 models', () {
+      expect(GeminiAudioModelNotifier.availableModels, hasLength(5));
+      expect(
+        GeminiAudioModelNotifier.availableModels,
+        contains('gemini-2.0-flash-exp'),
+      );
+      expect(
+        GeminiAudioModelNotifier.availableModels,
+        contains('gemini-1.5-flash'),
+      );
+      expect(
+        GeminiAudioModelNotifier.availableModels,
+        contains('gemini-1.5-flash-8b'),
+      );
+      expect(
+        GeminiAudioModelNotifier.availableModels,
+        contains('gemini-1.5-pro'),
+      );
+      expect(
+        GeminiAudioModelNotifier.availableModels,
+        contains('gemini-1.5-pro-latest'),
+      );
+    });
+
+    test('handles empty string as model name', () async {
+      SharedPreferences.setMockInitialValues({'gemini_audio_model': ''});
+
+      final notifier = GeminiAudioModelNotifier();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // Should use empty string as stored, not fall back to default
+      expect(notifier.state, '');
+    });
+
+    test('loads default when no saved preference exists', () async {
+      SharedPreferences.setMockInitialValues({});
+
+      final notifier = GeminiAudioModelNotifier();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      expect(notifier.state, 'gemini-2.0-flash-exp');
+    });
+
+    test('persisted model survives notifier recreation', () async {
+      final notifier1 = GeminiAudioModelNotifier();
+      await Future.delayed(const Duration(milliseconds: 100));
+      await notifier1.setModel('gemini-1.5-pro-latest');
+
+      final notifier2 = GeminiAudioModelNotifier();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      expect(notifier2.state, 'gemini-1.5-pro-latest');
+    });
+
+    test('setModel completes successfully', () async {
+      final notifier = GeminiAudioModelNotifier();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      await expectLater(notifier.setModel('gemini-1.5-flash'), completes);
+    });
+
+    test('state updates immediately after setModel call', () async {
+      final notifier = GeminiAudioModelNotifier();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      expect(notifier.state, 'gemini-2.0-flash-exp');
+
+      final future = notifier.setModel('gemini-1.5-pro');
+
+      expect(notifier.state, 'gemini-1.5-pro');
+
+      await future;
+    });
+
+    test('handles multiple model switches', () async {
+      final notifier = GeminiAudioModelNotifier();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      await notifier.setModel('gemini-1.5-flash');
+      expect(notifier.state, 'gemini-1.5-flash');
+
+      await notifier.setModel('gemini-1.5-pro');
+      expect(notifier.state, 'gemini-1.5-pro');
+
+      await notifier.setModel('gemini-1.5-flash-8b');
+      expect(notifier.state, 'gemini-1.5-flash-8b');
+    });
+  });
+
+  group('WhisperModelNotifier', () {
+    test('initializes with whisper-small as default model', () async {
+      final notifier = WhisperModelNotifier();
+
+      // Give time for _loadModel to complete
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      expect(notifier.state, 'whisper-small');
+    });
+
+    test('loads saved model from SharedPreferences', () async {
+      SharedPreferences.setMockInitialValues({
+        'whisper_model': 'whisper-large',
+      });
+
+      final notifier = WhisperModelNotifier();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      expect(notifier.state, 'whisper-large');
+    });
+
+    test('setModel updates state and persists to SharedPreferences', () async {
+      final notifier = WhisperModelNotifier();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      expect(notifier.state, 'whisper-small');
+
+      await notifier.setModel('whisper-medium');
+
+      expect(notifier.state, 'whisper-medium');
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('whisper_model'), 'whisper-medium');
+    });
+
+    test('availableModels contains 4 models', () {
+      expect(WhisperModelNotifier.availableModels, hasLength(4));
+      expect(WhisperModelNotifier.availableModels, contains('whisper-tiny'));
+      expect(WhisperModelNotifier.availableModels, contains('whisper-small'));
+      expect(WhisperModelNotifier.availableModels, contains('whisper-medium'));
+      expect(WhisperModelNotifier.availableModels, contains('whisper-large'));
+    });
+
+    test('handles empty string as model name', () async {
+      SharedPreferences.setMockInitialValues({'whisper_model': ''});
+
+      final notifier = WhisperModelNotifier();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // Should use empty string as stored, not fall back to default
+      expect(notifier.state, '');
+    });
+
+    test('loads default when no saved preference exists', () async {
+      SharedPreferences.setMockInitialValues({});
+
+      final notifier = WhisperModelNotifier();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      expect(notifier.state, 'whisper-small');
+    });
+
+    test('persisted model survives notifier recreation', () async {
+      final notifier1 = WhisperModelNotifier();
+      await Future.delayed(const Duration(milliseconds: 100));
+      await notifier1.setModel('whisper-large');
+
+      final notifier2 = WhisperModelNotifier();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      expect(notifier2.state, 'whisper-large');
+    });
+
+    test('setModel completes successfully', () async {
+      final notifier = WhisperModelNotifier();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      await expectLater(notifier.setModel('whisper-tiny'), completes);
+    });
+
+    test('state updates immediately after setModel call', () async {
+      final notifier = WhisperModelNotifier();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      expect(notifier.state, 'whisper-small');
+
+      final future = notifier.setModel('whisper-large');
+
+      expect(notifier.state, 'whisper-large');
+
+      await future;
+    });
+
+    test('handles multiple model switches', () async {
+      final notifier = WhisperModelNotifier();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      await notifier.setModel('whisper-tiny');
+      expect(notifier.state, 'whisper-tiny');
+
+      await notifier.setModel('whisper-medium');
+      expect(notifier.state, 'whisper-medium');
+
+      await notifier.setModel('whisper-large');
+      expect(notifier.state, 'whisper-large');
+    });
+  });
 }
