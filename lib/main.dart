@@ -12,12 +12,16 @@ import 'package:bockaire/providers/locale_provider.dart';
 import 'package:bockaire/providers/currency_provider.dart';
 import 'package:bockaire/repositories/currency_repository.dart';
 import 'package:bockaire/database/seeder.dart';
+import 'package:bockaire/config/feature_flags.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Load environment variables
   await dotenv.load(fileName: '.env');
+
+  // Initialize feature flags for Shippo live integration
+  await FeatureFlags().initialize();
 
   await setupGetIt();
 
