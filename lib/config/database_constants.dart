@@ -3,7 +3,7 @@ class DatabaseConstants {
   DatabaseConstants._();
 
   static const String databaseFileName = 'bockaire.sqlite';
-  static const int schemaVersion = 5;
+  static const int schemaVersion = 6;
   static const String defaultEmptyString = '';
 
   // Table names (for queries)

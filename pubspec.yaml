@@ -2,7 +2,7 @@ name: bockaire
 description: "Shipping Optimizer - Smart China to Germany shipment planning"
 publish_to: 'none'
 
-version: 0.10.5+18
+version: 0.11.5+19
 
 environment:
   sdk: ^3.9.2
@@ -59,6 +59,7 @@ dependencies:
   flutter_dotenv: ^5.2.1
   package_info_plus: ^8.1.0
   shared_preferences: ^2.3.4
+  url_launcher: ^6.3.1
 
   # Modal Sheets
   wolt_modal_sheet: ^0.9.4

@@ -350,8 +350,8 @@ void main() {
   });
 
   group('Schema Version', () {
-    test('database is at version 5', () {
-      expect(database.schemaVersion, 5);
+    test('database is at version 6', () {
+      expect(database.schemaVersion, 6);
     });
   });
 }

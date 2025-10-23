@@ -112,6 +112,7 @@ class ShippoRate {
   final String currency;
   final int? estimatedDays;
   final String? durationTerms;
+  final String? shipmentId; // Shipment ID this rate belongs to
 
   ShippoRate({
     required this.objectId,
@@ -121,6 +122,7 @@ class ShippoRate {
     required this.currency,
     this.estimatedDays,
     this.durationTerms,
+    this.shipmentId,
   });
 
   factory ShippoRate.fromJson(Map<String, dynamic> json) {
@@ -136,6 +138,7 @@ class ShippoRate {
       currency: json['currency'] as String? ?? 'USD',
       estimatedDays: json['estimated_days'] as int?,
       durationTerms: json['duration_terms'] as String?,
+      shipmentId: json['shipment'] as String?,
     );
   }
 

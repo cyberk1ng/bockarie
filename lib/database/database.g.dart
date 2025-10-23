@@ -3468,6 +3468,2063 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
   }
 }
 
+class $CustomsProfilesTable extends CustomsProfiles
+    with TableInfo<$CustomsProfilesTable, CustomsProfile> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CustomsProfilesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _importerTypeMeta = const VerificationMeta(
+    'importerType',
+  );
+  @override
+  late final GeneratedColumn<String> importerType = GeneratedColumn<String>(
+    'importer_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _vatNumberMeta = const VerificationMeta(
+    'vatNumber',
+  );
+  @override
+  late final GeneratedColumn<String> vatNumber = GeneratedColumn<String>(
+    'vat_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _eoriNumberMeta = const VerificationMeta(
+    'eoriNumber',
+  );
+  @override
+  late final GeneratedColumn<String> eoriNumber = GeneratedColumn<String>(
+    'eori_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _taxIdMeta = const VerificationMeta('taxId');
+  @override
+  late final GeneratedColumn<String> taxId = GeneratedColumn<String>(
+    'tax_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _companyNameMeta = const VerificationMeta(
+    'companyName',
+  );
+  @override
+  late final GeneratedColumn<String> companyName = GeneratedColumn<String>(
+    'company_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _contactNameMeta = const VerificationMeta(
+    'contactName',
+  );
+  @override
+  late final GeneratedColumn<String> contactName = GeneratedColumn<String>(
+    'contact_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _contactPhoneMeta = const VerificationMeta(
+    'contactPhone',
+  );
+  @override
+  late final GeneratedColumn<String> contactPhone = GeneratedColumn<String>(
+    'contact_phone',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _contactEmailMeta = const VerificationMeta(
+    'contactEmail',
+  );
+  @override
+  late final GeneratedColumn<String> contactEmail = GeneratedColumn<String>(
+    'contact_email',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _defaultIncotermsMeta = const VerificationMeta(
+    'defaultIncoterms',
+  );
+  @override
+  late final GeneratedColumn<String> defaultIncoterms = GeneratedColumn<String>(
+    'default_incoterms',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('dap'),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    importerType,
+    vatNumber,
+    eoriNumber,
+    taxId,
+    companyName,
+    contactName,
+    contactPhone,
+    contactEmail,
+    defaultIncoterms,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'customs_profiles';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CustomsProfile> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('importer_type')) {
+      context.handle(
+        _importerTypeMeta,
+        importerType.isAcceptableOrUnknown(
+          data['importer_type']!,
+          _importerTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_importerTypeMeta);
+    }
+    if (data.containsKey('vat_number')) {
+      context.handle(
+        _vatNumberMeta,
+        vatNumber.isAcceptableOrUnknown(data['vat_number']!, _vatNumberMeta),
+      );
+    }
+    if (data.containsKey('eori_number')) {
+      context.handle(
+        _eoriNumberMeta,
+        eoriNumber.isAcceptableOrUnknown(data['eori_number']!, _eoriNumberMeta),
+      );
+    }
+    if (data.containsKey('tax_id')) {
+      context.handle(
+        _taxIdMeta,
+        taxId.isAcceptableOrUnknown(data['tax_id']!, _taxIdMeta),
+      );
+    }
+    if (data.containsKey('company_name')) {
+      context.handle(
+        _companyNameMeta,
+        companyName.isAcceptableOrUnknown(
+          data['company_name']!,
+          _companyNameMeta,
+        ),
+      );
+    }
+    if (data.containsKey('contact_name')) {
+      context.handle(
+        _contactNameMeta,
+        contactName.isAcceptableOrUnknown(
+          data['contact_name']!,
+          _contactNameMeta,
+        ),
+      );
+    }
+    if (data.containsKey('contact_phone')) {
+      context.handle(
+        _contactPhoneMeta,
+        contactPhone.isAcceptableOrUnknown(
+          data['contact_phone']!,
+          _contactPhoneMeta,
+        ),
+      );
+    }
+    if (data.containsKey('contact_email')) {
+      context.handle(
+        _contactEmailMeta,
+        contactEmail.isAcceptableOrUnknown(
+          data['contact_email']!,
+          _contactEmailMeta,
+        ),
+      );
+    }
+    if (data.containsKey('default_incoterms')) {
+      context.handle(
+        _defaultIncotermsMeta,
+        defaultIncoterms.isAcceptableOrUnknown(
+          data['default_incoterms']!,
+          _defaultIncotermsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CustomsProfile map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CustomsProfile(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      importerType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}importer_type'],
+      )!,
+      vatNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}vat_number'],
+      ),
+      eoriNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}eori_number'],
+      ),
+      taxId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tax_id'],
+      ),
+      companyName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}company_name'],
+      ),
+      contactName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contact_name'],
+      ),
+      contactPhone: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contact_phone'],
+      ),
+      contactEmail: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contact_email'],
+      ),
+      defaultIncoterms: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}default_incoterms'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CustomsProfilesTable createAlias(String alias) {
+    return $CustomsProfilesTable(attachedDatabase, alias);
+  }
+}
+
+class CustomsProfile extends DataClass implements Insertable<CustomsProfile> {
+  final String id;
+  final String name;
+  final String importerType;
+  final String? vatNumber;
+  final String? eoriNumber;
+  final String? taxId;
+  final String? companyName;
+  final String? contactName;
+  final String? contactPhone;
+  final String? contactEmail;
+  final String defaultIncoterms;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const CustomsProfile({
+    required this.id,
+    required this.name,
+    required this.importerType,
+    this.vatNumber,
+    this.eoriNumber,
+    this.taxId,
+    this.companyName,
+    this.contactName,
+    this.contactPhone,
+    this.contactEmail,
+    required this.defaultIncoterms,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['importer_type'] = Variable<String>(importerType);
+    if (!nullToAbsent || vatNumber != null) {
+      map['vat_number'] = Variable<String>(vatNumber);
+    }
+    if (!nullToAbsent || eoriNumber != null) {
+      map['eori_number'] = Variable<String>(eoriNumber);
+    }
+    if (!nullToAbsent || taxId != null) {
+      map['tax_id'] = Variable<String>(taxId);
+    }
+    if (!nullToAbsent || companyName != null) {
+      map['company_name'] = Variable<String>(companyName);
+    }
+    if (!nullToAbsent || contactName != null) {
+      map['contact_name'] = Variable<String>(contactName);
+    }
+    if (!nullToAbsent || contactPhone != null) {
+      map['contact_phone'] = Variable<String>(contactPhone);
+    }
+    if (!nullToAbsent || contactEmail != null) {
+      map['contact_email'] = Variable<String>(contactEmail);
+    }
+    map['default_incoterms'] = Variable<String>(defaultIncoterms);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  CustomsProfilesCompanion toCompanion(bool nullToAbsent) {
+    return CustomsProfilesCompanion(
+      id: Value(id),
+      name: Value(name),
+      importerType: Value(importerType),
+      vatNumber: vatNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vatNumber),
+      eoriNumber: eoriNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(eoriNumber),
+      taxId: taxId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(taxId),
+      companyName: companyName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(companyName),
+      contactName: contactName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contactName),
+      contactPhone: contactPhone == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contactPhone),
+      contactEmail: contactEmail == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contactEmail),
+      defaultIncoterms: Value(defaultIncoterms),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory CustomsProfile.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CustomsProfile(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      importerType: serializer.fromJson<String>(json['importerType']),
+      vatNumber: serializer.fromJson<String?>(json['vatNumber']),
+      eoriNumber: serializer.fromJson<String?>(json['eoriNumber']),
+      taxId: serializer.fromJson<String?>(json['taxId']),
+      companyName: serializer.fromJson<String?>(json['companyName']),
+      contactName: serializer.fromJson<String?>(json['contactName']),
+      contactPhone: serializer.fromJson<String?>(json['contactPhone']),
+      contactEmail: serializer.fromJson<String?>(json['contactEmail']),
+      defaultIncoterms: serializer.fromJson<String>(json['defaultIncoterms']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'importerType': serializer.toJson<String>(importerType),
+      'vatNumber': serializer.toJson<String?>(vatNumber),
+      'eoriNumber': serializer.toJson<String?>(eoriNumber),
+      'taxId': serializer.toJson<String?>(taxId),
+      'companyName': serializer.toJson<String?>(companyName),
+      'contactName': serializer.toJson<String?>(contactName),
+      'contactPhone': serializer.toJson<String?>(contactPhone),
+      'contactEmail': serializer.toJson<String?>(contactEmail),
+      'defaultIncoterms': serializer.toJson<String>(defaultIncoterms),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  CustomsProfile copyWith({
+    String? id,
+    String? name,
+    String? importerType,
+    Value<String?> vatNumber = const Value.absent(),
+    Value<String?> eoriNumber = const Value.absent(),
+    Value<String?> taxId = const Value.absent(),
+    Value<String?> companyName = const Value.absent(),
+    Value<String?> contactName = const Value.absent(),
+    Value<String?> contactPhone = const Value.absent(),
+    Value<String?> contactEmail = const Value.absent(),
+    String? defaultIncoterms,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => CustomsProfile(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    importerType: importerType ?? this.importerType,
+    vatNumber: vatNumber.present ? vatNumber.value : this.vatNumber,
+    eoriNumber: eoriNumber.present ? eoriNumber.value : this.eoriNumber,
+    taxId: taxId.present ? taxId.value : this.taxId,
+    companyName: companyName.present ? companyName.value : this.companyName,
+    contactName: contactName.present ? contactName.value : this.contactName,
+    contactPhone: contactPhone.present ? contactPhone.value : this.contactPhone,
+    contactEmail: contactEmail.present ? contactEmail.value : this.contactEmail,
+    defaultIncoterms: defaultIncoterms ?? this.defaultIncoterms,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  CustomsProfile copyWithCompanion(CustomsProfilesCompanion data) {
+    return CustomsProfile(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      importerType: data.importerType.present
+          ? data.importerType.value
+          : this.importerType,
+      vatNumber: data.vatNumber.present ? data.vatNumber.value : this.vatNumber,
+      eoriNumber: data.eoriNumber.present
+          ? data.eoriNumber.value
+          : this.eoriNumber,
+      taxId: data.taxId.present ? data.taxId.value : this.taxId,
+      companyName: data.companyName.present
+          ? data.companyName.value
+          : this.companyName,
+      contactName: data.contactName.present
+          ? data.contactName.value
+          : this.contactName,
+      contactPhone: data.contactPhone.present
+          ? data.contactPhone.value
+          : this.contactPhone,
+      contactEmail: data.contactEmail.present
+          ? data.contactEmail.value
+          : this.contactEmail,
+      defaultIncoterms: data.defaultIncoterms.present
+          ? data.defaultIncoterms.value
+          : this.defaultIncoterms,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CustomsProfile(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('importerType: $importerType, ')
+          ..write('vatNumber: $vatNumber, ')
+          ..write('eoriNumber: $eoriNumber, ')
+          ..write('taxId: $taxId, ')
+          ..write('companyName: $companyName, ')
+          ..write('contactName: $contactName, ')
+          ..write('contactPhone: $contactPhone, ')
+          ..write('contactEmail: $contactEmail, ')
+          ..write('defaultIncoterms: $defaultIncoterms, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    name,
+    importerType,
+    vatNumber,
+    eoriNumber,
+    taxId,
+    companyName,
+    contactName,
+    contactPhone,
+    contactEmail,
+    defaultIncoterms,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CustomsProfile &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.importerType == this.importerType &&
+          other.vatNumber == this.vatNumber &&
+          other.eoriNumber == this.eoriNumber &&
+          other.taxId == this.taxId &&
+          other.companyName == this.companyName &&
+          other.contactName == this.contactName &&
+          other.contactPhone == this.contactPhone &&
+          other.contactEmail == this.contactEmail &&
+          other.defaultIncoterms == this.defaultIncoterms &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class CustomsProfilesCompanion extends UpdateCompanion<CustomsProfile> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> importerType;
+  final Value<String?> vatNumber;
+  final Value<String?> eoriNumber;
+  final Value<String?> taxId;
+  final Value<String?> companyName;
+  final Value<String?> contactName;
+  final Value<String?> contactPhone;
+  final Value<String?> contactEmail;
+  final Value<String> defaultIncoterms;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const CustomsProfilesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.importerType = const Value.absent(),
+    this.vatNumber = const Value.absent(),
+    this.eoriNumber = const Value.absent(),
+    this.taxId = const Value.absent(),
+    this.companyName = const Value.absent(),
+    this.contactName = const Value.absent(),
+    this.contactPhone = const Value.absent(),
+    this.contactEmail = const Value.absent(),
+    this.defaultIncoterms = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CustomsProfilesCompanion.insert({
+    required String id,
+    required String name,
+    required String importerType,
+    this.vatNumber = const Value.absent(),
+    this.eoriNumber = const Value.absent(),
+    this.taxId = const Value.absent(),
+    this.companyName = const Value.absent(),
+    this.contactName = const Value.absent(),
+    this.contactPhone = const Value.absent(),
+    this.contactEmail = const Value.absent(),
+    this.defaultIncoterms = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       importerType = Value(importerType),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<CustomsProfile> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? importerType,
+    Expression<String>? vatNumber,
+    Expression<String>? eoriNumber,
+    Expression<String>? taxId,
+    Expression<String>? companyName,
+    Expression<String>? contactName,
+    Expression<String>? contactPhone,
+    Expression<String>? contactEmail,
+    Expression<String>? defaultIncoterms,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (importerType != null) 'importer_type': importerType,
+      if (vatNumber != null) 'vat_number': vatNumber,
+      if (eoriNumber != null) 'eori_number': eoriNumber,
+      if (taxId != null) 'tax_id': taxId,
+      if (companyName != null) 'company_name': companyName,
+      if (contactName != null) 'contact_name': contactName,
+      if (contactPhone != null) 'contact_phone': contactPhone,
+      if (contactEmail != null) 'contact_email': contactEmail,
+      if (defaultIncoterms != null) 'default_incoterms': defaultIncoterms,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CustomsProfilesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<String>? importerType,
+    Value<String?>? vatNumber,
+    Value<String?>? eoriNumber,
+    Value<String?>? taxId,
+    Value<String?>? companyName,
+    Value<String?>? contactName,
+    Value<String?>? contactPhone,
+    Value<String?>? contactEmail,
+    Value<String>? defaultIncoterms,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return CustomsProfilesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      importerType: importerType ?? this.importerType,
+      vatNumber: vatNumber ?? this.vatNumber,
+      eoriNumber: eoriNumber ?? this.eoriNumber,
+      taxId: taxId ?? this.taxId,
+      companyName: companyName ?? this.companyName,
+      contactName: contactName ?? this.contactName,
+      contactPhone: contactPhone ?? this.contactPhone,
+      contactEmail: contactEmail ?? this.contactEmail,
+      defaultIncoterms: defaultIncoterms ?? this.defaultIncoterms,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (importerType.present) {
+      map['importer_type'] = Variable<String>(importerType.value);
+    }
+    if (vatNumber.present) {
+      map['vat_number'] = Variable<String>(vatNumber.value);
+    }
+    if (eoriNumber.present) {
+      map['eori_number'] = Variable<String>(eoriNumber.value);
+    }
+    if (taxId.present) {
+      map['tax_id'] = Variable<String>(taxId.value);
+    }
+    if (companyName.present) {
+      map['company_name'] = Variable<String>(companyName.value);
+    }
+    if (contactName.present) {
+      map['contact_name'] = Variable<String>(contactName.value);
+    }
+    if (contactPhone.present) {
+      map['contact_phone'] = Variable<String>(contactPhone.value);
+    }
+    if (contactEmail.present) {
+      map['contact_email'] = Variable<String>(contactEmail.value);
+    }
+    if (defaultIncoterms.present) {
+      map['default_incoterms'] = Variable<String>(defaultIncoterms.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CustomsProfilesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('importerType: $importerType, ')
+          ..write('vatNumber: $vatNumber, ')
+          ..write('eoriNumber: $eoriNumber, ')
+          ..write('taxId: $taxId, ')
+          ..write('companyName: $companyName, ')
+          ..write('contactName: $contactName, ')
+          ..write('contactPhone: $contactPhone, ')
+          ..write('contactEmail: $contactEmail, ')
+          ..write('defaultIncoterms: $defaultIncoterms, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CommodityLinesTable extends CommodityLines
+    with TableInfo<$CommodityLinesTable, CommodityLine> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CommodityLinesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _customsPacketIdMeta = const VerificationMeta(
+    'customsPacketId',
+  );
+  @override
+  late final GeneratedColumn<String> customsPacketId = GeneratedColumn<String>(
+    'customs_packet_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _quantityMeta = const VerificationMeta(
+    'quantity',
+  );
+  @override
+  late final GeneratedColumn<double> quantity = GeneratedColumn<double>(
+    'quantity',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _netWeightMeta = const VerificationMeta(
+    'netWeight',
+  );
+  @override
+  late final GeneratedColumn<double> netWeight = GeneratedColumn<double>(
+    'net_weight',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _valueAmountMeta = const VerificationMeta(
+    'valueAmount',
+  );
+  @override
+  late final GeneratedColumn<double> valueAmount = GeneratedColumn<double>(
+    'value_amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _originCountryMeta = const VerificationMeta(
+    'originCountry',
+  );
+  @override
+  late final GeneratedColumn<String> originCountry = GeneratedColumn<String>(
+    'origin_country',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _hsCodeMeta = const VerificationMeta('hsCode');
+  @override
+  late final GeneratedColumn<String> hsCode = GeneratedColumn<String>(
+    'hs_code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _skuCodeMeta = const VerificationMeta(
+    'skuCode',
+  );
+  @override
+  late final GeneratedColumn<String> skuCode = GeneratedColumn<String>(
+    'sku_code',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    customsPacketId,
+    description,
+    quantity,
+    netWeight,
+    valueAmount,
+    originCountry,
+    hsCode,
+    skuCode,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'commodity_lines';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CommodityLine> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('customs_packet_id')) {
+      context.handle(
+        _customsPacketIdMeta,
+        customsPacketId.isAcceptableOrUnknown(
+          data['customs_packet_id']!,
+          _customsPacketIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_customsPacketIdMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('quantity')) {
+      context.handle(
+        _quantityMeta,
+        quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_quantityMeta);
+    }
+    if (data.containsKey('net_weight')) {
+      context.handle(
+        _netWeightMeta,
+        netWeight.isAcceptableOrUnknown(data['net_weight']!, _netWeightMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_netWeightMeta);
+    }
+    if (data.containsKey('value_amount')) {
+      context.handle(
+        _valueAmountMeta,
+        valueAmount.isAcceptableOrUnknown(
+          data['value_amount']!,
+          _valueAmountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_valueAmountMeta);
+    }
+    if (data.containsKey('origin_country')) {
+      context.handle(
+        _originCountryMeta,
+        originCountry.isAcceptableOrUnknown(
+          data['origin_country']!,
+          _originCountryMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_originCountryMeta);
+    }
+    if (data.containsKey('hs_code')) {
+      context.handle(
+        _hsCodeMeta,
+        hsCode.isAcceptableOrUnknown(data['hs_code']!, _hsCodeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_hsCodeMeta);
+    }
+    if (data.containsKey('sku_code')) {
+      context.handle(
+        _skuCodeMeta,
+        skuCode.isAcceptableOrUnknown(data['sku_code']!, _skuCodeMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CommodityLine map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CommodityLine(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      customsPacketId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customs_packet_id'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      )!,
+      quantity: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}quantity'],
+      )!,
+      netWeight: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}net_weight'],
+      )!,
+      valueAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}value_amount'],
+      )!,
+      originCountry: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}origin_country'],
+      )!,
+      hsCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}hs_code'],
+      )!,
+      skuCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sku_code'],
+      ),
+    );
+  }
+
+  @override
+  $CommodityLinesTable createAlias(String alias) {
+    return $CommodityLinesTable(attachedDatabase, alias);
+  }
+}
+
+class CommodityLine extends DataClass implements Insertable<CommodityLine> {
+  final String id;
+  final String customsPacketId;
+  final String description;
+  final double quantity;
+  final double netWeight;
+  final double valueAmount;
+  final String originCountry;
+  final String hsCode;
+  final String? skuCode;
+  const CommodityLine({
+    required this.id,
+    required this.customsPacketId,
+    required this.description,
+    required this.quantity,
+    required this.netWeight,
+    required this.valueAmount,
+    required this.originCountry,
+    required this.hsCode,
+    this.skuCode,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['customs_packet_id'] = Variable<String>(customsPacketId);
+    map['description'] = Variable<String>(description);
+    map['quantity'] = Variable<double>(quantity);
+    map['net_weight'] = Variable<double>(netWeight);
+    map['value_amount'] = Variable<double>(valueAmount);
+    map['origin_country'] = Variable<String>(originCountry);
+    map['hs_code'] = Variable<String>(hsCode);
+    if (!nullToAbsent || skuCode != null) {
+      map['sku_code'] = Variable<String>(skuCode);
+    }
+    return map;
+  }
+
+  CommodityLinesCompanion toCompanion(bool nullToAbsent) {
+    return CommodityLinesCompanion(
+      id: Value(id),
+      customsPacketId: Value(customsPacketId),
+      description: Value(description),
+      quantity: Value(quantity),
+      netWeight: Value(netWeight),
+      valueAmount: Value(valueAmount),
+      originCountry: Value(originCountry),
+      hsCode: Value(hsCode),
+      skuCode: skuCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(skuCode),
+    );
+  }
+
+  factory CommodityLine.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CommodityLine(
+      id: serializer.fromJson<String>(json['id']),
+      customsPacketId: serializer.fromJson<String>(json['customsPacketId']),
+      description: serializer.fromJson<String>(json['description']),
+      quantity: serializer.fromJson<double>(json['quantity']),
+      netWeight: serializer.fromJson<double>(json['netWeight']),
+      valueAmount: serializer.fromJson<double>(json['valueAmount']),
+      originCountry: serializer.fromJson<String>(json['originCountry']),
+      hsCode: serializer.fromJson<String>(json['hsCode']),
+      skuCode: serializer.fromJson<String?>(json['skuCode']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'customsPacketId': serializer.toJson<String>(customsPacketId),
+      'description': serializer.toJson<String>(description),
+      'quantity': serializer.toJson<double>(quantity),
+      'netWeight': serializer.toJson<double>(netWeight),
+      'valueAmount': serializer.toJson<double>(valueAmount),
+      'originCountry': serializer.toJson<String>(originCountry),
+      'hsCode': serializer.toJson<String>(hsCode),
+      'skuCode': serializer.toJson<String?>(skuCode),
+    };
+  }
+
+  CommodityLine copyWith({
+    String? id,
+    String? customsPacketId,
+    String? description,
+    double? quantity,
+    double? netWeight,
+    double? valueAmount,
+    String? originCountry,
+    String? hsCode,
+    Value<String?> skuCode = const Value.absent(),
+  }) => CommodityLine(
+    id: id ?? this.id,
+    customsPacketId: customsPacketId ?? this.customsPacketId,
+    description: description ?? this.description,
+    quantity: quantity ?? this.quantity,
+    netWeight: netWeight ?? this.netWeight,
+    valueAmount: valueAmount ?? this.valueAmount,
+    originCountry: originCountry ?? this.originCountry,
+    hsCode: hsCode ?? this.hsCode,
+    skuCode: skuCode.present ? skuCode.value : this.skuCode,
+  );
+  CommodityLine copyWithCompanion(CommodityLinesCompanion data) {
+    return CommodityLine(
+      id: data.id.present ? data.id.value : this.id,
+      customsPacketId: data.customsPacketId.present
+          ? data.customsPacketId.value
+          : this.customsPacketId,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      netWeight: data.netWeight.present ? data.netWeight.value : this.netWeight,
+      valueAmount: data.valueAmount.present
+          ? data.valueAmount.value
+          : this.valueAmount,
+      originCountry: data.originCountry.present
+          ? data.originCountry.value
+          : this.originCountry,
+      hsCode: data.hsCode.present ? data.hsCode.value : this.hsCode,
+      skuCode: data.skuCode.present ? data.skuCode.value : this.skuCode,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CommodityLine(')
+          ..write('id: $id, ')
+          ..write('customsPacketId: $customsPacketId, ')
+          ..write('description: $description, ')
+          ..write('quantity: $quantity, ')
+          ..write('netWeight: $netWeight, ')
+          ..write('valueAmount: $valueAmount, ')
+          ..write('originCountry: $originCountry, ')
+          ..write('hsCode: $hsCode, ')
+          ..write('skuCode: $skuCode')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    customsPacketId,
+    description,
+    quantity,
+    netWeight,
+    valueAmount,
+    originCountry,
+    hsCode,
+    skuCode,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CommodityLine &&
+          other.id == this.id &&
+          other.customsPacketId == this.customsPacketId &&
+          other.description == this.description &&
+          other.quantity == this.quantity &&
+          other.netWeight == this.netWeight &&
+          other.valueAmount == this.valueAmount &&
+          other.originCountry == this.originCountry &&
+          other.hsCode == this.hsCode &&
+          other.skuCode == this.skuCode);
+}
+
+class CommodityLinesCompanion extends UpdateCompanion<CommodityLine> {
+  final Value<String> id;
+  final Value<String> customsPacketId;
+  final Value<String> description;
+  final Value<double> quantity;
+  final Value<double> netWeight;
+  final Value<double> valueAmount;
+  final Value<String> originCountry;
+  final Value<String> hsCode;
+  final Value<String?> skuCode;
+  final Value<int> rowid;
+  const CommodityLinesCompanion({
+    this.id = const Value.absent(),
+    this.customsPacketId = const Value.absent(),
+    this.description = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.netWeight = const Value.absent(),
+    this.valueAmount = const Value.absent(),
+    this.originCountry = const Value.absent(),
+    this.hsCode = const Value.absent(),
+    this.skuCode = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CommodityLinesCompanion.insert({
+    required String id,
+    required String customsPacketId,
+    required String description,
+    required double quantity,
+    required double netWeight,
+    required double valueAmount,
+    required String originCountry,
+    required String hsCode,
+    this.skuCode = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       customsPacketId = Value(customsPacketId),
+       description = Value(description),
+       quantity = Value(quantity),
+       netWeight = Value(netWeight),
+       valueAmount = Value(valueAmount),
+       originCountry = Value(originCountry),
+       hsCode = Value(hsCode);
+  static Insertable<CommodityLine> custom({
+    Expression<String>? id,
+    Expression<String>? customsPacketId,
+    Expression<String>? description,
+    Expression<double>? quantity,
+    Expression<double>? netWeight,
+    Expression<double>? valueAmount,
+    Expression<String>? originCountry,
+    Expression<String>? hsCode,
+    Expression<String>? skuCode,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (customsPacketId != null) 'customs_packet_id': customsPacketId,
+      if (description != null) 'description': description,
+      if (quantity != null) 'quantity': quantity,
+      if (netWeight != null) 'net_weight': netWeight,
+      if (valueAmount != null) 'value_amount': valueAmount,
+      if (originCountry != null) 'origin_country': originCountry,
+      if (hsCode != null) 'hs_code': hsCode,
+      if (skuCode != null) 'sku_code': skuCode,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CommodityLinesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? customsPacketId,
+    Value<String>? description,
+    Value<double>? quantity,
+    Value<double>? netWeight,
+    Value<double>? valueAmount,
+    Value<String>? originCountry,
+    Value<String>? hsCode,
+    Value<String?>? skuCode,
+    Value<int>? rowid,
+  }) {
+    return CommodityLinesCompanion(
+      id: id ?? this.id,
+      customsPacketId: customsPacketId ?? this.customsPacketId,
+      description: description ?? this.description,
+      quantity: quantity ?? this.quantity,
+      netWeight: netWeight ?? this.netWeight,
+      valueAmount: valueAmount ?? this.valueAmount,
+      originCountry: originCountry ?? this.originCountry,
+      hsCode: hsCode ?? this.hsCode,
+      skuCode: skuCode ?? this.skuCode,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (customsPacketId.present) {
+      map['customs_packet_id'] = Variable<String>(customsPacketId.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (quantity.present) {
+      map['quantity'] = Variable<double>(quantity.value);
+    }
+    if (netWeight.present) {
+      map['net_weight'] = Variable<double>(netWeight.value);
+    }
+    if (valueAmount.present) {
+      map['value_amount'] = Variable<double>(valueAmount.value);
+    }
+    if (originCountry.present) {
+      map['origin_country'] = Variable<String>(originCountry.value);
+    }
+    if (hsCode.present) {
+      map['hs_code'] = Variable<String>(hsCode.value);
+    }
+    if (skuCode.present) {
+      map['sku_code'] = Variable<String>(skuCode.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CommodityLinesCompanion(')
+          ..write('id: $id, ')
+          ..write('customsPacketId: $customsPacketId, ')
+          ..write('description: $description, ')
+          ..write('quantity: $quantity, ')
+          ..write('netWeight: $netWeight, ')
+          ..write('valueAmount: $valueAmount, ')
+          ..write('originCountry: $originCountry, ')
+          ..write('hsCode: $hsCode, ')
+          ..write('skuCode: $skuCode, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CustomsPacketsTable extends CustomsPackets
+    with TableInfo<$CustomsPacketsTable, CustomsPacket> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CustomsPacketsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _shipmentIdMeta = const VerificationMeta(
+    'shipmentId',
+  );
+  @override
+  late final GeneratedColumn<String> shipmentId = GeneratedColumn<String>(
+    'shipment_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES shipments (id)',
+    ),
+  );
+  static const VerificationMeta _profileIdMeta = const VerificationMeta(
+    'profileId',
+  );
+  @override
+  late final GeneratedColumn<String> profileId = GeneratedColumn<String>(
+    'profile_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _incotermsMeta = const VerificationMeta(
+    'incoterms',
+  );
+  @override
+  late final GeneratedColumn<String> incoterms = GeneratedColumn<String>(
+    'incoterms',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('dap'),
+  );
+  static const VerificationMeta _contentsTypeMeta = const VerificationMeta(
+    'contentsType',
+  );
+  @override
+  late final GeneratedColumn<String> contentsType = GeneratedColumn<String>(
+    'contents_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('merchandise'),
+  );
+  static const VerificationMeta _invoiceNumberMeta = const VerificationMeta(
+    'invoiceNumber',
+  );
+  @override
+  late final GeneratedColumn<String> invoiceNumber = GeneratedColumn<String>(
+    'invoice_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _exporterReferenceMeta = const VerificationMeta(
+    'exporterReference',
+  );
+  @override
+  late final GeneratedColumn<String> exporterReference =
+      GeneratedColumn<String>(
+        'exporter_reference',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _importerReferenceMeta = const VerificationMeta(
+    'importerReference',
+  );
+  @override
+  late final GeneratedColumn<String> importerReference =
+      GeneratedColumn<String>(
+        'importer_reference',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _certifyMeta = const VerificationMeta(
+    'certify',
+  );
+  @override
+  late final GeneratedColumn<bool> certify = GeneratedColumn<bool>(
+    'certify',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("certify" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    shipmentId,
+    profileId,
+    incoterms,
+    contentsType,
+    invoiceNumber,
+    exporterReference,
+    importerReference,
+    certify,
+    notes,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'customs_packets';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CustomsPacket> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('shipment_id')) {
+      context.handle(
+        _shipmentIdMeta,
+        shipmentId.isAcceptableOrUnknown(data['shipment_id']!, _shipmentIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_shipmentIdMeta);
+    }
+    if (data.containsKey('profile_id')) {
+      context.handle(
+        _profileIdMeta,
+        profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
+      );
+    }
+    if (data.containsKey('incoterms')) {
+      context.handle(
+        _incotermsMeta,
+        incoterms.isAcceptableOrUnknown(data['incoterms']!, _incotermsMeta),
+      );
+    }
+    if (data.containsKey('contents_type')) {
+      context.handle(
+        _contentsTypeMeta,
+        contentsType.isAcceptableOrUnknown(
+          data['contents_type']!,
+          _contentsTypeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('invoice_number')) {
+      context.handle(
+        _invoiceNumberMeta,
+        invoiceNumber.isAcceptableOrUnknown(
+          data['invoice_number']!,
+          _invoiceNumberMeta,
+        ),
+      );
+    }
+    if (data.containsKey('exporter_reference')) {
+      context.handle(
+        _exporterReferenceMeta,
+        exporterReference.isAcceptableOrUnknown(
+          data['exporter_reference']!,
+          _exporterReferenceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('importer_reference')) {
+      context.handle(
+        _importerReferenceMeta,
+        importerReference.isAcceptableOrUnknown(
+          data['importer_reference']!,
+          _importerReferenceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('certify')) {
+      context.handle(
+        _certifyMeta,
+        certify.isAcceptableOrUnknown(data['certify']!, _certifyMeta),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CustomsPacket map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CustomsPacket(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      shipmentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}shipment_id'],
+      )!,
+      profileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_id'],
+      ),
+      incoterms: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}incoterms'],
+      )!,
+      contentsType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contents_type'],
+      )!,
+      invoiceNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}invoice_number'],
+      ),
+      exporterReference: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}exporter_reference'],
+      ),
+      importerReference: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}importer_reference'],
+      ),
+      certify: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}certify'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CustomsPacketsTable createAlias(String alias) {
+    return $CustomsPacketsTable(attachedDatabase, alias);
+  }
+}
+
+class CustomsPacket extends DataClass implements Insertable<CustomsPacket> {
+  final String id;
+  final String shipmentId;
+  final String? profileId;
+  final String incoterms;
+  final String contentsType;
+  final String? invoiceNumber;
+  final String? exporterReference;
+  final String? importerReference;
+  final bool certify;
+  final String? notes;
+  final DateTime createdAt;
+  const CustomsPacket({
+    required this.id,
+    required this.shipmentId,
+    this.profileId,
+    required this.incoterms,
+    required this.contentsType,
+    this.invoiceNumber,
+    this.exporterReference,
+    this.importerReference,
+    required this.certify,
+    this.notes,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['shipment_id'] = Variable<String>(shipmentId);
+    if (!nullToAbsent || profileId != null) {
+      map['profile_id'] = Variable<String>(profileId);
+    }
+    map['incoterms'] = Variable<String>(incoterms);
+    map['contents_type'] = Variable<String>(contentsType);
+    if (!nullToAbsent || invoiceNumber != null) {
+      map['invoice_number'] = Variable<String>(invoiceNumber);
+    }
+    if (!nullToAbsent || exporterReference != null) {
+      map['exporter_reference'] = Variable<String>(exporterReference);
+    }
+    if (!nullToAbsent || importerReference != null) {
+      map['importer_reference'] = Variable<String>(importerReference);
+    }
+    map['certify'] = Variable<bool>(certify);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  CustomsPacketsCompanion toCompanion(bool nullToAbsent) {
+    return CustomsPacketsCompanion(
+      id: Value(id),
+      shipmentId: Value(shipmentId),
+      profileId: profileId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(profileId),
+      incoterms: Value(incoterms),
+      contentsType: Value(contentsType),
+      invoiceNumber: invoiceNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(invoiceNumber),
+      exporterReference: exporterReference == null && nullToAbsent
+          ? const Value.absent()
+          : Value(exporterReference),
+      importerReference: importerReference == null && nullToAbsent
+          ? const Value.absent()
+          : Value(importerReference),
+      certify: Value(certify),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory CustomsPacket.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CustomsPacket(
+      id: serializer.fromJson<String>(json['id']),
+      shipmentId: serializer.fromJson<String>(json['shipmentId']),
+      profileId: serializer.fromJson<String?>(json['profileId']),
+      incoterms: serializer.fromJson<String>(json['incoterms']),
+      contentsType: serializer.fromJson<String>(json['contentsType']),
+      invoiceNumber: serializer.fromJson<String?>(json['invoiceNumber']),
+      exporterReference: serializer.fromJson<String?>(
+        json['exporterReference'],
+      ),
+      importerReference: serializer.fromJson<String?>(
+        json['importerReference'],
+      ),
+      certify: serializer.fromJson<bool>(json['certify']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'shipmentId': serializer.toJson<String>(shipmentId),
+      'profileId': serializer.toJson<String?>(profileId),
+      'incoterms': serializer.toJson<String>(incoterms),
+      'contentsType': serializer.toJson<String>(contentsType),
+      'invoiceNumber': serializer.toJson<String?>(invoiceNumber),
+      'exporterReference': serializer.toJson<String?>(exporterReference),
+      'importerReference': serializer.toJson<String?>(importerReference),
+      'certify': serializer.toJson<bool>(certify),
+      'notes': serializer.toJson<String?>(notes),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  CustomsPacket copyWith({
+    String? id,
+    String? shipmentId,
+    Value<String?> profileId = const Value.absent(),
+    String? incoterms,
+    String? contentsType,
+    Value<String?> invoiceNumber = const Value.absent(),
+    Value<String?> exporterReference = const Value.absent(),
+    Value<String?> importerReference = const Value.absent(),
+    bool? certify,
+    Value<String?> notes = const Value.absent(),
+    DateTime? createdAt,
+  }) => CustomsPacket(
+    id: id ?? this.id,
+    shipmentId: shipmentId ?? this.shipmentId,
+    profileId: profileId.present ? profileId.value : this.profileId,
+    incoterms: incoterms ?? this.incoterms,
+    contentsType: contentsType ?? this.contentsType,
+    invoiceNumber: invoiceNumber.present
+        ? invoiceNumber.value
+        : this.invoiceNumber,
+    exporterReference: exporterReference.present
+        ? exporterReference.value
+        : this.exporterReference,
+    importerReference: importerReference.present
+        ? importerReference.value
+        : this.importerReference,
+    certify: certify ?? this.certify,
+    notes: notes.present ? notes.value : this.notes,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  CustomsPacket copyWithCompanion(CustomsPacketsCompanion data) {
+    return CustomsPacket(
+      id: data.id.present ? data.id.value : this.id,
+      shipmentId: data.shipmentId.present
+          ? data.shipmentId.value
+          : this.shipmentId,
+      profileId: data.profileId.present ? data.profileId.value : this.profileId,
+      incoterms: data.incoterms.present ? data.incoterms.value : this.incoterms,
+      contentsType: data.contentsType.present
+          ? data.contentsType.value
+          : this.contentsType,
+      invoiceNumber: data.invoiceNumber.present
+          ? data.invoiceNumber.value
+          : this.invoiceNumber,
+      exporterReference: data.exporterReference.present
+          ? data.exporterReference.value
+          : this.exporterReference,
+      importerReference: data.importerReference.present
+          ? data.importerReference.value
+          : this.importerReference,
+      certify: data.certify.present ? data.certify.value : this.certify,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CustomsPacket(')
+          ..write('id: $id, ')
+          ..write('shipmentId: $shipmentId, ')
+          ..write('profileId: $profileId, ')
+          ..write('incoterms: $incoterms, ')
+          ..write('contentsType: $contentsType, ')
+          ..write('invoiceNumber: $invoiceNumber, ')
+          ..write('exporterReference: $exporterReference, ')
+          ..write('importerReference: $importerReference, ')
+          ..write('certify: $certify, ')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    shipmentId,
+    profileId,
+    incoterms,
+    contentsType,
+    invoiceNumber,
+    exporterReference,
+    importerReference,
+    certify,
+    notes,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CustomsPacket &&
+          other.id == this.id &&
+          other.shipmentId == this.shipmentId &&
+          other.profileId == this.profileId &&
+          other.incoterms == this.incoterms &&
+          other.contentsType == this.contentsType &&
+          other.invoiceNumber == this.invoiceNumber &&
+          other.exporterReference == this.exporterReference &&
+          other.importerReference == this.importerReference &&
+          other.certify == this.certify &&
+          other.notes == this.notes &&
+          other.createdAt == this.createdAt);
+}
+
+class CustomsPacketsCompanion extends UpdateCompanion<CustomsPacket> {
+  final Value<String> id;
+  final Value<String> shipmentId;
+  final Value<String?> profileId;
+  final Value<String> incoterms;
+  final Value<String> contentsType;
+  final Value<String?> invoiceNumber;
+  final Value<String?> exporterReference;
+  final Value<String?> importerReference;
+  final Value<bool> certify;
+  final Value<String?> notes;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const CustomsPacketsCompanion({
+    this.id = const Value.absent(),
+    this.shipmentId = const Value.absent(),
+    this.profileId = const Value.absent(),
+    this.incoterms = const Value.absent(),
+    this.contentsType = const Value.absent(),
+    this.invoiceNumber = const Value.absent(),
+    this.exporterReference = const Value.absent(),
+    this.importerReference = const Value.absent(),
+    this.certify = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CustomsPacketsCompanion.insert({
+    required String id,
+    required String shipmentId,
+    this.profileId = const Value.absent(),
+    this.incoterms = const Value.absent(),
+    this.contentsType = const Value.absent(),
+    this.invoiceNumber = const Value.absent(),
+    this.exporterReference = const Value.absent(),
+    this.importerReference = const Value.absent(),
+    this.certify = const Value.absent(),
+    this.notes = const Value.absent(),
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       shipmentId = Value(shipmentId),
+       createdAt = Value(createdAt);
+  static Insertable<CustomsPacket> custom({
+    Expression<String>? id,
+    Expression<String>? shipmentId,
+    Expression<String>? profileId,
+    Expression<String>? incoterms,
+    Expression<String>? contentsType,
+    Expression<String>? invoiceNumber,
+    Expression<String>? exporterReference,
+    Expression<String>? importerReference,
+    Expression<bool>? certify,
+    Expression<String>? notes,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (shipmentId != null) 'shipment_id': shipmentId,
+      if (profileId != null) 'profile_id': profileId,
+      if (incoterms != null) 'incoterms': incoterms,
+      if (contentsType != null) 'contents_type': contentsType,
+      if (invoiceNumber != null) 'invoice_number': invoiceNumber,
+      if (exporterReference != null) 'exporter_reference': exporterReference,
+      if (importerReference != null) 'importer_reference': importerReference,
+      if (certify != null) 'certify': certify,
+      if (notes != null) 'notes': notes,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CustomsPacketsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? shipmentId,
+    Value<String?>? profileId,
+    Value<String>? incoterms,
+    Value<String>? contentsType,
+    Value<String?>? invoiceNumber,
+    Value<String?>? exporterReference,
+    Value<String?>? importerReference,
+    Value<bool>? certify,
+    Value<String?>? notes,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return CustomsPacketsCompanion(
+      id: id ?? this.id,
+      shipmentId: shipmentId ?? this.shipmentId,
+      profileId: profileId ?? this.profileId,
+      incoterms: incoterms ?? this.incoterms,
+      contentsType: contentsType ?? this.contentsType,
+      invoiceNumber: invoiceNumber ?? this.invoiceNumber,
+      exporterReference: exporterReference ?? this.exporterReference,
+      importerReference: importerReference ?? this.importerReference,
+      certify: certify ?? this.certify,
+      notes: notes ?? this.notes,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (shipmentId.present) {
+      map['shipment_id'] = Variable<String>(shipmentId.value);
+    }
+    if (profileId.present) {
+      map['profile_id'] = Variable<String>(profileId.value);
+    }
+    if (incoterms.present) {
+      map['incoterms'] = Variable<String>(incoterms.value);
+    }
+    if (contentsType.present) {
+      map['contents_type'] = Variable<String>(contentsType.value);
+    }
+    if (invoiceNumber.present) {
+      map['invoice_number'] = Variable<String>(invoiceNumber.value);
+    }
+    if (exporterReference.present) {
+      map['exporter_reference'] = Variable<String>(exporterReference.value);
+    }
+    if (importerReference.present) {
+      map['importer_reference'] = Variable<String>(importerReference.value);
+    }
+    if (certify.present) {
+      map['certify'] = Variable<bool>(certify.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CustomsPacketsCompanion(')
+          ..write('id: $id, ')
+          ..write('shipmentId: $shipmentId, ')
+          ..write('profileId: $profileId, ')
+          ..write('incoterms: $incoterms, ')
+          ..write('contentsType: $contentsType, ')
+          ..write('invoiceNumber: $invoiceNumber, ')
+          ..write('exporterReference: $exporterReference, ')
+          ..write('importerReference: $importerReference, ')
+          ..write('certify: $certify, ')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3477,6 +5534,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $QuotesTable quotes = $QuotesTable(this);
   late final $CompanyInfoTable companyInfo = $CompanyInfoTable(this);
   late final $SettingsTable settings = $SettingsTable(this);
+  late final $CustomsProfilesTable customsProfiles = $CustomsProfilesTable(
+    this,
+  );
+  late final $CommodityLinesTable commodityLines = $CommodityLinesTable(this);
+  late final $CustomsPacketsTable customsPackets = $CustomsPacketsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3488,6 +5550,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     quotes,
     companyInfo,
     settings,
+    customsProfiles,
+    commodityLines,
+    customsPackets,
   ];
 }
 
@@ -3561,6 +5626,27 @@ final class $$ShipmentsTableReferences
     ).filter((f) => f.shipmentId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_quotesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$CustomsPacketsTable, List<CustomsPacket>>
+  _customsPacketsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.customsPackets,
+    aliasName: $_aliasNameGenerator(
+      db.shipments.id,
+      db.customsPackets.shipmentId,
+    ),
+  );
+
+  $$CustomsPacketsTableProcessedTableManager get customsPacketsRefs {
+    final manager = $$CustomsPacketsTableTableManager(
+      $_db,
+      $_db.customsPackets,
+    ).filter((f) => f.shipmentId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_customsPacketsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -3677,6 +5763,31 @@ class $$ShipmentsTableFilterComposer
           }) => $$QuotesTableFilterComposer(
             $db: $db,
             $table: $db.quotes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> customsPacketsRefs(
+    Expression<bool> Function($$CustomsPacketsTableFilterComposer f) f,
+  ) {
+    final $$CustomsPacketsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.customsPackets,
+      getReferencedColumn: (t) => t.shipmentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CustomsPacketsTableFilterComposer(
+            $db: $db,
+            $table: $db.customsPackets,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -3865,6 +5976,31 @@ class $$ShipmentsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> customsPacketsRefs<T extends Object>(
+    Expression<T> Function($$CustomsPacketsTableAnnotationComposer a) f,
+  ) {
+    final $$CustomsPacketsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.customsPackets,
+      getReferencedColumn: (t) => t.shipmentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CustomsPacketsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.customsPackets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$ShipmentsTableTableManager
@@ -3880,7 +6016,11 @@ class $$ShipmentsTableTableManager
           $$ShipmentsTableUpdateCompanionBuilder,
           (Shipment, $$ShipmentsTableReferences),
           Shipment,
-          PrefetchHooks Function({bool cartonsRefs, bool quotesRefs})
+          PrefetchHooks Function({
+            bool cartonsRefs,
+            bool quotesRefs,
+            bool customsPacketsRefs,
+          })
         > {
   $$ShipmentsTableTableManager(_$AppDatabase db, $ShipmentsTable table)
     : super(
@@ -3961,46 +6101,89 @@ class $$ShipmentsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({cartonsRefs = false, quotesRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (cartonsRefs) db.cartons,
-                if (quotesRefs) db.quotes,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (cartonsRefs)
-                    await $_getPrefetchedData<
-                      Shipment,
-                      $ShipmentsTable,
-                      Carton
-                    >(
-                      currentTable: table,
-                      referencedTable: $$ShipmentsTableReferences
-                          ._cartonsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$ShipmentsTableReferences(db, table, p0).cartonsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.shipmentId == item.id),
-                      typedResults: items,
-                    ),
-                  if (quotesRefs)
-                    await $_getPrefetchedData<Shipment, $ShipmentsTable, Quote>(
-                      currentTable: table,
-                      referencedTable: $$ShipmentsTableReferences
-                          ._quotesRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$ShipmentsTableReferences(db, table, p0).quotesRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.shipmentId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({
+                cartonsRefs = false,
+                quotesRefs = false,
+                customsPacketsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (cartonsRefs) db.cartons,
+                    if (quotesRefs) db.quotes,
+                    if (customsPacketsRefs) db.customsPackets,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (cartonsRefs)
+                        await $_getPrefetchedData<
+                          Shipment,
+                          $ShipmentsTable,
+                          Carton
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ShipmentsTableReferences
+                              ._cartonsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ShipmentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).cartonsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.shipmentId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (quotesRefs)
+                        await $_getPrefetchedData<
+                          Shipment,
+                          $ShipmentsTable,
+                          Quote
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ShipmentsTableReferences
+                              ._quotesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ShipmentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).quotesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.shipmentId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (customsPacketsRefs)
+                        await $_getPrefetchedData<
+                          Shipment,
+                          $ShipmentsTable,
+                          CustomsPacket
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ShipmentsTableReferences
+                              ._customsPacketsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ShipmentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).customsPacketsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.shipmentId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -4017,7 +6200,11 @@ typedef $$ShipmentsTableProcessedTableManager =
       $$ShipmentsTableUpdateCompanionBuilder,
       (Shipment, $$ShipmentsTableReferences),
       Shipment,
-      PrefetchHooks Function({bool cartonsRefs, bool quotesRefs})
+      PrefetchHooks Function({
+        bool cartonsRefs,
+        bool quotesRefs,
+        bool customsPacketsRefs,
+      })
     >;
 typedef $$CartonsTableCreateCompanionBuilder =
     CartonsCompanion Function({
@@ -5604,6 +7791,1112 @@ typedef $$SettingsTableProcessedTableManager =
       Setting,
       PrefetchHooks Function()
     >;
+typedef $$CustomsProfilesTableCreateCompanionBuilder =
+    CustomsProfilesCompanion Function({
+      required String id,
+      required String name,
+      required String importerType,
+      Value<String?> vatNumber,
+      Value<String?> eoriNumber,
+      Value<String?> taxId,
+      Value<String?> companyName,
+      Value<String?> contactName,
+      Value<String?> contactPhone,
+      Value<String?> contactEmail,
+      Value<String> defaultIncoterms,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$CustomsProfilesTableUpdateCompanionBuilder =
+    CustomsProfilesCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<String> importerType,
+      Value<String?> vatNumber,
+      Value<String?> eoriNumber,
+      Value<String?> taxId,
+      Value<String?> companyName,
+      Value<String?> contactName,
+      Value<String?> contactPhone,
+      Value<String?> contactEmail,
+      Value<String> defaultIncoterms,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$CustomsProfilesTableFilterComposer
+    extends Composer<_$AppDatabase, $CustomsProfilesTable> {
+  $$CustomsProfilesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get importerType => $composableBuilder(
+    column: $table.importerType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get vatNumber => $composableBuilder(
+    column: $table.vatNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get eoriNumber => $composableBuilder(
+    column: $table.eoriNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get taxId => $composableBuilder(
+    column: $table.taxId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get companyName => $composableBuilder(
+    column: $table.companyName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contactName => $composableBuilder(
+    column: $table.contactName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contactPhone => $composableBuilder(
+    column: $table.contactPhone,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contactEmail => $composableBuilder(
+    column: $table.contactEmail,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get defaultIncoterms => $composableBuilder(
+    column: $table.defaultIncoterms,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CustomsProfilesTableOrderingComposer
+    extends Composer<_$AppDatabase, $CustomsProfilesTable> {
+  $$CustomsProfilesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get importerType => $composableBuilder(
+    column: $table.importerType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get vatNumber => $composableBuilder(
+    column: $table.vatNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get eoriNumber => $composableBuilder(
+    column: $table.eoriNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get taxId => $composableBuilder(
+    column: $table.taxId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get companyName => $composableBuilder(
+    column: $table.companyName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contactName => $composableBuilder(
+    column: $table.contactName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contactPhone => $composableBuilder(
+    column: $table.contactPhone,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contactEmail => $composableBuilder(
+    column: $table.contactEmail,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get defaultIncoterms => $composableBuilder(
+    column: $table.defaultIncoterms,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CustomsProfilesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CustomsProfilesTable> {
+  $$CustomsProfilesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get importerType => $composableBuilder(
+    column: $table.importerType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get vatNumber =>
+      $composableBuilder(column: $table.vatNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get eoriNumber => $composableBuilder(
+    column: $table.eoriNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get taxId =>
+      $composableBuilder(column: $table.taxId, builder: (column) => column);
+
+  GeneratedColumn<String> get companyName => $composableBuilder(
+    column: $table.companyName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get contactName => $composableBuilder(
+    column: $table.contactName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get contactPhone => $composableBuilder(
+    column: $table.contactPhone,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get contactEmail => $composableBuilder(
+    column: $table.contactEmail,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get defaultIncoterms => $composableBuilder(
+    column: $table.defaultIncoterms,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$CustomsProfilesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CustomsProfilesTable,
+          CustomsProfile,
+          $$CustomsProfilesTableFilterComposer,
+          $$CustomsProfilesTableOrderingComposer,
+          $$CustomsProfilesTableAnnotationComposer,
+          $$CustomsProfilesTableCreateCompanionBuilder,
+          $$CustomsProfilesTableUpdateCompanionBuilder,
+          (
+            CustomsProfile,
+            BaseReferences<
+              _$AppDatabase,
+              $CustomsProfilesTable,
+              CustomsProfile
+            >,
+          ),
+          CustomsProfile,
+          PrefetchHooks Function()
+        > {
+  $$CustomsProfilesTableTableManager(
+    _$AppDatabase db,
+    $CustomsProfilesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CustomsProfilesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CustomsProfilesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CustomsProfilesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> importerType = const Value.absent(),
+                Value<String?> vatNumber = const Value.absent(),
+                Value<String?> eoriNumber = const Value.absent(),
+                Value<String?> taxId = const Value.absent(),
+                Value<String?> companyName = const Value.absent(),
+                Value<String?> contactName = const Value.absent(),
+                Value<String?> contactPhone = const Value.absent(),
+                Value<String?> contactEmail = const Value.absent(),
+                Value<String> defaultIncoterms = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CustomsProfilesCompanion(
+                id: id,
+                name: name,
+                importerType: importerType,
+                vatNumber: vatNumber,
+                eoriNumber: eoriNumber,
+                taxId: taxId,
+                companyName: companyName,
+                contactName: contactName,
+                contactPhone: contactPhone,
+                contactEmail: contactEmail,
+                defaultIncoterms: defaultIncoterms,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                required String importerType,
+                Value<String?> vatNumber = const Value.absent(),
+                Value<String?> eoriNumber = const Value.absent(),
+                Value<String?> taxId = const Value.absent(),
+                Value<String?> companyName = const Value.absent(),
+                Value<String?> contactName = const Value.absent(),
+                Value<String?> contactPhone = const Value.absent(),
+                Value<String?> contactEmail = const Value.absent(),
+                Value<String> defaultIncoterms = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => CustomsProfilesCompanion.insert(
+                id: id,
+                name: name,
+                importerType: importerType,
+                vatNumber: vatNumber,
+                eoriNumber: eoriNumber,
+                taxId: taxId,
+                companyName: companyName,
+                contactName: contactName,
+                contactPhone: contactPhone,
+                contactEmail: contactEmail,
+                defaultIncoterms: defaultIncoterms,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CustomsProfilesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CustomsProfilesTable,
+      CustomsProfile,
+      $$CustomsProfilesTableFilterComposer,
+      $$CustomsProfilesTableOrderingComposer,
+      $$CustomsProfilesTableAnnotationComposer,
+      $$CustomsProfilesTableCreateCompanionBuilder,
+      $$CustomsProfilesTableUpdateCompanionBuilder,
+      (
+        CustomsProfile,
+        BaseReferences<_$AppDatabase, $CustomsProfilesTable, CustomsProfile>,
+      ),
+      CustomsProfile,
+      PrefetchHooks Function()
+    >;
+typedef $$CommodityLinesTableCreateCompanionBuilder =
+    CommodityLinesCompanion Function({
+      required String id,
+      required String customsPacketId,
+      required String description,
+      required double quantity,
+      required double netWeight,
+      required double valueAmount,
+      required String originCountry,
+      required String hsCode,
+      Value<String?> skuCode,
+      Value<int> rowid,
+    });
+typedef $$CommodityLinesTableUpdateCompanionBuilder =
+    CommodityLinesCompanion Function({
+      Value<String> id,
+      Value<String> customsPacketId,
+      Value<String> description,
+      Value<double> quantity,
+      Value<double> netWeight,
+      Value<double> valueAmount,
+      Value<String> originCountry,
+      Value<String> hsCode,
+      Value<String?> skuCode,
+      Value<int> rowid,
+    });
+
+class $$CommodityLinesTableFilterComposer
+    extends Composer<_$AppDatabase, $CommodityLinesTable> {
+  $$CommodityLinesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customsPacketId => $composableBuilder(
+    column: $table.customsPacketId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get quantity => $composableBuilder(
+    column: $table.quantity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get netWeight => $composableBuilder(
+    column: $table.netWeight,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get valueAmount => $composableBuilder(
+    column: $table.valueAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get originCountry => $composableBuilder(
+    column: $table.originCountry,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get hsCode => $composableBuilder(
+    column: $table.hsCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get skuCode => $composableBuilder(
+    column: $table.skuCode,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CommodityLinesTableOrderingComposer
+    extends Composer<_$AppDatabase, $CommodityLinesTable> {
+  $$CommodityLinesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customsPacketId => $composableBuilder(
+    column: $table.customsPacketId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get quantity => $composableBuilder(
+    column: $table.quantity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get netWeight => $composableBuilder(
+    column: $table.netWeight,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get valueAmount => $composableBuilder(
+    column: $table.valueAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get originCountry => $composableBuilder(
+    column: $table.originCountry,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get hsCode => $composableBuilder(
+    column: $table.hsCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get skuCode => $composableBuilder(
+    column: $table.skuCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CommodityLinesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CommodityLinesTable> {
+  $$CommodityLinesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get customsPacketId => $composableBuilder(
+    column: $table.customsPacketId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get quantity =>
+      $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<double> get netWeight =>
+      $composableBuilder(column: $table.netWeight, builder: (column) => column);
+
+  GeneratedColumn<double> get valueAmount => $composableBuilder(
+    column: $table.valueAmount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get originCountry => $composableBuilder(
+    column: $table.originCountry,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get hsCode =>
+      $composableBuilder(column: $table.hsCode, builder: (column) => column);
+
+  GeneratedColumn<String> get skuCode =>
+      $composableBuilder(column: $table.skuCode, builder: (column) => column);
+}
+
+class $$CommodityLinesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CommodityLinesTable,
+          CommodityLine,
+          $$CommodityLinesTableFilterComposer,
+          $$CommodityLinesTableOrderingComposer,
+          $$CommodityLinesTableAnnotationComposer,
+          $$CommodityLinesTableCreateCompanionBuilder,
+          $$CommodityLinesTableUpdateCompanionBuilder,
+          (
+            CommodityLine,
+            BaseReferences<_$AppDatabase, $CommodityLinesTable, CommodityLine>,
+          ),
+          CommodityLine,
+          PrefetchHooks Function()
+        > {
+  $$CommodityLinesTableTableManager(
+    _$AppDatabase db,
+    $CommodityLinesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CommodityLinesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CommodityLinesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CommodityLinesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> customsPacketId = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<double> quantity = const Value.absent(),
+                Value<double> netWeight = const Value.absent(),
+                Value<double> valueAmount = const Value.absent(),
+                Value<String> originCountry = const Value.absent(),
+                Value<String> hsCode = const Value.absent(),
+                Value<String?> skuCode = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CommodityLinesCompanion(
+                id: id,
+                customsPacketId: customsPacketId,
+                description: description,
+                quantity: quantity,
+                netWeight: netWeight,
+                valueAmount: valueAmount,
+                originCountry: originCountry,
+                hsCode: hsCode,
+                skuCode: skuCode,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String customsPacketId,
+                required String description,
+                required double quantity,
+                required double netWeight,
+                required double valueAmount,
+                required String originCountry,
+                required String hsCode,
+                Value<String?> skuCode = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CommodityLinesCompanion.insert(
+                id: id,
+                customsPacketId: customsPacketId,
+                description: description,
+                quantity: quantity,
+                netWeight: netWeight,
+                valueAmount: valueAmount,
+                originCountry: originCountry,
+                hsCode: hsCode,
+                skuCode: skuCode,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CommodityLinesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CommodityLinesTable,
+      CommodityLine,
+      $$CommodityLinesTableFilterComposer,
+      $$CommodityLinesTableOrderingComposer,
+      $$CommodityLinesTableAnnotationComposer,
+      $$CommodityLinesTableCreateCompanionBuilder,
+      $$CommodityLinesTableUpdateCompanionBuilder,
+      (
+        CommodityLine,
+        BaseReferences<_$AppDatabase, $CommodityLinesTable, CommodityLine>,
+      ),
+      CommodityLine,
+      PrefetchHooks Function()
+    >;
+typedef $$CustomsPacketsTableCreateCompanionBuilder =
+    CustomsPacketsCompanion Function({
+      required String id,
+      required String shipmentId,
+      Value<String?> profileId,
+      Value<String> incoterms,
+      Value<String> contentsType,
+      Value<String?> invoiceNumber,
+      Value<String?> exporterReference,
+      Value<String?> importerReference,
+      Value<bool> certify,
+      Value<String?> notes,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$CustomsPacketsTableUpdateCompanionBuilder =
+    CustomsPacketsCompanion Function({
+      Value<String> id,
+      Value<String> shipmentId,
+      Value<String?> profileId,
+      Value<String> incoterms,
+      Value<String> contentsType,
+      Value<String?> invoiceNumber,
+      Value<String?> exporterReference,
+      Value<String?> importerReference,
+      Value<bool> certify,
+      Value<String?> notes,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+final class $$CustomsPacketsTableReferences
+    extends BaseReferences<_$AppDatabase, $CustomsPacketsTable, CustomsPacket> {
+  $$CustomsPacketsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $ShipmentsTable _shipmentIdTable(_$AppDatabase db) =>
+      db.shipments.createAlias(
+        $_aliasNameGenerator(db.customsPackets.shipmentId, db.shipments.id),
+      );
+
+  $$ShipmentsTableProcessedTableManager get shipmentId {
+    final $_column = $_itemColumn<String>('shipment_id')!;
+
+    final manager = $$ShipmentsTableTableManager(
+      $_db,
+      $_db.shipments,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_shipmentIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CustomsPacketsTableFilterComposer
+    extends Composer<_$AppDatabase, $CustomsPacketsTable> {
+  $$CustomsPacketsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get incoterms => $composableBuilder(
+    column: $table.incoterms,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contentsType => $composableBuilder(
+    column: $table.contentsType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get invoiceNumber => $composableBuilder(
+    column: $table.invoiceNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get exporterReference => $composableBuilder(
+    column: $table.exporterReference,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get importerReference => $composableBuilder(
+    column: $table.importerReference,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get certify => $composableBuilder(
+    column: $table.certify,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$ShipmentsTableFilterComposer get shipmentId {
+    final $$ShipmentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.shipmentId,
+      referencedTable: $db.shipments,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ShipmentsTableFilterComposer(
+            $db: $db,
+            $table: $db.shipments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CustomsPacketsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CustomsPacketsTable> {
+  $$CustomsPacketsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get incoterms => $composableBuilder(
+    column: $table.incoterms,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contentsType => $composableBuilder(
+    column: $table.contentsType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get invoiceNumber => $composableBuilder(
+    column: $table.invoiceNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get exporterReference => $composableBuilder(
+    column: $table.exporterReference,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get importerReference => $composableBuilder(
+    column: $table.importerReference,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get certify => $composableBuilder(
+    column: $table.certify,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$ShipmentsTableOrderingComposer get shipmentId {
+    final $$ShipmentsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.shipmentId,
+      referencedTable: $db.shipments,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ShipmentsTableOrderingComposer(
+            $db: $db,
+            $table: $db.shipments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CustomsPacketsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CustomsPacketsTable> {
+  $$CustomsPacketsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get profileId =>
+      $composableBuilder(column: $table.profileId, builder: (column) => column);
+
+  GeneratedColumn<String> get incoterms =>
+      $composableBuilder(column: $table.incoterms, builder: (column) => column);
+
+  GeneratedColumn<String> get contentsType => $composableBuilder(
+    column: $table.contentsType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get invoiceNumber => $composableBuilder(
+    column: $table.invoiceNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get exporterReference => $composableBuilder(
+    column: $table.exporterReference,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get importerReference => $composableBuilder(
+    column: $table.importerReference,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get certify =>
+      $composableBuilder(column: $table.certify, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$ShipmentsTableAnnotationComposer get shipmentId {
+    final $$ShipmentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.shipmentId,
+      referencedTable: $db.shipments,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ShipmentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.shipments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CustomsPacketsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CustomsPacketsTable,
+          CustomsPacket,
+          $$CustomsPacketsTableFilterComposer,
+          $$CustomsPacketsTableOrderingComposer,
+          $$CustomsPacketsTableAnnotationComposer,
+          $$CustomsPacketsTableCreateCompanionBuilder,
+          $$CustomsPacketsTableUpdateCompanionBuilder,
+          (CustomsPacket, $$CustomsPacketsTableReferences),
+          CustomsPacket,
+          PrefetchHooks Function({bool shipmentId})
+        > {
+  $$CustomsPacketsTableTableManager(
+    _$AppDatabase db,
+    $CustomsPacketsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CustomsPacketsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CustomsPacketsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CustomsPacketsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> shipmentId = const Value.absent(),
+                Value<String?> profileId = const Value.absent(),
+                Value<String> incoterms = const Value.absent(),
+                Value<String> contentsType = const Value.absent(),
+                Value<String?> invoiceNumber = const Value.absent(),
+                Value<String?> exporterReference = const Value.absent(),
+                Value<String?> importerReference = const Value.absent(),
+                Value<bool> certify = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CustomsPacketsCompanion(
+                id: id,
+                shipmentId: shipmentId,
+                profileId: profileId,
+                incoterms: incoterms,
+                contentsType: contentsType,
+                invoiceNumber: invoiceNumber,
+                exporterReference: exporterReference,
+                importerReference: importerReference,
+                certify: certify,
+                notes: notes,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String shipmentId,
+                Value<String?> profileId = const Value.absent(),
+                Value<String> incoterms = const Value.absent(),
+                Value<String> contentsType = const Value.absent(),
+                Value<String?> invoiceNumber = const Value.absent(),
+                Value<String?> exporterReference = const Value.absent(),
+                Value<String?> importerReference = const Value.absent(),
+                Value<bool> certify = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => CustomsPacketsCompanion.insert(
+                id: id,
+                shipmentId: shipmentId,
+                profileId: profileId,
+                incoterms: incoterms,
+                contentsType: contentsType,
+                invoiceNumber: invoiceNumber,
+                exporterReference: exporterReference,
+                importerReference: importerReference,
+                certify: certify,
+                notes: notes,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$CustomsPacketsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({shipmentId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (shipmentId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.shipmentId,
+                                referencedTable: $$CustomsPacketsTableReferences
+                                    ._shipmentIdTable(db),
+                                referencedColumn:
+                                    $$CustomsPacketsTableReferences
+                                        ._shipmentIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CustomsPacketsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CustomsPacketsTable,
+      CustomsPacket,
+      $$CustomsPacketsTableFilterComposer,
+      $$CustomsPacketsTableOrderingComposer,
+      $$CustomsPacketsTableAnnotationComposer,
+      $$CustomsPacketsTableCreateCompanionBuilder,
+      $$CustomsPacketsTableUpdateCompanionBuilder,
+      (CustomsPacket, $$CustomsPacketsTableReferences),
+      CustomsPacket,
+      PrefetchHooks Function({bool shipmentId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5620,4 +8913,10 @@ class $AppDatabaseManager {
       $$CompanyInfoTableTableManager(_db, _db.companyInfo);
   $$SettingsTableTableManager get settings =>
       $$SettingsTableTableManager(_db, _db.settings);
+  $$CustomsProfilesTableTableManager get customsProfiles =>
+      $$CustomsProfilesTableTableManager(_db, _db.customsProfiles);
+  $$CommodityLinesTableTableManager get commodityLines =>
+      $$CommodityLinesTableTableManager(_db, _db.commodityLines);
+  $$CustomsPacketsTableTableManager get customsPackets =>
+      $$CustomsPacketsTableTableManager(_db, _db.customsPackets);
 }
