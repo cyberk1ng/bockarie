@@ -113,19 +113,10 @@ class QuoteCalculatorService {
             );
           }).toList();
         } else {
-          // No rates from Shippo - determine why
-          _logger.w('Shippo returned 0 rates');
-
-          // Check if it's due to test mode multi-parcel limitation
-          if (ShippoConfig.useTestMode) {
-            final totalParcels = cartons.fold<int>(0, (sum, c) => sum + c.qty);
-            if (totalParcels > 1) {
-              _logger.w(
-                'Likely test mode multi-parcel limitation ($totalParcels total parcels). '
-                'This should work in production mode with real carrier accounts.',
-              );
-            }
-          }
+          // No rates from Shippo
+          _logger.w(
+            'Shippo returned 0 rates - check addresses and carrier accounts',
+          );
 
           if (!fallbackToLocalRates) {
             _logger.i(

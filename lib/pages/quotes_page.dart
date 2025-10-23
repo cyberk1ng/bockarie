@@ -18,7 +18,6 @@ import 'package:bockaire/config/route_constants.dart';
 import 'package:bockaire/config/validation_constants.dart';
 import 'package:bockaire/config/color_constants.dart';
 import 'package:bockaire/config/ui_constants.dart';
-import 'package:bockaire/config/shippo_config.dart';
 import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart' as drift;
@@ -85,38 +84,6 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
       ),
       body: Column(
         children: [
-          // TEST MODE BANNER
-          if (ShippoConfig.useTestMode)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.orange.withValues(alpha: 0.15),
-                border: Border(
-                  bottom: BorderSide(
-                    color: Colors.orange.withValues(alpha: 0.3),
-                    width: 1,
-                  ),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.science, color: Colors.orange.shade700, size: 20),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      '🧪 ${localizations.shippoTestModeWarning}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.orange.shade900,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(AppTheme.pagePadding),
@@ -1356,20 +1323,7 @@ class _QuotesPageState extends ConsumerState<QuotesPage> {
   ) {
     final localizations = AppLocalizations.of(context)!;
 
-    // Check if we're in test mode with multiple parcels
-    if (ShippoConfig.useTestMode) {
-      final cartons = cartonModelsAsync.valueOrNull;
-      if (cartons != null) {
-        final totalParcels = cartons.fold<int>(0, (sum, c) => sum + c.qty);
-        if (totalParcels > 1) {
-          return localizations.shippoTestMultiParcelLimitation;
-        }
-      }
-
-      return localizations.shippoTestNoQuotes;
-    }
-
-    // Production mode - use existing message
+    // Live production mode - use standard message
     return localizations.emptyStateNoQuotes;
   }
 
@@ -2138,12 +2092,12 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withValues(
+                  color: Colors.blue.withValues(
                     alpha: ColorConstants.alphaLightest,
                   ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Colors.orange.withValues(
+                    color: Colors.blue.withValues(
                       alpha: ColorConstants.alphaMedium,
                     ),
                     width: 2,
@@ -2152,8 +2106,8 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
                 child: Column(
                   children: [
                     Icon(
-                      Icons.error_outline,
-                      color: Colors.orange.shade700,
+                      Icons.info_outline,
+                      color: Colors.blue.shade700,
                       size: 56,
                     ),
                     const SizedBox(height: 16),
@@ -2165,9 +2119,9 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Text(
-                      localizations.shippoTestLimitationShort,
-                      style: const TextStyle(fontSize: 14),
+                    const Text(
+                      'No carrier rates available for this route.',
+                      style: TextStyle(fontSize: 14),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
@@ -2178,33 +2132,40 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
                           alpha: ColorConstants.alphaLightest,
                         ),
                         borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Colors.blue.withValues(
+                            alpha: ColorConstants.alphaMedium,
+                          ),
+                        ),
                       ),
-                      child: Column(
+                      child: const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
                               Icon(
-                                Icons.info_outline,
+                                Icons.troubleshoot,
                                 size: 16,
-                                color: Colors.blue.shade700,
+                                color: Colors.blue,
                               ),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8),
                               Text(
-                                localizations.shippoInfoToGetRealQuotes,
-                                style: const TextStyle(
+                                'Possible reasons:',
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 13,
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           Text(
-                            '${localizations.shippoInfoStep1}\n'
-                            '${localizations.shippoInfoStep2}\n'
-                            '${localizations.shippoInfoStep3}',
-                            style: const TextStyle(fontSize: 12),
+                            '• No carrier accounts configured in Shippo dashboard\n'
+                            '• Invalid address (check city, postal code, country)\n'
+                            '• Parcel dimensions or weight outside carrier limits\n'
+                            '• Carrier doesn\'t service this route\n\n'
+                            'Check your Shippo dashboard at apps.goshippo.com',
+                            style: TextStyle(fontSize: 12),
                           ),
                         ],
                       ),

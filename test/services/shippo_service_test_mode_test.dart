@@ -19,7 +19,7 @@ void main() {
     registerFallbackValue(FakeInterceptor());
   });
 
-  group('ShippoService - Test Mode Parcel Consolidation', () {
+  group('ShippoService - Parcel Conversion', () {
     late MockDio mockDio;
     late MockInterceptors mockInterceptors;
     late ShippoService service;
@@ -31,16 +31,16 @@ void main() {
       when(() => mockInterceptors.add(any())).thenReturn(null);
     });
 
-    group('Test Mode (USE_TEST_MODE=true)', () {
+    group('Individual Parcel Creation', () {
       setUp(() async {
         // Load test environment
         dotenv.testLoad(
-          fileInput: 'USE_TEST_MODE=true\nSHIPPO_TEST_API_KEY=test_key',
+          fileInput: 'USE_TEST_MODE=false\nSHIPPO_LIVE_API_KEY=live_key',
         );
         service = ShippoService(dio: mockDio);
       });
 
-      test('consolidates multi-quantity carton into single parcel', () async {
+      test('creates individual parcels for multi-quantity carton', () async {
         final cartons = [
           const Carton(
             id: '1',
@@ -49,7 +49,7 @@ void main() {
             widthCm: 30,
             heightCm: 20,
             weightKg: 5.0,
-            qty: 10, // Multi-quantity
+            qty: 10, // Multi-quantity - creates 10 individual parcels
             itemType: 'Box',
           ),
         ];
@@ -87,20 +87,19 @@ void main() {
         // CRITICAL ASSERTIONS
         expect(
           parcels,
-          hasLength(1),
-          reason: 'Should consolidate into 1 parcel',
+          hasLength(10),
+          reason: 'Should create 10 individual parcels',
         );
-        expect(
-          parcels[0]['weight'],
-          '50.00',
-          reason: 'Weight should be 5kg × 10 = 50kg',
-        );
-        expect(parcels[0]['length'], '50');
-        expect(parcels[0]['width'], '30');
-        expect(parcels[0]['height'], '20');
+        // Each parcel should have the original weight, not consolidated
+        for (final parcel in parcels) {
+          expect(parcel['weight'], '5.00');
+          expect(parcel['length'], '50');
+          expect(parcel['width'], '30');
+          expect(parcel['height'], '20');
+        }
       });
 
-      test('does NOT consolidate single-quantity carton', () async {
+      test('creates single parcel for single-quantity carton', () async {
         final cartons = [
           const Carton(
             id: '1',
@@ -109,7 +108,7 @@ void main() {
             widthCm: 30,
             heightCm: 20,
             weightKg: 5.0,
-            qty: 1, // Single quantity - should not consolidate
+            qty: 1, // Single quantity - creates 1 parcel
             itemType: 'Box',
           ),
         ];
@@ -145,11 +144,7 @@ void main() {
         final parcels = captured['parcels'] as List;
 
         expect(parcels, hasLength(1));
-        expect(
-          parcels[0]['weight'],
-          '5.00',
-          reason: 'Should keep original weight, not consolidate',
-        );
+        expect(parcels[0]['weight'], '5.00');
       });
 
       test('handles mixed quantities correctly', () async {
@@ -161,7 +156,7 @@ void main() {
             widthCm: 30,
             heightCm: 20,
             weightKg: 5.0,
-            qty: 1, // Should not consolidate
+            qty: 1, // Creates 1 parcel
             itemType: 'Box',
           ),
           const Carton(
@@ -171,7 +166,64 @@ void main() {
             widthCm: 40,
             heightCm: 30,
             weightKg: 10.0,
-            qty: 5, // Should consolidate to 50kg
+            qty: 5, // Creates 5 individual parcels
+            itemType: 'Box',
+          ),
+        ];
+
+        when(() => mockDio.post(any(), data: any(named: 'data'))).thenAnswer(
+          (_) async => Response(
+            requestOptions: RequestOptions(),
+            statusCode: 201,
+            data: {
+              'object_id': 'shipment_123',
+              'object_state': 'VALID',
+              'rates': [],
+            },
+          ),
+        );
+
+        await service.getRates(
+          originCity: 'Bremen',
+          originPostal: '28195',
+          originCountry: 'DE',
+          destCity: 'Hamburg',
+          destPostal: '20095',
+          destCountry: 'DE',
+          cartons: cartons,
+        );
+
+        final captured =
+            verify(
+                  () => mockDio.post(any(), data: captureAny(named: 'data')),
+                ).captured.first
+                as Map<String, dynamic>;
+
+        final parcels = captured['parcels'] as List;
+
+        expect(parcels, hasLength(6), reason: '1 + 5 = 6 individual parcels');
+
+        // First parcel from first carton
+        expect(parcels[0]['length'], '40');
+        expect(parcels[0]['weight'], '5.00');
+
+        // Next 5 parcels from second carton (each 10kg, not consolidated)
+        for (int i = 1; i <= 5; i++) {
+          expect(parcels[i]['length'], '50');
+          expect(parcels[i]['weight'], '10.00');
+        }
+      });
+
+      test('edge case: very high quantity (qty=100)', () async {
+        final cartons = [
+          const Carton(
+            id: '1',
+            shipmentId: 's1',
+            lengthCm: 50,
+            widthCm: 30,
+            heightCm: 20,
+            weightKg: 5.0,
+            qty: 100, // Edge case: very high quantity - creates 100 parcels
             itemType: 'Box',
           ),
         ];
@@ -208,65 +260,13 @@ void main() {
 
         expect(
           parcels,
-          hasLength(2),
-          reason: '1 individual + 1 consolidated = 2 parcels',
+          hasLength(100),
+          reason: 'Creates 100 individual parcels',
         );
-
-        // First parcel: qty=1, not consolidated
-        expect(parcels[0]['length'], '40');
-        expect(parcels[0]['weight'], '5.00');
-
-        // Second parcel: qty=5, consolidated
-        expect(parcels[1]['length'], '50');
-        expect(parcels[1]['weight'], '50.00', reason: '10kg × 5 = 50kg');
-      });
-
-      test('edge case: very high consolidation (qty=100)', () async {
-        final cartons = [
-          const Carton(
-            id: '1',
-            shipmentId: 's1',
-            lengthCm: 50,
-            widthCm: 30,
-            heightCm: 20,
-            weightKg: 5.0,
-            qty: 100, // Edge case: very high quantity
-            itemType: 'Box',
-          ),
-        ];
-
-        when(() => mockDio.post(any(), data: any(named: 'data'))).thenAnswer(
-          (_) async => Response(
-            requestOptions: RequestOptions(),
-            statusCode: 201,
-            data: {
-              'object_id': 'shipment_123',
-              'object_state': 'VALID',
-              'rates': [],
-            },
-          ),
-        );
-
-        await service.getRates(
-          originCity: 'Bremen',
-          originPostal: '28195',
-          originCountry: 'DE',
-          destCity: 'Hamburg',
-          destPostal: '20095',
-          destCountry: 'DE',
-          cartons: cartons,
-        );
-
-        final captured =
-            verify(
-                  () => mockDio.post(any(), data: captureAny(named: 'data')),
-                ).captured.first
-                as Map<String, dynamic>;
-
-        final parcels = captured['parcels'] as List;
-
-        expect(parcels, hasLength(1));
-        expect(parcels[0]['weight'], '500.00', reason: '5kg × 100 = 500kg');
+        // Verify all parcels have the same dimensions and weight
+        for (final parcel in parcels) {
+          expect(parcel['weight'], '5.00');
+        }
       });
     });
 

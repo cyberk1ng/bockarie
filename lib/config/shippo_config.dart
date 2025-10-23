@@ -1,22 +1,16 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-/// Configuration class for Shippo API integration
+/// Configuration class for Shippo API integration (LIVE PRODUCTION MODE ONLY)
+///
+/// This app uses the live Shippo API for real carrier rates worldwide.
+/// No test/sandbox mode - all requests go to production endpoints.
 class ShippoConfig {
-  /// Shippo API base URL
+  /// Shippo API base URL (LIVE PRODUCTION)
   static const String baseUrl = 'https://api.goshippo.com';
 
-  /// Get the test API key from environment variables
-  static String get testApiKey => dotenv.env['SHIPPO_TEST_API_KEY'] ?? '';
-
-  /// Get the production API key from environment variables
-  static String get liveApiKey => dotenv.env['SHIPPO_LIVE_API_KEY'] ?? '';
-
-  /// Check if we should use test mode
-  static bool get useTestMode =>
-      dotenv.env['USE_TEST_MODE']?.toLowerCase() == 'true';
-
-  /// Get the appropriate API key based on the current mode
-  static String get apiKey => useTestMode ? testApiKey : liveApiKey;
+  /// Get the live production API key from environment variables
+  /// Format: shippo_live_xxxxxxxxxxxxxxxxxxxxx
+  static String get apiKey => dotenv.env['SHIPPO_API_KEY'] ?? '';
 
   /// API version
   static const String apiVersion = '2018-02-08';
@@ -26,4 +20,8 @@ class ShippoConfig {
 
   /// Simple USD to EUR conversion rate (should be updated regularly or use a conversion API)
   static const double usdToEurRate = 0.92;
+
+  /// Check if label purchase is enabled (safety flag)
+  static bool get isLabelPurchaseEnabled =>
+      dotenv.env['ENABLE_SHIPPO_LABELS']?.toLowerCase() == 'true';
 }
