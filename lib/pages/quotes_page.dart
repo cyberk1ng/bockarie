@@ -1411,167 +1411,171 @@ class _QuoteCardState extends ConsumerState<_QuoteCard> {
     final currencyService = ref.watch(currencyServiceProvider);
 
     return ModalCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header with badges
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Badges Row
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        if (widget.isCheapest)
-                          _buildBadge(
-                            context,
-                            icon: Icons.star,
-                            label: localizations.badgeCheapest,
-                            color: ColorConstants.badgeCheapest,
-                          ),
-                        if (widget.isFastest)
-                          _buildBadge(
-                            context,
-                            icon: Icons.bolt,
-                            label: localizations.badgeFastest,
-                            color: ColorConstants.badgeFastest,
-                          ),
-                        if (widget.isCheapestInCategory && !widget.isCheapest)
-                          _buildBadge(
-                            context,
-                            icon: Icons.star_half,
-                            label: localizations.badgeBestInCategory,
-                            color: ColorConstants.badgeBest,
-                          ),
-                        if (widget.showTransportChip)
-                          _buildTransportMethodChip(context, quote),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    // Carrier and Service
-                    Text(
-                      '${quote.carrier} ${quote.service}',
-                      style: context.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+      child: AnimatedSize(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header with badges
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Badges Row
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          if (widget.isCheapest)
+                            _buildBadge(
+                              context,
+                              icon: Icons.star,
+                              label: localizations.badgeCheapest,
+                              color: ColorConstants.badgeCheapest,
+                            ),
+                          if (widget.isFastest)
+                            _buildBadge(
+                              context,
+                              icon: Icons.bolt,
+                              label: localizations.badgeFastest,
+                              color: ColorConstants.badgeFastest,
+                            ),
+                          if (widget.isCheapestInCategory && !widget.isCheapest)
+                            _buildBadge(
+                              context,
+                              icon: Icons.star_half,
+                              label: localizations.badgeBestInCategory,
+                              color: ColorConstants.badgeBest,
+                            ),
+                          if (widget.showTransportChip)
+                            _buildTransportMethodChip(context, quote),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 6),
-                    // ETA and Weight
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.schedule,
-                          size: 14,
-                          color: context.colorScheme.onSurfaceVariant,
+                      const SizedBox(height: 12),
+                      // Carrier and Service
+                      Text(
+                        '${quote.carrier} ${quote.service}',
+                        style: context.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          localizations.etaDays(quote.etaMin, quote.etaMax),
-                          style: context.textTheme.bodySmall?.copyWith(
+                      ),
+                      const SizedBox(height: 6),
+                      // ETA and Weight
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.schedule,
+                            size: 14,
                             color: context.colorScheme.onSurfaceVariant,
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Icon(
-                          Icons.scale,
-                          size: 14,
-                          color: context.colorScheme.onSurfaceVariant,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${quote.chargeableKg.toStringAsFixed(1)} kg',
-                          style: context.textTheme.bodySmall?.copyWith(
+                          const SizedBox(width: 4),
+                          Text(
+                            localizations.etaDays(quote.etaMin, quote.etaMax),
+                            style: context.textTheme.bodySmall?.copyWith(
+                              color: context.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Icon(
+                            Icons.scale,
+                            size: 14,
                             color: context.colorScheme.onSurfaceVariant,
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          const SizedBox(width: 4),
+                          Text(
+                            '${quote.chargeableKg.toStringAsFixed(1)} kg',
+                            style: context.textTheme.bodySmall?.copyWith(
+                              color: context.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                // Price
+                Text(
+                  currencyService.formatAmount(
+                    amountInEur: quote.priceEur,
+                    currency: currency,
+                  ),
+                  style: context.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: context.colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+
+            // Expandable details
+            if (_isExpanded) ...[
+              const SizedBox(height: 16),
+              Divider(height: 1, color: context.colorScheme.outlineVariant),
+              const SizedBox(height: 16),
+              Text(
+                localizations.quoteDetailsPriceBreakdown,
+                style: context.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              // Price
-              Text(
+              const SizedBox(height: 8),
+              _buildBreakdownRow(
+                context,
+                localizations.quoteDetailsChargeableWeight,
+                '${quote.chargeableKg.toStringAsFixed(1)} kg',
+              ),
+              const SizedBox(height: 4),
+              _buildBreakdownRow(
+                context,
+                localizations.quoteDetailsTotalPrice,
                 currencyService.formatAmount(
                   amountInEur: quote.priceEur,
                   currency: currency,
                 ),
-                style: context.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: context.colorScheme.primary,
-                ),
+                isBold: true,
               ),
             ],
-          ),
 
-          // Expandable details
-          if (_isExpanded) ...[
             const SizedBox(height: 16),
-            Divider(height: 1, color: context.colorScheme.outlineVariant),
-            const SizedBox(height: 16),
-            Text(
-              localizations.quoteDetailsPriceBreakdown,
-              style: context.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            _buildBreakdownRow(
-              context,
-              localizations.quoteDetailsChargeableWeight,
-              '${quote.chargeableKg.toStringAsFixed(1)} kg',
-            ),
-            const SizedBox(height: 4),
-            _buildBreakdownRow(
-              context,
-              localizations.quoteDetailsTotalPrice,
-              currencyService.formatAmount(
-                amountInEur: quote.priceEur,
-                currency: currency,
-              ),
-              isBold: true,
+
+            // Actions
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: () => _bookShipment(context),
+                    icon: const Icon(Icons.check_circle_outline, size: 18),
+                    label: Text(localizations.buttonBookThis),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                OutlinedButton(
+                  onPressed: () => setState(() => _isExpanded = !_isExpanded),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _isExpanded
+                            ? localizations.buttonLess
+                            : localizations.buttonDetails,
+                      ),
+                      Icon(
+                        _isExpanded
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
+                        size: 18,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
-
-          const SizedBox(height: 16),
-
-          // Actions
-          Row(
-            children: [
-              Expanded(
-                child: FilledButton.icon(
-                  onPressed: () => _bookShipment(context),
-                  icon: const Icon(Icons.check_circle_outline, size: 18),
-                  label: Text(localizations.buttonBookThis),
-                ),
-              ),
-              const SizedBox(width: 8),
-              OutlinedButton(
-                onPressed: () => setState(() => _isExpanded = !_isExpanded),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _isExpanded
-                          ? localizations.buttonLess
-                          : localizations.buttonDetails,
-                    ),
-                    Icon(
-                      _isExpanded
-                          ? Icons.keyboard_arrow_up
-                          : Icons.keyboard_arrow_down,
-                      size: 18,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }

@@ -8,21 +8,26 @@ import 'package:bockaire/providers/booking_providers.dart';
 import 'package:bockaire/pages/customs_form_page.dart';
 import 'package:bockaire/pages/booking_confirmation_page.dart';
 import 'package:bockaire/widgets/booking/safety_confirmation_dialog.dart';
+import 'package:bockaire/widgets/booking/booking_review_modal.dart';
 import 'package:bockaire/config/shippo_config.dart';
 
 /// Coordinates the entire booking flow
 ///
 /// Flow:
 /// 1. Check if international → Show customs form
-/// 2. Show confirmation with safety warning
-/// 3. Create shipment + customs (if international)
-/// 4. Optionally create label (if safety enabled + user confirms)
-/// 5. Show confirmation screen
+/// 2. Show review modal (pre-commitment, reversible)
+/// 3. Show safety confirmation (if labels enabled)
+/// 4. Create shipment + customs (if international)
+/// 5. Optionally create label (if safety enabled + user confirms)
+/// 6. Show confirmation screen (post-commitment, no back button)
 class BookingFlowCoordinator {
   final BuildContext context;
   final WidgetRef ref;
   final Quote quote;
   final Shipment shipment;
+
+  /// Prevents double-booking by tracking if booking is in progress
+  bool _isBookingInProgress = false;
 
   BookingFlowCoordinator({
     required this.context,
@@ -33,6 +38,14 @@ class BookingFlowCoordinator {
 
   /// Start the booking flow
   Future<void> start() async {
+    // Prevent double-booking
+    if (_isBookingInProgress) {
+      _showError('A booking is already in progress');
+      return;
+    }
+
+    _isBookingInProgress = true;
+
     try {
       // Step 1: Check if international and needs customs
       final isInternational = shipment.originCountry != shipment.destCountry;
@@ -47,7 +60,10 @@ class BookingFlowCoordinator {
         if (customsPacket == null) {
           // Show customs form
           final shouldContinue = await _showCustomsForm();
-          if (!shouldContinue || !context.mounted) return;
+          if (!shouldContinue || !context.mounted) {
+            _isBookingInProgress = false;
+            return;
+          }
 
           // Reload customs packet
           customsPacket = await ref.read(
@@ -58,31 +74,44 @@ class BookingFlowCoordinator {
             _showError(
               'Customs information is required for international shipments',
             );
+            _isBookingInProgress = false;
             return;
           }
         }
       }
 
-      // Step 2: Show pre-booking confirmation
-      final confirmed = await _showPreBookingConfirmation(
+      // Step 2: Show pre-booking review modal (pre-commitment)
+      final confirmed = await _showPreBookingReviewModal(
         isInternational: isInternational,
         hasCustoms: customsPacket != null,
       );
-      if (!confirmed || !context.mounted) return;
+      if (!confirmed || !context.mounted) {
+        _isBookingInProgress = false;
+        return;
+      }
 
       // Step 3: Determine if label should be created
       bool createLabel = false;
       if (ShippoConfig.isLabelPurchaseEnabled) {
-        // Show safety confirmation
+        // Show safety confirmation (high-friction check)
         final labelConfirmed = await showDialog<bool>(
           context: context,
           barrierDismissible: false,
           builder: (context) => const SafetyConfirmationDialog(),
         );
         createLabel = labelConfirmed == true;
+
+        // User canceled at safety confirmation
+        if (!labelConfirmed!) {
+          _isBookingInProgress = false;
+          return;
+        }
       }
 
-      if (!context.mounted) return;
+      if (!context.mounted) {
+        _isBookingInProgress = false;
+        return;
+      }
 
       // Step 4: Show loading dialog
       showDialog(
@@ -111,10 +140,13 @@ class BookingFlowCoordinator {
         createLabel: createLabel,
       );
 
-      if (!context.mounted) return;
+      if (!context.mounted) {
+        _isBookingInProgress = false;
+        return;
+      }
       Navigator.of(context).pop(); // Close loading dialog
 
-      // Step 6: Show result
+      // Step 6: Show confirmation page (post-commitment, no back button)
       await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => BookingConfirmationPage(
@@ -129,6 +161,8 @@ class BookingFlowCoordinator {
         Navigator.of(context).pop(); // Close any open dialogs
         _showError('Booking failed: $e');
       }
+    } finally {
+      _isBookingInProgress = false;
     }
   }
 
@@ -144,88 +178,26 @@ class BookingFlowCoordinator {
         false;
   }
 
-  Future<bool> _showPreBookingConfirmation({
+  /// Show pre-booking review modal (Phase 1: Pre-Commitment, Reversible)
+  Future<bool> _showPreBookingReviewModal({
     required bool isInternational,
     required bool hasCustoms,
   }) async {
-    return await showDialog<bool>(
+    return await showModalBottomSheet<bool>(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Confirm Booking'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Carrier: ${quote.carrier} ${quote.service}',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text('Cost: €${quote.priceEur.toStringAsFixed(2)}'),
-                Text('Delivery: ${quote.etaMin}-${quote.etaMax} days'),
-                const SizedBox(height: 16),
-                if (isInternational) ...[
-                  Row(
-                    children: [
-                      Icon(
-                        hasCustoms ? Icons.check_circle : Icons.warning,
-                        color: hasCustoms ? Colors.green : Colors.orange,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          hasCustoms
-                              ? 'Customs declaration ready'
-                              : 'Customs declaration required',
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        ShippoConfig.isLabelPurchaseEnabled
-                            ? Icons.warning_amber
-                            : Icons.shield,
-                        size: 16,
-                        color: ShippoConfig.isLabelPurchaseEnabled
-                            ? Colors.orange
-                            : Colors.blue,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          ShippoConfig.isLabelPurchaseEnabled
-                              ? 'Label purchase enabled'
-                              : 'Safe mode (no labels)',
-                          style: const TextStyle(fontSize: 11),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Continue'),
-              ),
-            ],
+          isScrollControlled: true,
+          isDismissible: true, // Can swipe down to cancel
+          enableDrag: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) => BookingReviewModal(
+            quote: quote,
+            shipment: shipment,
+            isInternational: isInternational,
+            hasCustoms: hasCustoms,
+            onEdit: () {
+              // Optional: Navigate to edit page
+              // For now, just closes the modal
+            },
           ),
         ) ??
         false;
