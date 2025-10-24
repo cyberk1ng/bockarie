@@ -273,7 +273,7 @@ class ShippoRatesService {
 
       final quote = models.Quote(
         id: rate.objectId,
-        shipmentId: '', // Will be set by the caller if needed
+        shipmentId: rate.shipmentId ?? '', // Shipment ID from rate
         carrier: rate.provider,
         service: rate.servicelevel.name,
         etaMin: estimatedDays,

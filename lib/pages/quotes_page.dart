@@ -22,6 +22,7 @@ import 'package:bockaire/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:bockaire/providers/currency_provider.dart';
+import 'package:bockaire/widgets/booking/booking_flow_coordinator.dart';
 
 enum QuoteSortOption { priceLowHigh, priceHighLow, speedFastest, speedSlowest }
 
@@ -1696,52 +1697,33 @@ class _QuoteCardState extends ConsumerState<_QuoteCard> {
   }
 
   Future<void> _bookShipment(BuildContext context) async {
-    final localizations = AppLocalizations.of(context)!;
-    final confirm = await ModalUtils.showSinglePageModal<bool>(
-      context: context,
-      title: localizations.bookShipmentTitle,
-      showCloseButton: true,
-      barrierDismissible: true,
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
-      stickyActionBar: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text(localizations.buttonCancel),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: FilledButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text(localizations.buttonBook),
-              ),
-            ),
-          ],
-        ),
-      ),
-      builder: (modalContext) {
-        return Text(
-          localizations.bookShipmentMessage(
-            widget.quote.carrier,
-            widget.quote.service,
-          ),
-          style: Theme.of(modalContext).textTheme.bodyLarge,
-        );
-      },
-    );
-
-    if (confirm == true && context.mounted) {
-      final localizations2 = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(localizations2.bookingFeatureComingSoon),
-          duration: Duration(seconds: UIConstants.snackBarDurationShort),
-        ),
+    try {
+      // Get shipment data
+      final shipment = await ref.read(
+        shipmentProvider(widget.shipmentId).future,
       );
+
+      // Check if context is still mounted after async gap
+      if (!context.mounted) return;
+
+      // Start booking flow
+      final coordinator = BookingFlowCoordinator(
+        context: context,
+        ref: ref,
+        quote: widget.quote,
+        shipment: shipment,
+      );
+
+      await coordinator.start();
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Booking error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }

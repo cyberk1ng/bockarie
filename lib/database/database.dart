@@ -109,8 +109,74 @@ class Settings extends Table {
   Set<Column> get primaryKey => {key};
 }
 
+// Customs Profiles table for reusable importer/exporter information
+class CustomsProfiles extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()(); // Profile name
+  TextColumn get importerType => text()(); // 'business' or 'individual'
+  TextColumn get vatNumber => text().nullable()();
+  TextColumn get eoriNumber => text().nullable()();
+  TextColumn get taxId => text().nullable()();
+  TextColumn get companyName => text().nullable()();
+  TextColumn get contactName => text().nullable()();
+  TextColumn get contactPhone => text().nullable()();
+  TextColumn get contactEmail => text().nullable()();
+  TextColumn get defaultIncoterms =>
+      text().withDefault(const Constant('dap'))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// Commodity Lines table for customs line items
+class CommodityLines extends Table {
+  TextColumn get id => text()();
+  TextColumn get customsPacketId => text()(); // References CustomsPackets
+  TextColumn get description => text()();
+  RealColumn get quantity => real()();
+  RealColumn get netWeight => real()(); // kg
+  RealColumn get valueAmount => real()(); // USD
+  TextColumn get originCountry => text()();
+  TextColumn get hsCode => text()(); // Harmonized System code
+  TextColumn get skuCode => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// Customs Packets table for complete customs declarations
+class CustomsPackets extends Table {
+  TextColumn get id => text()();
+  TextColumn get shipmentId => text().references(Shipments, #id)();
+  TextColumn get profileId => text().nullable()(); // References CustomsProfiles
+  TextColumn get incoterms => text().withDefault(const Constant('dap'))();
+  TextColumn get contentsType =>
+      text().withDefault(const Constant('merchandise'))();
+  TextColumn get invoiceNumber => text().nullable()();
+  TextColumn get exporterReference => text().nullable()();
+  TextColumn get importerReference => text().nullable()();
+  BoolColumn get certify => boolean().withDefault(const Constant(false))();
+  TextColumn get notes => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(
-  tables: [Shipments, Cartons, RateTables, Quotes, CompanyInfo, Settings],
+  tables: [
+    Shipments,
+    Cartons,
+    RateTables,
+    Quotes,
+    CompanyInfo,
+    Settings,
+    CustomsProfiles,
+    CommodityLines,
+    CustomsPackets,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -119,7 +185,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => DatabaseConstants.schemaVersion;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -156,6 +222,13 @@ class AppDatabase extends _$AppDatabase {
         // Migration from version 4 to 5
         // Create Settings table for theme preferences
         await m.createTable(settings);
+      }
+      if (from < 6) {
+        // Migration from version 5 to 6
+        // Create customs-related tables for Shippo booking integration
+        await m.createTable(customsProfiles);
+        await m.createTable(customsPackets);
+        await m.createTable(commodityLines);
       }
     },
   );
