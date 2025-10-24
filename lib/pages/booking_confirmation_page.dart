@@ -67,11 +67,12 @@ class BookingConfirmationPage extends ConsumerWidget {
           // Actions
           FilledButton.icon(
             onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pop();
+              // Pop until we're back at the quotes page
+              // This provides a clear, explicit exit path
+              Navigator.of(context).popUntil((route) => route.isFirst);
             },
-            icon: const Icon(Icons.check_circle),
-            label: const Text('Done'),
+            icon: const Icon(Icons.done),
+            label: const Text('Return to Quotes'),
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
