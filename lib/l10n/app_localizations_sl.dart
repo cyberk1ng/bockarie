@@ -1166,4 +1166,22 @@ class AppLocalizationsSl extends AppLocalizations {
 
   @override
   String get customsInformationSaved => 'Customs information saved';
+
+  @override
+  String get deleteCartonTitle => 'Delete Carton?';
+
+  @override
+  String deleteCartonMessage(String dimensions, String weight, int qty) {
+    return 'Are you sure you want to delete this carton?\n\n$dimensions cm\n$weight kg × $qty';
+  }
+
+  @override
+  String get deleteCartonCannotDeleteLast =>
+      'Cannot delete the last carton. Shipment must have at least one carton.';
+
+  @override
+  String get successCartonDeleted => 'Carton deleted successfully';
+
+  @override
+  String get errorDeletingCarton => 'Error deleting carton';
 }

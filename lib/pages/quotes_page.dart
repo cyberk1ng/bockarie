@@ -2275,7 +2275,13 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
             );
       }
 
-      // 4. Notify parent to refresh
+      // 4. Invalidate providers to refresh UI
+      // Must invalidate cartonsProvider first, as cartonModelsProvider depends on it
+      ref.invalidate(cartonsProvider(widget.shipmentId));
+      ref.invalidate(cartonModelsProvider(widget.shipmentId));
+      ref.invalidate(quotesProvider(widget.shipmentId));
+
+      // 5. Notify parent to refresh and close modal
       widget.onQuotesUpdated();
 
       if (mounted) {
@@ -2315,6 +2321,213 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
       return TransportMethod.roadFreight;
     }
     return TransportMethod.standardAir;
+  }
+
+  Future<void> _saveCartonToDatabase(EditableCarton carton) async {
+    final db = getIt<AppDatabase>();
+    try {
+      await (db.update(db.cartons)..where((c) => c.id.equals(carton.id))).write(
+        CartonsCompanion(
+          lengthCm: drift.Value(carton.lengthCm),
+          widthCm: drift.Value(carton.widthCm),
+          heightCm: drift.Value(carton.heightCm),
+          weightKg: drift.Value(carton.weightKg),
+          qty: drift.Value(carton.qty),
+          itemType: drift.Value(carton.itemType),
+        ),
+      );
+
+      // Invalidate providers so the parent page shows updated totals
+      // Must invalidate cartonsProvider first, as cartonModelsProvider depends on it
+      ref.invalidate(cartonsProvider(widget.shipmentId));
+      ref.invalidate(cartonModelsProvider(widget.shipmentId));
+    } catch (e) {
+      // Silent fail - user is still editing, we don't want to spam error messages
+      // The error will surface when they try to recalculate quotes if something is wrong
+    }
+  }
+
+  Future<void> _showDeleteCartonConfirmation(
+    int index,
+    EditableCarton carton,
+  ) async {
+    final localizations = AppLocalizations.of(context)!;
+
+    // Check if this is the last carton
+    if (_editedCartons.length == 1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(localizations.deleteCartonCannotDeleteLast),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    final dimensions =
+        '${carton.lengthCm.toStringAsFixed(1)} × ${carton.widthCm.toStringAsFixed(1)} × ${carton.heightCm.toStringAsFixed(1)}';
+
+    final result = await ModalUtils.showSinglePageModal<bool>(
+      context: context,
+      title: localizations.deleteCartonTitle,
+      showCloseButton: true,
+      barrierDismissible: true,
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+      stickyActionBar: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(localizations.buttonCancel),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: FilledButton.styleFrom(
+                  backgroundColor: context.colorScheme.error,
+                ),
+                child: Text(localizations.buttonDelete),
+              ),
+            ),
+          ],
+        ),
+      ),
+      builder: (modalContext) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              size: 64,
+              color: Theme.of(modalContext).colorScheme.error,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              localizations.deleteCartonMessage(
+                dimensions,
+                carton.weightKg.toStringAsFixed(1),
+                carton.qty,
+              ),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 16),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result == true && mounted) {
+      await _deleteCarton(index, carton);
+    }
+  }
+
+  Future<void> _deleteCarton(int index, EditableCarton carton) async {
+    final localizations = AppLocalizations.of(context)!;
+    final db = getIt<AppDatabase>();
+
+    try {
+      // Delete from database
+      await (db.delete(db.cartons)..where((c) => c.id.equals(carton.id))).go();
+
+      // Remove from local state
+      setState(() {
+        _editedCartons.removeAt(index);
+      });
+
+      // Recalculate totals with new carton list
+      final cartonModels = _editedCartons.map((e) => e.toCarton()).toList();
+      final totals = CalculationService.calculateTotals(cartonModels);
+
+      // Regenerate quotes with updated cartons
+      final editedDbCartons = _editedCartons
+          .map(
+            (e) => Carton(
+              id: e.id,
+              shipmentId: e.shipmentId,
+              lengthCm: e.lengthCm,
+              widthCm: e.widthCm,
+              heightCm: e.heightCm,
+              weightKg: e.weightKg,
+              qty: e.qty,
+              itemType: e.itemType,
+            ),
+          )
+          .toList();
+
+      final quoteService = getIt<QuoteCalculatorService>();
+      final shippingQuotes = await quoteService.calculateAllQuotes(
+        chargeableKg: totals.chargeableKg,
+        isOversized: totals.isOversized,
+        originCity: widget.shipment.originCity,
+        originPostal: widget.shipment.originPostal,
+        originCountry: widget.shipment.originCountry,
+        originState: widget.shipment.originState,
+        destCity: widget.shipment.destCity,
+        destPostal: widget.shipment.destPostal,
+        destCountry: widget.shipment.destCountry,
+        destState: widget.shipment.destState,
+        cartons: editedDbCartons,
+        useShippoApi: true,
+        fallbackToLocalRates: false,
+      );
+
+      // Delete old quotes
+      await (db.delete(
+        db.quotes,
+      )..where((q) => q.shipmentId.equals(widget.shipmentId))).go();
+
+      // Save new quotes
+      for (final shippingQuote in shippingQuotes) {
+        await db
+            .into(db.quotes)
+            .insert(
+              QuotesCompanion.insert(
+                id: const Uuid().v4(),
+                shipmentId: widget.shipmentId,
+                carrier: shippingQuote.carrier,
+                service: shippingQuote.service,
+                etaMin: shippingQuote.estimatedDays ?? 0,
+                etaMax: shippingQuote.estimatedDays ?? 0,
+                priceEur: shippingQuote.total,
+                chargeableKg: shippingQuote.chargeableKg,
+                transportMethod: drift.Value(
+                  _determineTransportMethod(shippingQuote).name,
+                ),
+              ),
+            );
+      }
+
+      // Invalidate providers to refresh UI
+      // Must invalidate cartonsProvider first, as cartonModelsProvider depends on it
+      ref.invalidate(cartonsProvider(widget.shipmentId));
+      ref.invalidate(cartonModelsProvider(widget.shipmentId));
+      ref.invalidate(quotesProvider(widget.shipmentId));
+
+      // Close the modal and refresh parent
+      widget.onQuotesUpdated();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(localizations.successCartonDeleted),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${localizations.errorDeletingCarton}: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -2505,9 +2718,25 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            localizations.labelCartonNumber(index + 1),
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                localizations.labelCartonNumber(index + 1),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.delete_outline,
+                  color: context.colorScheme.error,
+                ),
+                onPressed: () => _showDeleteCartonConfirmation(index, carton),
+                tooltip: localizations.buttonDelete,
+              ),
+            ],
           ),
           const SizedBox(height: 12),
 
@@ -2535,6 +2764,7 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
                       setState(() {
                         _editedCartons[index].lengthCm = newValue;
                       });
+                      _saveCartonToDatabase(_editedCartons[index]);
                     }
                   },
                 ),
@@ -2561,6 +2791,7 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
                       setState(() {
                         _editedCartons[index].widthCm = newValue;
                       });
+                      _saveCartonToDatabase(_editedCartons[index]);
                     }
                   },
                 ),
@@ -2587,6 +2818,7 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
                       setState(() {
                         _editedCartons[index].heightCm = newValue;
                       });
+                      _saveCartonToDatabase(_editedCartons[index]);
                     }
                   },
                 ),
@@ -2621,6 +2853,7 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
                       setState(() {
                         _editedCartons[index].weightKg = newValue;
                       });
+                      _saveCartonToDatabase(_editedCartons[index]);
                     }
                   },
                 ),
@@ -2647,6 +2880,7 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
                       setState(() {
                         _editedCartons[index].qty = newValue;
                       });
+                      _saveCartonToDatabase(_editedCartons[index]);
                     }
                   },
                 ),

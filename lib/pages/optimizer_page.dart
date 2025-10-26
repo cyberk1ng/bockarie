@@ -847,6 +847,8 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
       }
 
       // Invalidate providers to refresh UI
+      // Must invalidate cartonsProvider first, as cartonModelsProvider depends on it
+      ref.invalidate(cartonsProvider(widget.shipmentId));
       ref.invalidate(cartonModelsProvider(widget.shipmentId));
       ref.invalidate(quotesProvider(widget.shipmentId));
 
@@ -1370,6 +1372,8 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
       }
 
       // Invalidate providers to refresh UI
+      // Must invalidate cartonsProvider first, as cartonModelsProvider depends on it
+      ref.invalidate(cartonsProvider(widget.shipmentId));
       ref.invalidate(cartonModelsProvider(widget.shipmentId));
       ref.invalidate(quotesProvider(widget.shipmentId));
 
@@ -1608,6 +1612,8 @@ class _OptimizationSuggestionCardState
           }
 
           // Refresh the page by invalidating providers
+          // Must invalidate cartonsProvider first, as cartonModelsProvider depends on it
+          ref.invalidate(cartonsProvider(widget.shipmentId));
           ref.invalidate(cartonModelsProvider(widget.shipmentId));
           ref.invalidate(quotesProvider(widget.shipmentId));
 
