@@ -1,35 +1,228 @@
+import 'dart:convert';
 import 'package:bockaire/services/ai_provider_interfaces.dart';
 import 'package:bockaire/services/carton_voice_parser_service.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 
+/// Tests for CartonVoiceParserService
+///
+/// Uses HTTP client mocking pattern from lotti project - no real API calls!
 void main() {
-  late CartonVoiceParserService service;
-
-  setUp(() {
-    service = CartonVoiceParserService('test_api_key');
-  });
-
-  group('CartonVoiceParserService', () {
+  group('CartonVoiceParserService - HTTP Mocked', () {
     test('constructor initializes with API key', () {
+      final service = CartonVoiceParserService('test_api_key');
       expect(service, isNotNull);
+      service.dispose();
     });
 
-    test('parseCartonFromText throws on invalid API key', () async {
-      final invalidService = CartonVoiceParserService('invalid_key');
+    test(
+      'parseCartonFromText returns valid CartonData on 200 success',
+      () async {
+        // Mock successful Gemini response
+        final mockClient = MockClient((request) async {
+          // Verify request
+          expect(request.url.host, 'generativelanguage.googleapis.com');
+          expect(request.url.path, contains('gemini-2.0-flash-exp'));
+          expect(request.url.queryParameters['key'], 'test_key');
+          expect(request.method, 'POST');
 
-      expect(
-        () => invalidService.parseCartonFromText(
+          // Return mocked Gemini response
+          final responseBody = jsonEncode({
+            'candidates': [
+              {
+                'content': {
+                  'parts': [
+                    {
+                      'text': jsonEncode({
+                        'lengthCm': 50.0,
+                        'widthCm': 30.0,
+                        'heightCm': 20.0,
+                        'weightKg': 5.0,
+                        'qty': 10,
+                        'itemType': 'laptops',
+                      }),
+                    },
+                  ],
+                },
+              },
+            ],
+          });
+
+          return http.Response(responseBody, 200);
+        });
+
+        final service = CartonVoiceParserService(
+          'test_key',
+          httpClient: mockClient,
+        );
+
+        final result = await service.parseCartonFromText(
           transcribedText: '50 by 30 by 20 cm, 5 kg, quantity 10, laptops',
-        ),
+        );
+
+        expect(result, isNotNull);
+        expect(result!.lengthCm, 50.0);
+        expect(result.widthCm, 30.0);
+        expect(result.heightCm, 20.0);
+        expect(result.weightKg, 5.0);
+        expect(result.qty, 10);
+        expect(result.itemType, 'laptops');
+        expect(result.isComplete, isTrue);
+
+        service.dispose();
+      },
+    );
+
+    test(
+      'parseCartonFromText throws on 401 unauthorized (invalid API key)',
+      () async {
+        final mockClient = MockClient((request) async {
+          final errorBody = jsonEncode({
+            'error': {
+              'code': 401,
+              'message': 'API key not valid. Please pass a valid API key.',
+              'status': 'UNAUTHENTICATED',
+            },
+          });
+
+          return http.Response(errorBody, 401);
+        });
+
+        final service = CartonVoiceParserService(
+          'invalid_key',
+          httpClient: mockClient,
+        );
+
+        await expectLater(
+          service.parseCartonFromText(transcribedText: 'test input'),
+          throwsA(isA<Exception>()),
+        );
+
+        service.dispose();
+      },
+    );
+
+    test('parseCartonFromText throws on 500 server error', () async {
+      final mockClient = MockClient((request) async {
+        return http.Response('Internal Server Error', 500);
+      });
+
+      final service = CartonVoiceParserService(
+        'test_key',
+        httpClient: mockClient,
+      );
+
+      await expectLater(
+        service.parseCartonFromText(transcribedText: 'test input'),
         throwsA(isA<Exception>()),
       );
+
+      service.dispose();
     });
 
-    test('parseCartonFromText handles empty transcription', () async {
-      expect(
-        () => service.parseCartonFromText(transcribedText: ''),
+    test('parseCartonFromText returns null for incomplete data', () async {
+      final mockClient = MockClient((request) async {
+        // Response with missing required fields
+        final responseBody = jsonEncode({
+          'candidates': [
+            {
+              'content': {
+                'parts': [
+                  {
+                    'text': jsonEncode({
+                      'lengthCm': 50.0,
+                      // Missing widthCm, heightCm, weightKg, qty
+                      'itemType': 'boxes',
+                    }),
+                  },
+                ],
+              },
+            },
+          ],
+        });
+
+        return http.Response(responseBody, 200);
+      });
+
+      final service = CartonVoiceParserService(
+        'test_key',
+        httpClient: mockClient,
+      );
+
+      final result = await service.parseCartonFromText(
+        transcribedText: 'incomplete data',
+      );
+
+      expect(result, isNull); // Returns null for incomplete data
+
+      service.dispose();
+    });
+
+    test('parseCartonFromText throws on empty response', () async {
+      final mockClient = MockClient((request) async {
+        final responseBody = jsonEncode({
+          'candidates': [
+            {
+              'content': {
+                'parts': [
+                  {'text': ''},
+                ],
+              },
+            },
+          ],
+        });
+
+        return http.Response(responseBody, 200);
+      });
+
+      final service = CartonVoiceParserService(
+        'test_key',
+        httpClient: mockClient,
+      );
+
+      await expectLater(
+        service.parseCartonFromText(transcribedText: 'test'),
         throwsA(isA<Exception>()),
       );
+
+      service.dispose();
+    });
+
+    test('parseCartonFromText handles malformed JSON in response', () async {
+      final mockClient = MockClient((request) async {
+        final responseBody = jsonEncode({
+          'candidates': [
+            {
+              'content': {
+                'parts': [
+                  {'text': 'not valid json{'},
+                ],
+              },
+            },
+          ],
+        });
+
+        return http.Response(responseBody, 200);
+      });
+
+      final service = CartonVoiceParserService(
+        'test_key',
+        httpClient: mockClient,
+      );
+
+      await expectLater(
+        service.parseCartonFromText(transcribedText: 'test'),
+        throwsA(isA<Exception>()),
+      );
+
+      service.dispose();
+    });
+
+    test('dispose can be called multiple times', () {
+      final service = CartonVoiceParserService('test_key');
+      service.dispose();
+      service.dispose(); // Should not throw
     });
   });
 

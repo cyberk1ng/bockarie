@@ -20,6 +20,9 @@ migrate_working_dir/
 *.db-shm
 *.db-wal
 
+# Translation tracking (auto-generated)
+missing_translations.txt
+
 # IntelliJ related
 *.iml
 *.ipr

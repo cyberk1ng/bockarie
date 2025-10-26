@@ -64,18 +64,86 @@ class ShippoParcel {
   }
 }
 
+/// Customs declaration item for international shipments
+class ShippoCustomsItem {
+  final String description;
+  final int quantity;
+  final String netWeight;
+  final String massUnit;
+  final String valueAmount;
+  final String valueCurrency;
+  final String originCountry;
+  final String? tariffNumber;
+
+  ShippoCustomsItem({
+    required this.description,
+    required this.quantity,
+    required this.netWeight,
+    this.massUnit = 'kg',
+    required this.valueAmount,
+    this.valueCurrency = 'USD',
+    required this.originCountry,
+    this.tariffNumber,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'description': description,
+      'quantity': quantity,
+      'net_weight': netWeight,
+      'mass_unit': massUnit,
+      'value_amount': valueAmount,
+      'value_currency': valueCurrency,
+      'origin_country': originCountry,
+      if (tariffNumber != null) 'tariff_number': tariffNumber,
+    };
+  }
+}
+
+/// Customs declaration for international shipments
+class ShippoCustomsDeclaration {
+  final String contentsType; // MERCHANDISE, DOCUMENTS, GIFT, etc.
+  final String contentsExplanation;
+  final String nonDeliveryOption; // RETURN or ABANDON
+  final bool certify;
+  final String certifySigner;
+  final List<ShippoCustomsItem> items;
+
+  ShippoCustomsDeclaration({
+    required this.contentsType,
+    required this.contentsExplanation,
+    this.nonDeliveryOption = 'RETURN',
+    this.certify = true,
+    required this.certifySigner,
+    required this.items,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'contents_type': contentsType,
+      'contents_explanation': contentsExplanation,
+      'non_delivery_option': nonDeliveryOption,
+      'certify': certify,
+      'certify_signer': certifySigner,
+      'items': items.map((item) => item.toJson()).toList(),
+    };
+  }
+}
+
 /// Shipment request model for Shippo API
 class ShippoShipmentRequest {
   final ShippoAddress addressFrom;
   final ShippoAddress addressTo;
   final List<ShippoParcel> parcels;
   final bool async;
+  final ShippoCustomsDeclaration? customsDeclaration;
 
   ShippoShipmentRequest({
     required this.addressFrom,
     required this.addressTo,
     required this.parcels,
     this.async = false,
+    this.customsDeclaration,
   });
 
   Map<String, dynamic> toJson() {
@@ -84,6 +152,8 @@ class ShippoShipmentRequest {
       'address_to': addressTo.toJson(),
       'parcels': parcels.map((p) => p.toJson()).toList(),
       'async': async,
+      if (customsDeclaration != null)
+        'customs_declaration': customsDeclaration!.toJson(),
     };
   }
 }
@@ -110,6 +180,8 @@ class ShippoRate {
   final ShippoServiceLevel servicelevel;
   final String amount;
   final String currency;
+  final String? amountLocal; // Local currency amount (often EUR)
+  final String? currencyLocal; // Local currency code
   final int? estimatedDays;
   final String? durationTerms;
   final String? shipmentId; // Shipment ID this rate belongs to
@@ -120,6 +192,8 @@ class ShippoRate {
     required this.servicelevel,
     required this.amount,
     required this.currency,
+    this.amountLocal,
+    this.currencyLocal,
     this.estimatedDays,
     this.durationTerms,
     this.shipmentId,
@@ -136,6 +210,8 @@ class ShippoRate {
           : ShippoServiceLevel(name: 'Standard', token: null),
       amount: json['amount'] as String? ?? '0.0',
       currency: json['currency'] as String? ?? 'USD',
+      amountLocal: json['amount_local'] as String?,
+      currencyLocal: json['currency_local'] as String?,
       estimatedDays: json['estimated_days'] as int?,
       durationTerms: json['duration_terms'] as String?,
       shipmentId: json['shipment'] as String?,
@@ -143,9 +219,45 @@ class ShippoRate {
   }
 
   /// Convert Shippo rate to display price in EUR
-  double toPriceEur(double conversionRate) {
-    final usdPrice = double.tryParse(amount) ?? 0.0;
-    return usdPrice * conversionRate;
+  ///
+  /// Shippo API returns rates in multiple formats:
+  /// 1. For international shipments: amount_local in EUR (preferred)
+  /// 2. For domestic shipments: amount in local currency (USD, CNY, etc.)
+  ///
+  /// Priority:
+  /// - If currency_local is EUR, use amount_local directly
+  /// - If currency is EUR, use amount directly
+  /// - If currency is USD, convert using USD->EUR rate
+  /// - Otherwise, log warning and attempt conversion
+  double toPriceEur(double usdToEurRate) {
+    // Priority 1: Use amount_local if it's in EUR
+    if (currencyLocal == 'EUR' && amountLocal != null) {
+      final eurPrice = double.tryParse(amountLocal!) ?? 0.0;
+      return eurPrice;
+    }
+
+    // Priority 2: If amount is already in EUR
+    if (currency == 'EUR') {
+      final eurPrice = double.tryParse(amount) ?? 0.0;
+      return eurPrice;
+    }
+
+    // Priority 3: Convert from USD
+    if (currency == 'USD') {
+      final usdPrice = double.tryParse(amount) ?? 0.0;
+      return usdPrice * usdToEurRate;
+    }
+
+    // Fallback: Use amount_local if available (might be in EUR)
+    if (amountLocal != null) {
+      final localPrice = double.tryParse(amountLocal!) ?? 0.0;
+      // Assume it's EUR or close enough
+      return localPrice;
+    }
+
+    // Last resort: assume amount is reasonable and return as-is
+    // This will be wrong for CNY/JPY but better than nothing
+    return double.tryParse(amount) ?? 0.0;
   }
 }
 

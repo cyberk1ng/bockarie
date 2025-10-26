@@ -1657,6 +1657,600 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No quotes available in test mode. Some routes or configurations require production carrier accounts. Switch to production mode for real quotes.'**
   String get shippoTestNoQuotes;
+
+  /// Booking review modal title
+  ///
+  /// In en, this message translates to:
+  /// **'Review Booking'**
+  String get bookingReviewTitle;
+
+  /// Route section label in booking review
+  ///
+  /// In en, this message translates to:
+  /// **'Route'**
+  String get bookingRouteLabel;
+
+  /// Carrier and service section label
+  ///
+  /// In en, this message translates to:
+  /// **'Carrier & Service'**
+  String get bookingCarrierServiceLabel;
+
+  /// Estimated delivery label
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated Delivery'**
+  String get bookingEstimatedDeliveryLabel;
+
+  /// Total cost label
+  ///
+  /// In en, this message translates to:
+  /// **'Total Cost'**
+  String get bookingTotalCostLabel;
+
+  /// Customs declaration ready status
+  ///
+  /// In en, this message translates to:
+  /// **'Customs Declaration Ready'**
+  String get bookingCustomsDeclarationReady;
+
+  /// Customs declaration required status
+  ///
+  /// In en, this message translates to:
+  /// **'Customs Declaration Required'**
+  String get bookingCustomsDeclarationRequired;
+
+  /// Message explaining customs requirement
+  ///
+  /// In en, this message translates to:
+  /// **'International shipments require customs information'**
+  String get bookingCustomsRequiredMessage;
+
+  /// Label purchase enabled status
+  ///
+  /// In en, this message translates to:
+  /// **'Label Purchase Enabled'**
+  String get bookingLabelPurchaseEnabled;
+
+  /// Safe mode status (no labels)
+  ///
+  /// In en, this message translates to:
+  /// **'Safe Mode (No Labels)'**
+  String get bookingSafeMode;
+
+  /// Warning that user will be charged
+  ///
+  /// In en, this message translates to:
+  /// **'You will be charged for the shipping label'**
+  String get bookingWillBeCharged;
+
+  /// Message that no charges in test mode
+  ///
+  /// In en, this message translates to:
+  /// **'No charges will be made - testing mode'**
+  String get bookingNoChargesTestMode;
+
+  /// Confirm booking button
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Booking'**
+  String get bookingConfirmButton;
+
+  /// Edit shipment details button
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Shipment Details'**
+  String get bookingEditShipmentDetails;
+
+  /// Booking confirmation page title
+  ///
+  /// In en, this message translates to:
+  /// **'Booking Confirmation'**
+  String get bookingConfirmationTitle;
+
+  /// Return to quotes button
+  ///
+  /// In en, this message translates to:
+  /// **'Return to Quotes'**
+  String get bookingReturnToQuotes;
+
+  /// Shipment booked success message
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Shipment Booked!'**
+  String get bookingShipmentBooked;
+
+  /// Shipment created message
+  ///
+  /// In en, this message translates to:
+  /// **'📦 Shipment Created'**
+  String get bookingShipmentCreated;
+
+  /// Label generated message
+  ///
+  /// In en, this message translates to:
+  /// **'Your shipping label has been generated'**
+  String get bookingLabelGenerated;
+
+  /// Shipment created without label
+  ///
+  /// In en, this message translates to:
+  /// **'Shipment created (No label purchased)'**
+  String get bookingShipmentCreatedNoLabel;
+
+  /// Shipment details section title
+  ///
+  /// In en, this message translates to:
+  /// **'Shipment Details'**
+  String get bookingShipmentDetailsTitle;
+
+  /// Carrier label
+  ///
+  /// In en, this message translates to:
+  /// **'Carrier'**
+  String get bookingCarrierLabel;
+
+  /// Shipment ID label
+  ///
+  /// In en, this message translates to:
+  /// **'Shipment ID'**
+  String get bookingShipmentIdLabel;
+
+  /// Tracking information section title
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking Information'**
+  String get bookingTrackingInformation;
+
+  /// Tracking number label
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking Number'**
+  String get bookingTrackingNumber;
+
+  /// Track shipment button
+  ///
+  /// In en, this message translates to:
+  /// **'Track Shipment'**
+  String get bookingTrackShipment;
+
+  /// Documents section title
+  ///
+  /// In en, this message translates to:
+  /// **'Documents'**
+  String get bookingDocumentsTitle;
+
+  /// Shipping label document
+  ///
+  /// In en, this message translates to:
+  /// **'Shipping Label'**
+  String get bookingShippingLabel;
+
+  /// PDF ready to print subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'PDF - Ready to print'**
+  String get bookingPdfReadyToPrint;
+
+  /// Commercial invoice document
+  ///
+  /// In en, this message translates to:
+  /// **'Commercial Invoice'**
+  String get bookingCommercialInvoice;
+
+  /// PDF customs document subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'PDF - Customs document'**
+  String get bookingPdfCustomsDocument;
+
+  /// Customs declaration document
+  ///
+  /// In en, this message translates to:
+  /// **'Customs Declaration (CN22/CN23)'**
+  String get bookingCustomsDeclaration;
+
+  /// No documents message
+  ///
+  /// In en, this message translates to:
+  /// **'No documents generated yet. Documents will be available after label purchase.'**
+  String get bookingNoDocumentsYet;
+
+  /// Important information section title
+  ///
+  /// In en, this message translates to:
+  /// **'Important Information'**
+  String get bookingImportantInformation;
+
+  /// Label generated live mode status
+  ///
+  /// In en, this message translates to:
+  /// **'Label Generated (Live Mode)'**
+  String get bookingLabelGeneratedLiveMode;
+
+  /// Label purchased instruction message
+  ///
+  /// In en, this message translates to:
+  /// **'Your shipping label has been purchased. Print and attach it to your package.'**
+  String get bookingLabelPurchasedMessage;
+
+  /// Safe mode no label status
+  ///
+  /// In en, this message translates to:
+  /// **'Safe Mode: No Label Purchased'**
+  String get bookingSafeModeNoLabel;
+
+  /// Safe mode explanation message
+  ///
+  /// In en, this message translates to:
+  /// **'Label creation is disabled in settings (ENABLE_SHIPPO_LABELS=false). No charges were made.'**
+  String get bookingSafeModeMessage;
+
+  /// Confirm label purchase dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Label Purchase'**
+  String get safetyConfirmLabelPurchase;
+
+  /// Warning that account will be charged
+  ///
+  /// In en, this message translates to:
+  /// **'This will charge your account'**
+  String get safetyWillChargeAccount;
+
+  /// Safety warning details
+  ///
+  /// In en, this message translates to:
+  /// **'• A real shipping label will be generated\n• Your Shippo account will be charged\n• This action cannot be undone easily\n• Refunds require carrier approval'**
+  String get safetyRealLabelGenerated;
+
+  /// Instruction to type BOOK
+  ///
+  /// In en, this message translates to:
+  /// **'To confirm, type BOOK below:'**
+  String get safetyTypeBookToConfirm;
+
+  /// Hint text for BOOK input
+  ///
+  /// In en, this message translates to:
+  /// **'Type BOOK to confirm'**
+  String get safetyTypeBookHint;
+
+  /// Confirm purchase button
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Purchase'**
+  String get safetyConfirmPurchaseButton;
+
+  /// Live mode label
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ Live Mode'**
+  String get safetyLiveMode;
+
+  /// Safe mode label
+  ///
+  /// In en, this message translates to:
+  /// **'🛡️ Safe Mode'**
+  String get safetySafeMode;
+
+  /// Live mode message
+  ///
+  /// In en, this message translates to:
+  /// **'Label creation enabled. Real charges will apply.'**
+  String get safetyLiveModeMessage;
+
+  /// Safe mode message
+  ///
+  /// In en, this message translates to:
+  /// **'Labels disabled — Live API active, but no charges will be made.'**
+  String get safetySafeModeMessage;
+
+  /// Customs declaration page title
+  ///
+  /// In en, this message translates to:
+  /// **'Customs Declaration'**
+  String get customsDeclarationTitle;
+
+  /// International shipment label
+  ///
+  /// In en, this message translates to:
+  /// **'International Shipment'**
+  String get customsInternationalShipment;
+
+  /// Customs declaration required explanation
+  ///
+  /// In en, this message translates to:
+  /// **'Customs declaration required. This information will be used to generate commercial invoice and CN22/CN23 forms.'**
+  String get customsDeclarationRequiredMessage;
+
+  /// Load saved profile section title
+  ///
+  /// In en, this message translates to:
+  /// **'Load Saved Profile'**
+  String get customsLoadSavedProfile;
+
+  /// Select profile dropdown label
+  ///
+  /// In en, this message translates to:
+  /// **'Select Profile'**
+  String get customsSelectProfile;
+
+  /// None option for profile selection
+  ///
+  /// In en, this message translates to:
+  /// **'None (Enter manually)'**
+  String get customsNoneEnterManually;
+
+  /// Importer type section title
+  ///
+  /// In en, this message translates to:
+  /// **'Importer Type'**
+  String get customsImporterType;
+
+  /// Business importer type
+  ///
+  /// In en, this message translates to:
+  /// **'Business'**
+  String get customsBusinessLabel;
+
+  /// Individual importer type
+  ///
+  /// In en, this message translates to:
+  /// **'Individual'**
+  String get customsIndividualLabel;
+
+  /// Tax identification section title
+  ///
+  /// In en, this message translates to:
+  /// **'Tax Identification'**
+  String get customsTaxIdentification;
+
+  /// VAT number field label
+  ///
+  /// In en, this message translates to:
+  /// **'VAT Number (Optional)'**
+  String get customsVatNumberOptional;
+
+  /// VAT number hint
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., DE123456789'**
+  String get customsVatNumberHint;
+
+  /// EORI number required label
+  ///
+  /// In en, this message translates to:
+  /// **'EORI Number (Required for EU Business)'**
+  String get customsEoriRequired;
+
+  /// EORI number optional label
+  ///
+  /// In en, this message translates to:
+  /// **'EORI Number (Optional)'**
+  String get customsEoriOptional;
+
+  /// EORI number hint
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., GB123456789000'**
+  String get customsEoriHint;
+
+  /// EORI required validation message
+  ///
+  /// In en, this message translates to:
+  /// **'EORI number required for business importers in EU'**
+  String get customsEoriRequiredValidation;
+
+  /// Tax ID field label
+  ///
+  /// In en, this message translates to:
+  /// **'Tax ID (Optional)'**
+  String get customsTaxIdOptional;
+
+  /// Tax ID hint
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., EIN for US'**
+  String get customsTaxIdHint;
+
+  /// Company information section title
+  ///
+  /// In en, this message translates to:
+  /// **'Company Information'**
+  String get customsCompanyInformation;
+
+  /// Company name field label
+  ///
+  /// In en, this message translates to:
+  /// **'Company Name'**
+  String get customsCompanyName;
+
+  /// Company name required validation
+  ///
+  /// In en, this message translates to:
+  /// **'Company name required for business importers'**
+  String get customsCompanyNameRequired;
+
+  /// Contact name field label
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Name'**
+  String get customsContactName;
+
+  /// Contact phone field label
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Phone'**
+  String get customsContactPhone;
+
+  /// Contact email field label
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Email'**
+  String get customsContactEmail;
+
+  /// Incoterms section title
+  ///
+  /// In en, this message translates to:
+  /// **'Incoterms'**
+  String get customsIncotermsTitle;
+
+  /// Incoterms subtitle explanation
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery terms that define responsibilities between buyer and seller.'**
+  String get customsIncotermsSubtitle;
+
+  /// Goods declaration section title
+  ///
+  /// In en, this message translates to:
+  /// **'Goods Declaration'**
+  String get customsGoodsDeclaration;
+
+  /// Add item button
+  ///
+  /// In en, this message translates to:
+  /// **'Add Item'**
+  String get customsAddItem;
+
+  /// Item number label
+  ///
+  /// In en, this message translates to:
+  /// **'Item {number}'**
+  String customsItemNumber(int number);
+
+  /// Description field label
+  ///
+  /// In en, this message translates to:
+  /// **'Description*'**
+  String get customsDescriptionRequired;
+
+  /// Description hint
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., Electronic components'**
+  String get customsDescriptionHint;
+
+  /// Quantity field label
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity*'**
+  String get customsQuantityRequired;
+
+  /// Weight in kg field label
+  ///
+  /// In en, this message translates to:
+  /// **'Weight (kg)*'**
+  String get customsWeightKgRequired;
+
+  /// Value in USD field label
+  ///
+  /// In en, this message translates to:
+  /// **'Value (USD)*'**
+  String get customsValueUsdRequired;
+
+  /// HS code field label
+  ///
+  /// In en, this message translates to:
+  /// **'HS Code*'**
+  String get customsHsCodeRequired;
+
+  /// HS code hint
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., 8542.31'**
+  String get customsHsCodeHint;
+
+  /// Origin country field label
+  ///
+  /// In en, this message translates to:
+  /// **'Origin Country*'**
+  String get customsOriginCountryRequired;
+
+  /// Origin country hint
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., CN, US'**
+  String get customsOriginCountryHint;
+
+  /// Additional information section title
+  ///
+  /// In en, this message translates to:
+  /// **'Additional Information'**
+  String get customsAdditionalInformation;
+
+  /// Invoice number field label
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice Number (Optional)'**
+  String get customsInvoiceNumberOptional;
+
+  /// Invoice number hint
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., INV-2025-001'**
+  String get customsInvoiceNumberHint;
+
+  /// Notes field label
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (Optional)'**
+  String get customsNotesOptional;
+
+  /// Notes hint
+  ///
+  /// In en, this message translates to:
+  /// **'Any additional customs information'**
+  String get customsNotesHint;
+
+  /// Certification checkbox text
+  ///
+  /// In en, this message translates to:
+  /// **'I certify that the information above is accurate and complete'**
+  String get customsCertifyAccurate;
+
+  /// Certification subtitle warning
+  ///
+  /// In en, this message translates to:
+  /// **'Required for customs declaration. False information may result in penalties.'**
+  String get customsCertifySubtitle;
+
+  /// Save profile checkbox text
+  ///
+  /// In en, this message translates to:
+  /// **'Save this profile for future shipments'**
+  String get customsSaveProfileFuture;
+
+  /// Save profile subtitle explanation
+  ///
+  /// In en, this message translates to:
+  /// **'Your VAT/EORI and company details will be encrypted and stored locally'**
+  String get customsSaveProfileSubtitle;
+
+  /// Generate customs docs button
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Customs Docs'**
+  String get customsGenerateDocsButton;
+
+  /// Error when items incomplete
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill in all commodity line items with description and HS code'**
+  String get customsFillAllItemsError;
+
+  /// Error when certification not checked
+  ///
+  /// In en, this message translates to:
+  /// **'You must certify that the information is accurate'**
+  String get customsMustCertifyError;
+
+  /// Success message for saved customs
+  ///
+  /// In en, this message translates to:
+  /// **'Customs information saved'**
+  String get customsInformationSaved;
 }
 
 class _AppLocalizationsDelegate
