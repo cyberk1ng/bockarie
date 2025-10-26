@@ -410,6 +410,220 @@ void main() {
       final eurPrice = rate.toPriceEur(0.92);
       expect(eurPrice, 0.0);
     });
+
+    test('toPriceEur uses amount_local when currency_local is EUR', () {
+      final rate = ShippoRate(
+        objectId: 'rate_1',
+        provider: 'UPS',
+        servicelevel: ShippoServiceLevel(name: 'Expedited'),
+        amount: '2897.18', // CNY
+        currency: 'CNY',
+        amountLocal: '349.87', // EUR
+        currencyLocal: 'EUR',
+      );
+
+      final eurPrice = rate.toPriceEur(0.92);
+      expect(eurPrice, 349.87); // Should use amount_local directly
+    });
+
+    test('toPriceEur uses amount when currency is EUR', () {
+      final rate = ShippoRate(
+        objectId: 'rate_1',
+        provider: 'DHL',
+        servicelevel: ShippoServiceLevel(name: 'Express'),
+        amount: '125.50',
+        currency: 'EUR',
+      );
+
+      final eurPrice = rate.toPriceEur(0.92);
+      expect(eurPrice, 125.50); // Should use amount directly
+    });
+
+    test('toPriceEur converts USD correctly when no amount_local', () {
+      final rate = ShippoRate(
+        objectId: 'rate_1',
+        provider: 'USPS',
+        servicelevel: ShippoServiceLevel(name: 'Priority'),
+        amount: '100.00',
+        currency: 'USD',
+      );
+
+      final eurPrice = rate.toPriceEur(0.92);
+      expect(eurPrice, 92.0);
+    });
+
+    test('toPriceEur falls back to amount_local for unknown currencies', () {
+      final rate = ShippoRate(
+        objectId: 'rate_1',
+        provider: 'UPS',
+        servicelevel: ShippoServiceLevel(name: 'Standard'),
+        amount: '500.00', // JPY or some other currency
+        currency: 'JPY',
+        amountLocal: '50.00', // Hopefully in EUR
+      );
+
+      final eurPrice = rate.toPriceEur(0.92);
+      expect(eurPrice, 50.0); // Should use amount_local as fallback
+    });
+
+    test('toPriceEur currencyLocal=GBP with currency=JPY uses amountLocal', () {
+      final rate = ShippoRate(
+        objectId: 'rate_1',
+        provider: 'UPS',
+        servicelevel: ShippoServiceLevel(name: 'Standard'),
+        amount: '10000.00',
+        currency: 'JPY', // Non-USD, non-EUR currency
+        amountLocal: '85.00',
+        currencyLocal: 'GBP',
+      );
+
+      final eurPrice = rate.toPriceEur(0.92);
+      expect(eurPrice, 85.0); // Should use amount_local as fallback
+    });
+
+    test('toPriceEur invalid amount AND amountLocal strings return 0.0', () {
+      final rate = ShippoRate(
+        objectId: 'rate_1',
+        provider: 'USPS',
+        servicelevel: ShippoServiceLevel(name: 'Priority'),
+        amount: 'invalid',
+        currency: 'USD',
+        amountLocal: 'also_invalid',
+        currencyLocal: 'GBP',
+      );
+
+      final eurPrice = rate.toPriceEur(0.92);
+      expect(eurPrice, 0.0);
+    });
+
+    test('toPriceEur negative amounts handled gracefully', () {
+      final rate = ShippoRate(
+        objectId: 'rate_1',
+        provider: 'USPS',
+        servicelevel: ShippoServiceLevel(name: 'Priority'),
+        amount: '-50.00',
+        currency: 'USD',
+      );
+
+      final eurPrice = rate.toPriceEur(0.92);
+      expect(eurPrice, -46.0); // -50 * 0.92
+    });
+
+    test('toPriceEur zero amounts return 0.0', () {
+      final rate = ShippoRate(
+        objectId: 'rate_1',
+        provider: 'USPS',
+        servicelevel: ShippoServiceLevel(name: 'Priority'),
+        amount: '0.00',
+        currency: 'USD',
+      );
+
+      final eurPrice = rate.toPriceEur(0.92);
+      expect(eurPrice, 0.0);
+    });
+
+    test('toPriceEur missing both amount and amountLocal returns 0.0', () {
+      final rate = ShippoRate(
+        objectId: 'rate_1',
+        provider: 'USPS',
+        servicelevel: ShippoServiceLevel(name: 'Priority'),
+        amount: '',
+        currency: 'USD',
+        amountLocal: null,
+      );
+
+      final eurPrice = rate.toPriceEur(0.92);
+      expect(eurPrice, 0.0);
+    });
+
+    test(
+      'toPriceEur priority chain: currencyLocal=EUR > currency=EUR > currency=USD > amountLocal',
+      () {
+        // Test Priority 1: currencyLocal=EUR
+        final rate1 = ShippoRate(
+          objectId: 'rate_1',
+          provider: 'UPS',
+          servicelevel: ShippoServiceLevel(name: 'Standard'),
+          amount: '100.00',
+          currency: 'USD',
+          amountLocal: '85.00',
+          currencyLocal: 'EUR',
+        );
+        expect(rate1.toPriceEur(0.92), 85.0);
+
+        // Test Priority 2: currency=EUR
+        final rate2 = ShippoRate(
+          objectId: 'rate_2',
+          provider: 'DHL',
+          servicelevel: ShippoServiceLevel(name: 'Express'),
+          amount: '90.00',
+          currency: 'EUR',
+        );
+        expect(rate2.toPriceEur(0.92), 90.0);
+
+        // Test Priority 3: currency=USD
+        final rate3 = ShippoRate(
+          objectId: 'rate_3',
+          provider: 'USPS',
+          servicelevel: ShippoServiceLevel(name: 'Priority'),
+          amount: '100.00',
+          currency: 'USD',
+        );
+        expect(rate3.toPriceEur(0.92), 92.0);
+
+        // Test Priority 4: amountLocal fallback
+        final rate4 = ShippoRate(
+          objectId: 'rate_4',
+          provider: 'UPS',
+          servicelevel: ShippoServiceLevel(name: 'Standard'),
+          amount: '10000.00',
+          currency: 'JPY',
+          amountLocal: '75.00',
+        );
+        expect(rate4.toPriceEur(0.92), 75.0);
+      },
+    );
+
+    test('toPriceEur CNY currency uses amountLocal if available', () {
+      final rate = ShippoRate(
+        objectId: 'rate_1',
+        provider: 'UPS',
+        servicelevel: ShippoServiceLevel(name: 'Standard'),
+        amount: '700.00',
+        currency: 'CNY',
+        amountLocal: '85.00',
+      );
+
+      final eurPrice = rate.toPriceEur(0.92);
+      expect(eurPrice, 85.0); // Should use amount_local
+    });
+
+    test('toPriceEur JPY currency uses amountLocal if available', () {
+      final rate = ShippoRate(
+        objectId: 'rate_1',
+        provider: 'UPS',
+        servicelevel: ShippoServiceLevel(name: 'Standard'),
+        amount: '12000.00',
+        currency: 'JPY',
+        amountLocal: '90.00',
+      );
+
+      final eurPrice = rate.toPriceEur(0.92);
+      expect(eurPrice, 90.0); // Should use amount_local
+    });
+
+    test('toPriceEur empty string amounts return 0.0', () {
+      final rate = ShippoRate(
+        objectId: 'rate_1',
+        provider: 'USPS',
+        servicelevel: ShippoServiceLevel(name: 'Priority'),
+        amount: '',
+        currency: 'USD',
+      );
+
+      final eurPrice = rate.toPriceEur(0.92);
+      expect(eurPrice, 0.0);
+    });
   });
 
   group('ShippoShipmentResponse', () {

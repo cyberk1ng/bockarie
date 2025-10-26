@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bockaire/config/shippo_config.dart';
+import 'package:bockaire/l10n/app_localizations.dart';
 
 /// Safety confirmation dialog for label purchase
 ///
@@ -33,10 +34,10 @@ class _SafetyConfirmationDialogState extends State<SafetyConfirmationDialog> {
             size: 28,
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Confirm Label Purchase',
-              style: TextStyle(fontSize: 18),
+              AppLocalizations.of(context)!.safetyConfirmLabelPurchase,
+              style: const TextStyle(fontSize: 18),
             ),
           ),
         ],
@@ -63,9 +64,9 @@ class _SafetyConfirmationDialogState extends State<SafetyConfirmationDialog> {
                       size: 20,
                     ),
                     const SizedBox(width: 8),
-                    const Text(
-                      'This will charge your account',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.safetyWillChargeAccount,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
@@ -73,26 +74,23 @@ class _SafetyConfirmationDialogState extends State<SafetyConfirmationDialog> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  '• A real shipping label will be generated\n'
-                  '• Your Shippo account will be charged\n'
-                  '• This action cannot be undone easily\n'
-                  '• Refunds require carrier approval',
-                  style: TextStyle(fontSize: 12),
+                Text(
+                  AppLocalizations.of(context)!.safetyRealLabelGenerated,
+                  style: const TextStyle(fontSize: 12),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'To confirm, type BOOK below:',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          Text(
+            AppLocalizations.of(context)!.safetyTypeBookToConfirm,
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           TextField(
             controller: _controller,
             decoration: InputDecoration(
-              hintText: 'Type BOOK to confirm',
+              hintText: AppLocalizations.of(context)!.safetyTypeBookHint,
               border: const OutlineInputBorder(),
               suffixIcon: _canConfirm
                   ? const Icon(Icons.check_circle, color: Colors.green)
@@ -109,14 +107,16 @@ class _SafetyConfirmationDialogState extends State<SafetyConfirmationDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context)!.buttonCancel),
         ),
         FilledButton(
           onPressed: _canConfirm ? () => Navigator.of(context).pop(true) : null,
           style: FilledButton.styleFrom(
             backgroundColor: _canConfirm ? Colors.red : null,
           ),
-          child: const Text('Confirm Purchase'),
+          child: Text(
+            AppLocalizations.of(context)!.safetyConfirmPurchaseButton,
+          ),
         ),
       ],
     );
@@ -159,7 +159,9 @@ class SafetyBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  labelsEnabled ? '⚠️ Live Mode' : '🛡️ Safe Mode',
+                  labelsEnabled
+                      ? AppLocalizations.of(context)!.safetyLiveMode
+                      : AppLocalizations.of(context)!.safetySafeMode,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: labelsEnabled
@@ -170,8 +172,8 @@ class SafetyBanner extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   labelsEnabled
-                      ? 'Label creation enabled. Real charges will apply.'
-                      : 'Labels disabled — Live API active, but no charges will be made.',
+                      ? AppLocalizations.of(context)!.safetyLiveModeMessage
+                      : AppLocalizations.of(context)!.safetySafeModeMessage,
                   style: const TextStyle(fontSize: 12),
                 ),
               ],

@@ -56,6 +56,17 @@ class ShippoService {
       // Convert cartons to Shippo parcels
       final parcels = _convertCartonsToShippoParcels(cartons);
 
+      // Check if this is an international shipment (different countries)
+      final isInternational = originCountry != destCountry;
+      ShippoCustomsDeclaration? customsDeclaration;
+
+      if (isInternational) {
+        _logger.i(
+          'International shipment detected - creating customs declaration',
+        );
+        customsDeclaration = _createCustomsDeclaration(cartons, originCountry);
+      }
+
       // Create shipment request
       final request = ShippoShipmentRequest(
         addressFrom: ShippoAddress(
@@ -76,6 +87,7 @@ class ShippoService {
         ),
         parcels: parcels,
         async: false,
+        customsDeclaration: customsDeclaration,
       );
 
       _logger.d('Request payload: ${request.toJson()}');
@@ -158,6 +170,86 @@ class ShippoService {
     );
 
     return parcels;
+  }
+
+  /// Create customs declaration for international shipments
+  ///
+  /// Generates a customs declaration from carton data for cross-border shipping.
+  /// Required for UPS, DHL, FedEx international shipments.
+  ShippoCustomsDeclaration _createCustomsDeclaration(
+    List<Carton> cartons,
+    String originCountry,
+  ) {
+    // Calculate total weight for customs
+    final _ = cartons.fold<double>(
+      0,
+      (sum, carton) => sum + (carton.weightKg * carton.qty),
+    );
+
+    // Create customs items from cartons
+    final customsItems = cartons.map((carton) {
+      // Estimate value per kg (can be configured later)
+      const estimatedValuePerKg = 50.0; // USD
+      final totalValue = (carton.weightKg * carton.qty * estimatedValuePerKg);
+
+      return ShippoCustomsItem(
+        description: carton.itemType.isNotEmpty
+            ? carton.itemType
+            : 'General Merchandise',
+        quantity: carton.qty,
+        netWeight: (carton.weightKg * carton.qty).toStringAsFixed(2),
+        massUnit: 'kg',
+        valueAmount: totalValue.toStringAsFixed(2),
+        valueCurrency: 'USD',
+        originCountry: originCountry,
+        tariffNumber: _getDefaultTariffNumber(carton.itemType),
+      );
+    }).toList();
+
+    return ShippoCustomsDeclaration(
+      contentsType: 'MERCHANDISE',
+      contentsExplanation: _generateContentsExplanation(cartons),
+      nonDeliveryOption: 'RETURN',
+      certify: true,
+      certifySigner: 'Sender',
+      items: customsItems,
+    );
+  }
+
+  /// Generate a brief contents explanation from carton types
+  String _generateContentsExplanation(List<Carton> cartons) {
+    final uniqueTypes = cartons
+        .map((c) => c.itemType)
+        .where((type) => type.isNotEmpty)
+        .toSet()
+        .take(3)
+        .join(', ');
+
+    return uniqueTypes.isNotEmpty ? uniqueTypes : 'General Merchandise';
+  }
+
+  /// Get default tariff number based on item type
+  ///
+  /// Returns a generic HS code. For production use, proper tariff codes
+  /// should be provided by the user or looked up in a database.
+  String? _getDefaultTariffNumber(String itemType) {
+    final type = itemType.toLowerCase();
+
+    // Common HS codes for typical items
+    if (type.contains('electronic') || type.contains('laptop')) {
+      return '8517.12.00'; // Telephones/electronics
+    } else if (type.contains('clothing') ||
+        type.contains('shirt') ||
+        type.contains('apparel')) {
+      return '6109.10.00'; // T-shirts and similar garments
+    } else if (type.contains('shoe') || type.contains('footwear')) {
+      return '6403.99.00'; // Footwear
+    } else if (type.contains('toy')) {
+      return '9503.00.00'; // Toys
+    }
+
+    // Generic merchandise code
+    return '9999.00.00';
   }
 
   /// Handle Dio errors and convert to ShippoServiceException

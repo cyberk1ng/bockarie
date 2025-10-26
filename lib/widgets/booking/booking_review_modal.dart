@@ -5,6 +5,7 @@ import 'package:bockaire/config/shippo_config.dart';
 import 'package:bockaire/widgets/modal/modal_card.dart';
 import 'package:bockaire/themes/theme.dart';
 import 'package:bockaire/providers/currency_provider.dart';
+import 'package:bockaire/l10n/app_localizations.dart';
 
 /// Modal sheet for reviewing booking details before commitment
 ///
@@ -68,7 +69,7 @@ class BookingReviewModal extends ConsumerWidget {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Review Booking',
+                    AppLocalizations.of(context)!.bookingReviewTitle,
                     style: context.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -120,7 +121,7 @@ class BookingReviewModal extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Route',
+            AppLocalizations.of(context)!.bookingRouteLabel,
             style: context.textTheme.titleSmall?.copyWith(
               color: context.colorScheme.onSurfaceVariant,
             ),
@@ -185,7 +186,7 @@ class BookingReviewModal extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Carrier & Service',
+            AppLocalizations.of(context)!.bookingCarrierServiceLabel,
             style: context.textTheme.titleSmall?.copyWith(
               color: context.colorScheme.onSurfaceVariant,
             ),
@@ -217,14 +218,16 @@ class BookingReviewModal extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Estimated Delivery',
+                    AppLocalizations.of(context)!.bookingEstimatedDeliveryLabel,
                     style: context.textTheme.bodySmall?.copyWith(
                       color: context.colorScheme.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${quote.etaMin}-${quote.etaMax} days',
+                    AppLocalizations.of(
+                      context,
+                    )!.etaDays(quote.etaMin, quote.etaMax),
                     style: context.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -235,7 +238,7 @@ class BookingReviewModal extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'Total Cost',
+                    AppLocalizations.of(context)!.bookingTotalCostLabel,
                     style: context.textTheme.bodySmall?.copyWith(
                       color: context.colorScheme.onSurfaceVariant,
                     ),
@@ -273,8 +276,12 @@ class BookingReviewModal extends ConsumerWidget {
               children: [
                 Text(
                   hasCustoms
-                      ? 'Customs Declaration Ready'
-                      : 'Customs Declaration Required',
+                      ? AppLocalizations.of(
+                          context,
+                        )!.bookingCustomsDeclarationReady
+                      : AppLocalizations.of(
+                          context,
+                        )!.bookingCustomsDeclarationRequired,
                   style: context.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: hasCustoms ? Colors.green : Colors.orange,
@@ -283,7 +290,7 @@ class BookingReviewModal extends ConsumerWidget {
                 if (!hasCustoms) ...[
                   const SizedBox(height: 4),
                   Text(
-                    'International shipments require customs information',
+                    AppLocalizations.of(context)!.bookingCustomsRequiredMessage,
                     style: context.textTheme.bodySmall?.copyWith(
                       color: context.colorScheme.onSurfaceVariant,
                     ),
@@ -328,8 +335,10 @@ class BookingReviewModal extends ConsumerWidget {
               children: [
                 Text(
                   isLabelEnabled
-                      ? 'Label Purchase Enabled'
-                      : 'Safe Mode (No Labels)',
+                      ? AppLocalizations.of(
+                          context,
+                        )!.bookingLabelPurchaseEnabled
+                      : AppLocalizations.of(context)!.bookingSafeMode,
                   style: context.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: isLabelEnabled
@@ -340,8 +349,8 @@ class BookingReviewModal extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Text(
                   isLabelEnabled
-                      ? 'You will be charged for the shipping label'
-                      : 'No charges will be made - testing mode',
+                      ? AppLocalizations.of(context)!.bookingWillBeCharged
+                      : AppLocalizations.of(context)!.bookingNoChargesTestMode,
                   style: context.textTheme.bodySmall?.copyWith(
                     color: context.colorScheme.onSurfaceVariant,
                   ),
@@ -367,7 +376,7 @@ class BookingReviewModal extends ConsumerWidget {
           style: FilledButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
           ),
-          child: const Text('Confirm Booking'),
+          child: Text(AppLocalizations.of(context)!.bookingConfirmButton),
         ),
         const SizedBox(height: 12),
 
@@ -379,7 +388,9 @@ class BookingReviewModal extends ConsumerWidget {
               onEdit?.call();
             },
             icon: const Icon(Icons.edit),
-            label: const Text('Edit Shipment Details'),
+            label: Text(
+              AppLocalizations.of(context)!.bookingEditShipmentDetails,
+            ),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
@@ -393,7 +404,7 @@ class BookingReviewModal extends ConsumerWidget {
           style: TextButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
           ),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context)!.buttonCancel),
         ),
       ],
     );

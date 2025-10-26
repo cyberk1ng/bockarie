@@ -5,6 +5,7 @@ import 'package:bockaire/models/customs_models.dart';
 import 'package:bockaire/providers/booking_providers.dart';
 import 'package:bockaire/themes/theme.dart';
 import 'package:bockaire/widgets/modal/modal_card.dart';
+import 'package:bockaire/l10n/app_localizations.dart';
 
 /// Customs Form Page for international shipments
 ///
@@ -111,10 +112,8 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
     if (_commodityLines.isEmpty ||
         _commodityLines.any((l) => l.description.isEmpty || l.hsCode.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Please fill in all commodity line items with description and HS code',
-          ),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.customsFillAllItemsError),
           backgroundColor: Colors.red,
         ),
       );
@@ -123,8 +122,8 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
 
     if (!_certify) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('You must certify that the information is accurate'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.customsMustCertifyError),
           backgroundColor: Colors.orange,
         ),
       );
@@ -194,8 +193,8 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Customs information saved'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.customsInformationSaved),
           backgroundColor: Colors.green,
         ),
       );
@@ -209,7 +208,7 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Customs Declaration'),
+        title: Text(AppLocalizations.of(context)!.customsDeclarationTitle),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
@@ -268,7 +267,9 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
             FilledButton.icon(
               onPressed: _submit,
               icon: const Icon(Icons.check_circle),
-              label: const Text('Generate Customs Docs'),
+              label: Text(
+                AppLocalizations.of(context)!.customsGenerateDocsButton,
+              ),
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
@@ -291,16 +292,18 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'International Shipment',
+                  AppLocalizations.of(context)!.customsInternationalShipment,
                   style: context.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Colors.blue.shade700,
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Customs declaration required. This information will be used to generate commercial invoice and CN22/CN23 forms.',
-                  style: TextStyle(fontSize: 12),
+                Text(
+                  AppLocalizations.of(
+                    context,
+                  )!.customsDeclarationRequiredMessage,
+                  style: const TextStyle(fontSize: 12),
                 ),
               ],
             ),
@@ -316,7 +319,7 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Load Saved Profile',
+            AppLocalizations.of(context)!.customsLoadSavedProfile,
             style: context.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -324,14 +327,16 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             initialValue: _selectedProfileId,
-            decoration: const InputDecoration(
-              labelText: 'Select Profile',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.customsSelectProfile,
+              border: const OutlineInputBorder(),
             ),
             items: [
-              const DropdownMenuItem<String>(
+              DropdownMenuItem<String>(
                 value: null,
-                child: Text('None (Enter manually)'),
+                child: Text(
+                  AppLocalizations.of(context)!.customsNoneEnterManually,
+                ),
               ),
               ...profiles.map((p) {
                 return DropdownMenuItem<String>(
@@ -362,23 +367,25 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Importer Type',
+            AppLocalizations.of(context)!.customsImporterType,
             style: context.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 12),
           SegmentedButton<ImporterType>(
-            segments: const [
+            segments: [
               ButtonSegment(
                 value: ImporterType.business,
-                label: Text('Business'),
-                icon: Icon(Icons.business),
+                label: Text(AppLocalizations.of(context)!.customsBusinessLabel),
+                icon: const Icon(Icons.business),
               ),
               ButtonSegment(
                 value: ImporterType.individual,
-                label: Text('Individual'),
-                icon: Icon(Icons.person),
+                label: Text(
+                  AppLocalizations.of(context)!.customsIndividualLabel,
+                ),
+                icon: const Icon(Icons.person),
               ),
             ],
             selected: {_importerType},
@@ -399,7 +406,7 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Tax Identification',
+            AppLocalizations.of(context)!.customsTaxIdentification,
             style: context.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -407,10 +414,10 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
           const SizedBox(height: 12),
           TextFormField(
             controller: _vatController,
-            decoration: const InputDecoration(
-              labelText: 'VAT Number (Optional)',
-              hintText: 'e.g., DE123456789',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.customsVatNumberOptional,
+              hintText: AppLocalizations.of(context)!.customsVatNumberHint,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 12),
@@ -418,15 +425,17 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
             controller: _eoriController,
             decoration: InputDecoration(
               labelText: _importerType == ImporterType.business
-                  ? 'EORI Number (Required for EU Business)'
-                  : 'EORI Number (Optional)',
-              hintText: 'e.g., GB123456789000',
+                  ? AppLocalizations.of(context)!.customsEoriRequired
+                  : AppLocalizations.of(context)!.customsEoriOptional,
+              hintText: AppLocalizations.of(context)!.customsEoriHint,
               border: const OutlineInputBorder(),
             ),
             validator: (value) {
               if (_importerType == ImporterType.business &&
                   (value == null || value.isEmpty)) {
-                return 'EORI number required for business importers in EU';
+                return AppLocalizations.of(
+                  context,
+                )!.customsEoriRequiredValidation;
               }
               return null;
             },
@@ -434,10 +443,10 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
           const SizedBox(height: 12),
           TextFormField(
             controller: _taxIdController,
-            decoration: const InputDecoration(
-              labelText: 'Tax ID (Optional)',
-              hintText: 'e.g., EIN for US',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.customsTaxIdOptional,
+              hintText: AppLocalizations.of(context)!.customsTaxIdHint,
+              border: const OutlineInputBorder(),
             ),
           ),
         ],
@@ -451,7 +460,7 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Company Information',
+            AppLocalizations.of(context)!.customsCompanyInformation,
             style: context.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -459,14 +468,14 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
           const SizedBox(height: 12),
           TextFormField(
             controller: _companyNameController,
-            decoration: const InputDecoration(
-              labelText: 'Company Name',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.customsCompanyName,
+              border: const OutlineInputBorder(),
             ),
             validator: (value) {
               if (_importerType == ImporterType.business &&
                   (value == null || value.isEmpty)) {
-                return 'Company name required for business importers';
+                return AppLocalizations.of(context)!.customsCompanyNameRequired;
               }
               return null;
             },
@@ -474,26 +483,26 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
           const SizedBox(height: 12),
           TextFormField(
             controller: _contactNameController,
-            decoration: const InputDecoration(
-              labelText: 'Contact Name',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.customsContactName,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 12),
           TextFormField(
             controller: _contactPhoneController,
-            decoration: const InputDecoration(
-              labelText: 'Contact Phone',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.customsContactPhone,
+              border: const OutlineInputBorder(),
             ),
             keyboardType: TextInputType.phone,
           ),
           const SizedBox(height: 12),
           TextFormField(
             controller: _contactEmailController,
-            decoration: const InputDecoration(
-              labelText: 'Contact Email',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.customsContactEmail,
+              border: const OutlineInputBorder(),
             ),
             keyboardType: TextInputType.emailAddress,
           ),
@@ -508,15 +517,15 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Incoterms',
+            AppLocalizations.of(context)!.customsIncotermsTitle,
             style: context.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Delivery terms that define responsibilities between buyer and seller.',
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+          Text(
+            AppLocalizations.of(context)!.customsIncotermsSubtitle,
+            style: const TextStyle(fontSize: 12, color: Colors.grey),
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<Incoterms>(
@@ -550,7 +559,7 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
             children: [
               Expanded(
                 child: Text(
-                  'Goods Declaration',
+                  AppLocalizations.of(context)!.customsGoodsDeclaration,
                   style: context.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -559,7 +568,7 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
               TextButton.icon(
                 onPressed: _addDefaultCommodityLine,
                 icon: const Icon(Icons.add, size: 18),
-                label: const Text('Add Item'),
+                label: Text(AppLocalizations.of(context)!.customsAddItem),
               ),
             ],
           ),
@@ -587,7 +596,7 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
             Row(
               children: [
                 Text(
-                  'Item ${index + 1}',
+                  AppLocalizations.of(context)!.customsItemNumber(index + 1),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
@@ -605,10 +614,12 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
             const SizedBox(height: 12),
             TextFormField(
               initialValue: line.description,
-              decoration: const InputDecoration(
-                labelText: 'Description*',
-                hintText: 'e.g., Electronic components',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(
+                  context,
+                )!.customsDescriptionRequired,
+                hintText: AppLocalizations.of(context)!.customsDescriptionHint,
+                border: const OutlineInputBorder(),
                 isDense: true,
               ),
               onChanged: (value) {
@@ -623,9 +634,11 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
                 Expanded(
                   child: TextFormField(
                     initialValue: line.quantity.toString(),
-                    decoration: const InputDecoration(
-                      labelText: 'Quantity*',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(
+                        context,
+                      )!.customsQuantityRequired,
+                      border: const OutlineInputBorder(),
                       isDense: true,
                     ),
                     keyboardType: TextInputType.number,
@@ -641,9 +654,11 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
                 Expanded(
                   child: TextFormField(
                     initialValue: line.netWeight.toString(),
-                    decoration: const InputDecoration(
-                      labelText: 'Weight (kg)*',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(
+                        context,
+                      )!.customsWeightKgRequired,
+                      border: const OutlineInputBorder(),
                       isDense: true,
                     ),
                     keyboardType: TextInputType.number,
@@ -661,9 +676,11 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
                 Expanded(
                   child: TextFormField(
                     initialValue: line.valueAmount.toString(),
-                    decoration: const InputDecoration(
-                      labelText: 'Value (USD)*',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(
+                        context,
+                      )!.customsValueUsdRequired,
+                      border: const OutlineInputBorder(),
                       isDense: true,
                     ),
                     keyboardType: TextInputType.number,
@@ -685,10 +702,12 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
                 Expanded(
                   child: TextFormField(
                     initialValue: line.hsCode,
-                    decoration: const InputDecoration(
-                      labelText: 'HS Code*',
-                      hintText: 'e.g., 8542.31',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(
+                        context,
+                      )!.customsHsCodeRequired,
+                      hintText: AppLocalizations.of(context)!.customsHsCodeHint,
+                      border: const OutlineInputBorder(),
                       isDense: true,
                     ),
                     onChanged: (value) {
@@ -702,10 +721,14 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
                 Expanded(
                   child: TextFormField(
                     initialValue: line.originCountry,
-                    decoration: const InputDecoration(
-                      labelText: 'Origin Country*',
-                      hintText: 'e.g., CN, US',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(
+                        context,
+                      )!.customsOriginCountryRequired,
+                      hintText: AppLocalizations.of(
+                        context,
+                      )!.customsOriginCountryHint,
+                      border: const OutlineInputBorder(),
                       isDense: true,
                     ),
                     onChanged: (value) {
@@ -731,7 +754,7 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Additional Information',
+            AppLocalizations.of(context)!.customsAdditionalInformation,
             style: context.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -739,19 +762,21 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
           const SizedBox(height: 12),
           TextFormField(
             controller: _invoiceNumberController,
-            decoration: const InputDecoration(
-              labelText: 'Invoice Number (Optional)',
-              hintText: 'e.g., INV-2025-001',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(
+                context,
+              )!.customsInvoiceNumberOptional,
+              hintText: AppLocalizations.of(context)!.customsInvoiceNumberHint,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 12),
           TextFormField(
             controller: _notesController,
-            decoration: const InputDecoration(
-              labelText: 'Notes (Optional)',
-              hintText: 'Any additional customs information',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.customsNotesOptional,
+              hintText: AppLocalizations.of(context)!.customsNotesHint,
+              border: const OutlineInputBorder(),
             ),
             maxLines: 3,
           ),
@@ -769,13 +794,13 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
             _certify = value ?? false;
           });
         },
-        title: const Text(
-          'I certify that the information above is accurate and complete',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          AppLocalizations.of(context)!.customsCertifyAccurate,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: const Text(
-          'Required for customs declaration. False information may result in penalties.',
-          style: TextStyle(fontSize: 12),
+        subtitle: Text(
+          AppLocalizations.of(context)!.customsCertifySubtitle,
+          style: const TextStyle(fontSize: 12),
         ),
         controlAffinity: ListTileControlAffinity.leading,
       ),
@@ -791,10 +816,10 @@ class _CustomsFormPageState extends ConsumerState<CustomsFormPage> {
             _saveProfile = value ?? false;
           });
         },
-        title: const Text('Save this profile for future shipments'),
-        subtitle: const Text(
-          'Your VAT/EORI and company details will be encrypted and stored locally',
-          style: TextStyle(fontSize: 12),
+        title: Text(AppLocalizations.of(context)!.customsSaveProfileFuture),
+        subtitle: Text(
+          AppLocalizations.of(context)!.customsSaveProfileSubtitle,
+          style: const TextStyle(fontSize: 12),
         ),
         controlAffinity: ListTileControlAffinity.leading,
       ),

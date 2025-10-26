@@ -1,21 +1,20 @@
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:bockaire/services/ai_provider_interfaces.dart';
+import 'package:bockaire/services/gemini_utils.dart';
 import 'package:logger/logger.dart';
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+/// Service for parsing carton data from voice transcriptions using Gemini AI
+///
+/// Uses HTTP client injection pattern from lotti project for clean testing
 class CartonVoiceParserService {
-  final GenerativeModel _model;
+  final String _apiKey;
+  final http.Client _httpClient;
   final Logger _logger = Logger();
 
-  CartonVoiceParserService(String apiKey)
-    : _model = GenerativeModel(
-        model: 'gemini-2.0-flash-exp', // Fast and smart
-        apiKey: apiKey,
-        generationConfig: GenerationConfig(
-          temperature: 0.1, // Deterministic parsing
-          responseMimeType: 'application/json',
-        ),
-      );
+  CartonVoiceParserService(String apiKey, {http.Client? httpClient})
+    : _apiKey = apiKey,
+      _httpClient = httpClient ?? http.Client();
 
   /// Parse transcribed text into CartonData
   Future<CartonData?> parseCartonFromText({
@@ -55,11 +54,46 @@ Examples:
 If any value is unclear or not mentioned, use null.
 ''';
 
-      final response = await _model.generateContent([Content.text(prompt)]);
-      final jsonText = response.text?.trim() ?? '{}';
+      // Build URI and request body using GeminiUtils
+      final uri = GeminiUtils.buildGenerateContentUri(
+        model: 'gemini-2.0-flash-exp',
+        apiKey: _apiKey,
+      );
+
+      final body = GeminiUtils.buildRequestBody(
+        prompt: prompt,
+        temperature: 0.1,
+        responseMimeType: 'application/json',
+      );
+
+      // Make HTTP request
+      final request = http.Request('POST', uri)
+        ..headers['Content-Type'] = 'application/json'
+        ..body = jsonEncode(body);
+
+      final streamedResponse = await _httpClient.send(request);
+      final response = await http.Response.fromStream(streamedResponse);
+
+      // Check for HTTP errors
+      if (response.statusCode != 200) {
+        _logger.e('Gemini API error ${response.statusCode}: ${response.body}');
+        throw Exception(
+          'Gemini API returned ${response.statusCode}: ${response.body}',
+        );
+      }
+
+      // Parse response
+      final responseJson = jsonDecode(response.body) as Map<String, dynamic>;
+      final jsonText = GeminiUtils.extractTextFromResponse(responseJson);
+
+      if (jsonText == null || jsonText.trim().isEmpty) {
+        _logger.w('Empty response from Gemini');
+        throw Exception('Empty response from Gemini');
+      }
 
       _logger.d('Gemini response: $jsonText');
 
+      // Parse the JSON response containing carton data
       final data = jsonDecode(jsonText) as Map<String, dynamic>;
 
       // Create CartonData object
@@ -91,5 +125,9 @@ If any value is unclear or not mentioned, use null.
       _logger.e('Failed to parse carton: $e');
       rethrow;
     }
+  }
+
+  void dispose() {
+    _httpClient.close();
   }
 }

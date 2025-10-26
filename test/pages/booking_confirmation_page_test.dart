@@ -97,6 +97,8 @@ void main() {
           ProviderScope(
             child: MaterialApp(
               navigatorKey: navigatorKey,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
               home: Scaffold(
                 body: Builder(
                   builder: (context) => ElevatedButton(

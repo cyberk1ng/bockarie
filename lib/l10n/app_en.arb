@@ -1431,5 +1431,506 @@
   "shippoTestNoQuotes": "No quotes available in test mode. Some routes or configurations require production carrier accounts. Switch to production mode for real quotes.",
   "@shippoTestNoQuotes": {
     "description": "Generic test mode no quotes message"
+  },
+
+  "bookingReviewTitle": "Review Booking",
+  "@bookingReviewTitle": {
+    "description": "Booking review modal title"
+  },
+
+  "bookingRouteLabel": "Route",
+  "@bookingRouteLabel": {
+    "description": "Route section label in booking review"
+  },
+
+  "bookingCarrierServiceLabel": "Carrier & Service",
+  "@bookingCarrierServiceLabel": {
+    "description": "Carrier and service section label"
+  },
+
+  "bookingEstimatedDeliveryLabel": "Estimated Delivery",
+  "@bookingEstimatedDeliveryLabel": {
+    "description": "Estimated delivery label"
+  },
+
+  "bookingTotalCostLabel": "Total Cost",
+  "@bookingTotalCostLabel": {
+    "description": "Total cost label"
+  },
+
+  "bookingCustomsDeclarationReady": "Customs Declaration Ready",
+  "@bookingCustomsDeclarationReady": {
+    "description": "Customs declaration ready status"
+  },
+
+  "bookingCustomsDeclarationRequired": "Customs Declaration Required",
+  "@bookingCustomsDeclarationRequired": {
+    "description": "Customs declaration required status"
+  },
+
+  "bookingCustomsRequiredMessage": "International shipments require customs information",
+  "@bookingCustomsRequiredMessage": {
+    "description": "Message explaining customs requirement"
+  },
+
+  "bookingLabelPurchaseEnabled": "Label Purchase Enabled",
+  "@bookingLabelPurchaseEnabled": {
+    "description": "Label purchase enabled status"
+  },
+
+  "bookingSafeMode": "Safe Mode (No Labels)",
+  "@bookingSafeMode": {
+    "description": "Safe mode status (no labels)"
+  },
+
+  "bookingWillBeCharged": "You will be charged for the shipping label",
+  "@bookingWillBeCharged": {
+    "description": "Warning that user will be charged"
+  },
+
+  "bookingNoChargesTestMode": "No charges will be made - testing mode",
+  "@bookingNoChargesTestMode": {
+    "description": "Message that no charges in test mode"
+  },
+
+  "bookingConfirmButton": "Confirm Booking",
+  "@bookingConfirmButton": {
+    "description": "Confirm booking button"
+  },
+
+  "bookingEditShipmentDetails": "Edit Shipment Details",
+  "@bookingEditShipmentDetails": {
+    "description": "Edit shipment details button"
+  },
+
+  "bookingConfirmationTitle": "Booking Confirmation",
+  "@bookingConfirmationTitle": {
+    "description": "Booking confirmation page title"
+  },
+
+  "bookingReturnToQuotes": "Return to Quotes",
+  "@bookingReturnToQuotes": {
+    "description": "Return to quotes button"
+  },
+
+  "bookingShipmentBooked": "✅ Shipment Booked!",
+  "@bookingShipmentBooked": {
+    "description": "Shipment booked success message"
+  },
+
+  "bookingShipmentCreated": "📦 Shipment Created",
+  "@bookingShipmentCreated": {
+    "description": "Shipment created message"
+  },
+
+  "bookingLabelGenerated": "Your shipping label has been generated",
+  "@bookingLabelGenerated": {
+    "description": "Label generated message"
+  },
+
+  "bookingShipmentCreatedNoLabel": "Shipment created (No label purchased)",
+  "@bookingShipmentCreatedNoLabel": {
+    "description": "Shipment created without label"
+  },
+
+  "bookingShipmentDetailsTitle": "Shipment Details",
+  "@bookingShipmentDetailsTitle": {
+    "description": "Shipment details section title"
+  },
+
+  "bookingCarrierLabel": "Carrier",
+  "@bookingCarrierLabel": {
+    "description": "Carrier label"
+  },
+
+  "bookingShipmentIdLabel": "Shipment ID",
+  "@bookingShipmentIdLabel": {
+    "description": "Shipment ID label"
+  },
+
+  "bookingTrackingInformation": "Tracking Information",
+  "@bookingTrackingInformation": {
+    "description": "Tracking information section title"
+  },
+
+  "bookingTrackingNumber": "Tracking Number",
+  "@bookingTrackingNumber": {
+    "description": "Tracking number label"
+  },
+
+  "bookingTrackShipment": "Track Shipment",
+  "@bookingTrackShipment": {
+    "description": "Track shipment button"
+  },
+
+  "bookingDocumentsTitle": "Documents",
+  "@bookingDocumentsTitle": {
+    "description": "Documents section title"
+  },
+
+  "bookingShippingLabel": "Shipping Label",
+  "@bookingShippingLabel": {
+    "description": "Shipping label document"
+  },
+
+  "bookingPdfReadyToPrint": "PDF - Ready to print",
+  "@bookingPdfReadyToPrint": {
+    "description": "PDF ready to print subtitle"
+  },
+
+  "bookingCommercialInvoice": "Commercial Invoice",
+  "@bookingCommercialInvoice": {
+    "description": "Commercial invoice document"
+  },
+
+  "bookingPdfCustomsDocument": "PDF - Customs document",
+  "@bookingPdfCustomsDocument": {
+    "description": "PDF customs document subtitle"
+  },
+
+  "bookingCustomsDeclaration": "Customs Declaration (CN22/CN23)",
+  "@bookingCustomsDeclaration": {
+    "description": "Customs declaration document"
+  },
+
+  "bookingNoDocumentsYet": "No documents generated yet. Documents will be available after label purchase.",
+  "@bookingNoDocumentsYet": {
+    "description": "No documents message"
+  },
+
+  "bookingImportantInformation": "Important Information",
+  "@bookingImportantInformation": {
+    "description": "Important information section title"
+  },
+
+  "bookingLabelGeneratedLiveMode": "Label Generated (Live Mode)",
+  "@bookingLabelGeneratedLiveMode": {
+    "description": "Label generated live mode status"
+  },
+
+  "bookingLabelPurchasedMessage": "Your shipping label has been purchased. Print and attach it to your package.",
+  "@bookingLabelPurchasedMessage": {
+    "description": "Label purchased instruction message"
+  },
+
+  "bookingSafeModeNoLabel": "Safe Mode: No Label Purchased",
+  "@bookingSafeModeNoLabel": {
+    "description": "Safe mode no label status"
+  },
+
+  "bookingSafeModeMessage": "Label creation is disabled in settings (ENABLE_SHIPPO_LABELS=false). No charges were made.",
+  "@bookingSafeModeMessage": {
+    "description": "Safe mode explanation message"
+  },
+
+  "safetyConfirmLabelPurchase": "Confirm Label Purchase",
+  "@safetyConfirmLabelPurchase": {
+    "description": "Confirm label purchase dialog title"
+  },
+
+  "safetyWillChargeAccount": "This will charge your account",
+  "@safetyWillChargeAccount": {
+    "description": "Warning that account will be charged"
+  },
+
+  "safetyRealLabelGenerated": "• A real shipping label will be generated\n• Your Shippo account will be charged\n• This action cannot be undone easily\n• Refunds require carrier approval",
+  "@safetyRealLabelGenerated": {
+    "description": "Safety warning details"
+  },
+
+  "safetyTypeBookToConfirm": "To confirm, type BOOK below:",
+  "@safetyTypeBookToConfirm": {
+    "description": "Instruction to type BOOK"
+  },
+
+  "safetyTypeBookHint": "Type BOOK to confirm",
+  "@safetyTypeBookHint": {
+    "description": "Hint text for BOOK input"
+  },
+
+  "safetyConfirmPurchaseButton": "Confirm Purchase",
+  "@safetyConfirmPurchaseButton": {
+    "description": "Confirm purchase button"
+  },
+
+  "safetyLiveMode": "⚠️ Live Mode",
+  "@safetyLiveMode": {
+    "description": "Live mode label"
+  },
+
+  "safetySafeMode": "🛡️ Safe Mode",
+  "@safetySafeMode": {
+    "description": "Safe mode label"
+  },
+
+  "safetyLiveModeMessage": "Label creation enabled. Real charges will apply.",
+  "@safetyLiveModeMessage": {
+    "description": "Live mode message"
+  },
+
+  "safetySafeModeMessage": "Labels disabled — Live API active, but no charges will be made.",
+  "@safetySafeModeMessage": {
+    "description": "Safe mode message"
+  },
+
+  "customsDeclarationTitle": "Customs Declaration",
+  "@customsDeclarationTitle": {
+    "description": "Customs declaration page title"
+  },
+
+  "customsInternationalShipment": "International Shipment",
+  "@customsInternationalShipment": {
+    "description": "International shipment label"
+  },
+
+  "customsDeclarationRequiredMessage": "Customs declaration required. This information will be used to generate commercial invoice and CN22/CN23 forms.",
+  "@customsDeclarationRequiredMessage": {
+    "description": "Customs declaration required explanation"
+  },
+
+  "customsLoadSavedProfile": "Load Saved Profile",
+  "@customsLoadSavedProfile": {
+    "description": "Load saved profile section title"
+  },
+
+  "customsSelectProfile": "Select Profile",
+  "@customsSelectProfile": {
+    "description": "Select profile dropdown label"
+  },
+
+  "customsNoneEnterManually": "None (Enter manually)",
+  "@customsNoneEnterManually": {
+    "description": "None option for profile selection"
+  },
+
+  "customsImporterType": "Importer Type",
+  "@customsImporterType": {
+    "description": "Importer type section title"
+  },
+
+  "customsBusinessLabel": "Business",
+  "@customsBusinessLabel": {
+    "description": "Business importer type"
+  },
+
+  "customsIndividualLabel": "Individual",
+  "@customsIndividualLabel": {
+    "description": "Individual importer type"
+  },
+
+  "customsTaxIdentification": "Tax Identification",
+  "@customsTaxIdentification": {
+    "description": "Tax identification section title"
+  },
+
+  "customsVatNumberOptional": "VAT Number (Optional)",
+  "@customsVatNumberOptional": {
+    "description": "VAT number field label"
+  },
+
+  "customsVatNumberHint": "e.g., DE123456789",
+  "@customsVatNumberHint": {
+    "description": "VAT number hint"
+  },
+
+  "customsEoriRequired": "EORI Number (Required for EU Business)",
+  "@customsEoriRequired": {
+    "description": "EORI number required label"
+  },
+
+  "customsEoriOptional": "EORI Number (Optional)",
+  "@customsEoriOptional": {
+    "description": "EORI number optional label"
+  },
+
+  "customsEoriHint": "e.g., GB123456789000",
+  "@customsEoriHint": {
+    "description": "EORI number hint"
+  },
+
+  "customsEoriRequiredValidation": "EORI number required for business importers in EU",
+  "@customsEoriRequiredValidation": {
+    "description": "EORI required validation message"
+  },
+
+  "customsTaxIdOptional": "Tax ID (Optional)",
+  "@customsTaxIdOptional": {
+    "description": "Tax ID field label"
+  },
+
+  "customsTaxIdHint": "e.g., EIN for US",
+  "@customsTaxIdHint": {
+    "description": "Tax ID hint"
+  },
+
+  "customsCompanyInformation": "Company Information",
+  "@customsCompanyInformation": {
+    "description": "Company information section title"
+  },
+
+  "customsCompanyName": "Company Name",
+  "@customsCompanyName": {
+    "description": "Company name field label"
+  },
+
+  "customsCompanyNameRequired": "Company name required for business importers",
+  "@customsCompanyNameRequired": {
+    "description": "Company name required validation"
+  },
+
+  "customsContactName": "Contact Name",
+  "@customsContactName": {
+    "description": "Contact name field label"
+  },
+
+  "customsContactPhone": "Contact Phone",
+  "@customsContactPhone": {
+    "description": "Contact phone field label"
+  },
+
+  "customsContactEmail": "Contact Email",
+  "@customsContactEmail": {
+    "description": "Contact email field label"
+  },
+
+  "customsIncotermsTitle": "Incoterms",
+  "@customsIncotermsTitle": {
+    "description": "Incoterms section title"
+  },
+
+  "customsIncotermsSubtitle": "Delivery terms that define responsibilities between buyer and seller.",
+  "@customsIncotermsSubtitle": {
+    "description": "Incoterms subtitle explanation"
+  },
+
+  "customsGoodsDeclaration": "Goods Declaration",
+  "@customsGoodsDeclaration": {
+    "description": "Goods declaration section title"
+  },
+
+  "customsAddItem": "Add Item",
+  "@customsAddItem": {
+    "description": "Add item button"
+  },
+
+  "customsItemNumber": "Item {number}",
+  "@customsItemNumber": {
+    "description": "Item number label",
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+
+  "customsDescriptionRequired": "Description*",
+  "@customsDescriptionRequired": {
+    "description": "Description field label"
+  },
+
+  "customsDescriptionHint": "e.g., Electronic components",
+  "@customsDescriptionHint": {
+    "description": "Description hint"
+  },
+
+  "customsQuantityRequired": "Quantity*",
+  "@customsQuantityRequired": {
+    "description": "Quantity field label"
+  },
+
+  "customsWeightKgRequired": "Weight (kg)*",
+  "@customsWeightKgRequired": {
+    "description": "Weight in kg field label"
+  },
+
+  "customsValueUsdRequired": "Value (USD)*",
+  "@customsValueUsdRequired": {
+    "description": "Value in USD field label"
+  },
+
+  "customsHsCodeRequired": "HS Code*",
+  "@customsHsCodeRequired": {
+    "description": "HS code field label"
+  },
+
+  "customsHsCodeHint": "e.g., 8542.31",
+  "@customsHsCodeHint": {
+    "description": "HS code hint"
+  },
+
+  "customsOriginCountryRequired": "Origin Country*",
+  "@customsOriginCountryRequired": {
+    "description": "Origin country field label"
+  },
+
+  "customsOriginCountryHint": "e.g., CN, US",
+  "@customsOriginCountryHint": {
+    "description": "Origin country hint"
+  },
+
+  "customsAdditionalInformation": "Additional Information",
+  "@customsAdditionalInformation": {
+    "description": "Additional information section title"
+  },
+
+  "customsInvoiceNumberOptional": "Invoice Number (Optional)",
+  "@customsInvoiceNumberOptional": {
+    "description": "Invoice number field label"
+  },
+
+  "customsInvoiceNumberHint": "e.g., INV-2025-001",
+  "@customsInvoiceNumberHint": {
+    "description": "Invoice number hint"
+  },
+
+  "customsNotesOptional": "Notes (Optional)",
+  "@customsNotesOptional": {
+    "description": "Notes field label"
+  },
+
+  "customsNotesHint": "Any additional customs information",
+  "@customsNotesHint": {
+    "description": "Notes hint"
+  },
+
+  "customsCertifyAccurate": "I certify that the information above is accurate and complete",
+  "@customsCertifyAccurate": {
+    "description": "Certification checkbox text"
+  },
+
+  "customsCertifySubtitle": "Required for customs declaration. False information may result in penalties.",
+  "@customsCertifySubtitle": {
+    "description": "Certification subtitle warning"
+  },
+
+  "customsSaveProfileFuture": "Save this profile for future shipments",
+  "@customsSaveProfileFuture": {
+    "description": "Save profile checkbox text"
+  },
+
+  "customsSaveProfileSubtitle": "Your VAT/EORI and company details will be encrypted and stored locally",
+  "@customsSaveProfileSubtitle": {
+    "description": "Save profile subtitle explanation"
+  },
+
+  "customsGenerateDocsButton": "Generate Customs Docs",
+  "@customsGenerateDocsButton": {
+    "description": "Generate customs docs button"
+  },
+
+  "customsFillAllItemsError": "Please fill in all commodity line items with description and HS code",
+  "@customsFillAllItemsError": {
+    "description": "Error when items incomplete"
+  },
+
+  "customsMustCertifyError": "You must certify that the information is accurate",
+  "@customsMustCertifyError": {
+    "description": "Error when certification not checked"
+  },
+
+  "customsInformationSaved": "Customs information saved",
+  "@customsInformationSaved": {
+    "description": "Success message for saved customs"
   }
 }

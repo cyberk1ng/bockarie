@@ -458,6 +458,197 @@ void main() {
         expect(addressFrom['state'], '');
         expect(addressTo['state'], '');
       });
+
+      group('International shipment scenarios', () {
+        test('CN→DE shipment includes customs in request payload', () async {
+          when(() => mockDio.post(any(), data: any(named: 'data'))).thenAnswer(
+            (_) async => Response(
+              requestOptions: RequestOptions(),
+              statusCode: 201,
+              data: {
+                'object_id': 'shipment_123',
+                'object_state': 'VALID',
+                'rates': [],
+              },
+            ),
+          );
+
+          await service.getRates(
+            originCity: 'Shanghai',
+            originPostal: '200000',
+            originCountry: 'CN',
+            destCity: 'Berlin',
+            destPostal: '10115',
+            destCountry: 'DE',
+            cartons: testCartons,
+          );
+
+          final captured =
+              verify(
+                    () => mockDio.post(any(), data: captureAny(named: 'data')),
+                  ).captured.first
+                  as Map<String, dynamic>;
+
+          expect(captured.containsKey('customs_declaration'), isTrue);
+          expect(captured['customs_declaration'], isNotNull);
+          final customs =
+              captured['customs_declaration'] as Map<String, dynamic>;
+          expect(customs['items'], isNotEmpty);
+        });
+
+        test('US→CN shipment includes customs in request payload', () async {
+          when(() => mockDio.post(any(), data: any(named: 'data'))).thenAnswer(
+            (_) async => Response(
+              requestOptions: RequestOptions(),
+              statusCode: 201,
+              data: {
+                'object_id': 'shipment_456',
+                'object_state': 'VALID',
+                'rates': [],
+              },
+            ),
+          );
+
+          await service.getRates(
+            originCity: 'New York',
+            originPostal: '10001',
+            originCountry: 'US',
+            destCity: 'Shanghai',
+            destPostal: '200000',
+            destCountry: 'CN',
+            cartons: testCartons,
+          );
+
+          final captured =
+              verify(
+                    () => mockDio.post(any(), data: captureAny(named: 'data')),
+                  ).captured.first
+                  as Map<String, dynamic>;
+
+          expect(captured.containsKey('customs_declaration'), isTrue);
+          expect(captured['customs_declaration'], isNotNull);
+          final customs =
+              captured['customs_declaration'] as Map<String, dynamic>;
+          expect(customs['items'], isNotEmpty);
+        });
+
+        test('US→US shipment excludes customs from payload', () async {
+          when(() => mockDio.post(any(), data: any(named: 'data'))).thenAnswer(
+            (_) async => Response(
+              requestOptions: RequestOptions(),
+              statusCode: 201,
+              data: {
+                'object_id': 'shipment_789',
+                'object_state': 'VALID',
+                'rates': [],
+              },
+            ),
+          );
+
+          await service.getRates(
+            originCity: 'New York',
+            originPostal: '10001',
+            originCountry: 'US',
+            destCity: 'Los Angeles',
+            destPostal: '90001',
+            destCountry: 'US',
+            cartons: testCartons,
+          );
+
+          final captured =
+              verify(
+                    () => mockDio.post(any(), data: captureAny(named: 'data')),
+                  ).captured.first
+                  as Map<String, dynamic>;
+
+          expect(captured.containsKey('customs_declaration'), isFalse);
+        });
+
+        test('CN→CN shipment excludes customs from payload', () async {
+          when(() => mockDio.post(any(), data: any(named: 'data'))).thenAnswer(
+            (_) async => Response(
+              requestOptions: RequestOptions(),
+              statusCode: 201,
+              data: {
+                'object_id': 'shipment_abc',
+                'object_state': 'VALID',
+                'rates': [],
+              },
+            ),
+          );
+
+          await service.getRates(
+            originCity: 'Shanghai',
+            originPostal: '200000',
+            originCountry: 'CN',
+            destCity: 'Beijing',
+            destPostal: '100000',
+            destCountry: 'CN',
+            cartons: testCartons,
+          );
+
+          final captured =
+              verify(
+                    () => mockDio.post(any(), data: captureAny(named: 'data')),
+                  ).captured.first
+                  as Map<String, dynamic>;
+
+          expect(captured.containsKey('customs_declaration'), isFalse);
+        });
+
+        test('Verify isInternational detection logic', () async {
+          // Test international detection by checking both scenarios
+          when(() => mockDio.post(any(), data: any(named: 'data'))).thenAnswer(
+            (_) async => Response(
+              requestOptions: RequestOptions(),
+              statusCode: 201,
+              data: {
+                'object_id': 'shipment_123',
+                'object_state': 'VALID',
+                'rates': [],
+              },
+            ),
+          );
+
+          // Scenario 1: International (different countries)
+          await service.getRates(
+            originCity: 'London',
+            originPostal: 'SW1A 1AA',
+            originCountry: 'GB',
+            destCity: 'Paris',
+            destPostal: '75001',
+            destCountry: 'FR',
+            cartons: testCartons,
+          );
+
+          var captured =
+              verify(
+                    () => mockDio.post(any(), data: captureAny(named: 'data')),
+                  ).captured.last
+                  as Map<String, dynamic>;
+
+          expect(captured.containsKey('customs_declaration'), isTrue);
+
+          // Scenario 2: Domestic (same country)
+          await service.getRates(
+            originCity: 'London',
+            originPostal: 'SW1A 1AA',
+            originCountry: 'GB',
+            destCity: 'Manchester',
+            destPostal: 'M1 1AE',
+            destCountry: 'GB',
+            cartons: testCartons,
+          );
+
+          captured =
+              verify(
+                    () => mockDio.post(any(), data: captureAny(named: 'data')),
+                  ).captured.last
+                  as Map<String, dynamic>;
+
+          expect(captured.containsKey('customs_declaration'), isFalse);
+        });
+      });
     });
 
     group('_convertCartonsToShippoParcels', () {

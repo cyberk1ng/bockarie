@@ -846,4 +846,324 @@ class AppLocalizationsGa extends AppLocalizations {
   @override
   String get shippoTestNoQuotes =>
       'No quotes available in test mode. Some routes or configurations require production carrier accounts. Switch to production mode for real quotes.';
+
+  @override
+  String get bookingReviewTitle => 'Review Booking';
+
+  @override
+  String get bookingRouteLabel => 'Route';
+
+  @override
+  String get bookingCarrierServiceLabel => 'Carrier & Service';
+
+  @override
+  String get bookingEstimatedDeliveryLabel => 'Estimated Delivery';
+
+  @override
+  String get bookingTotalCostLabel => 'Total Cost';
+
+  @override
+  String get bookingCustomsDeclarationReady => 'Customs Declaration Ready';
+
+  @override
+  String get bookingCustomsDeclarationRequired =>
+      'Customs Declaration Required';
+
+  @override
+  String get bookingCustomsRequiredMessage =>
+      'International shipments require customs information';
+
+  @override
+  String get bookingLabelPurchaseEnabled => 'Label Purchase Enabled';
+
+  @override
+  String get bookingSafeMode => 'Safe Mode (No Labels)';
+
+  @override
+  String get bookingWillBeCharged =>
+      'You will be charged for the shipping label';
+
+  @override
+  String get bookingNoChargesTestMode =>
+      'No charges will be made - testing mode';
+
+  @override
+  String get bookingConfirmButton => 'Confirm Booking';
+
+  @override
+  String get bookingEditShipmentDetails => 'Edit Shipment Details';
+
+  @override
+  String get bookingConfirmationTitle => 'Booking Confirmation';
+
+  @override
+  String get bookingReturnToQuotes => 'Return to Quotes';
+
+  @override
+  String get bookingShipmentBooked => '✅ Shipment Booked!';
+
+  @override
+  String get bookingShipmentCreated => '📦 Shipment Created';
+
+  @override
+  String get bookingLabelGenerated => 'Your shipping label has been generated';
+
+  @override
+  String get bookingShipmentCreatedNoLabel =>
+      'Shipment created (No label purchased)';
+
+  @override
+  String get bookingShipmentDetailsTitle => 'Shipment Details';
+
+  @override
+  String get bookingCarrierLabel => 'Carrier';
+
+  @override
+  String get bookingShipmentIdLabel => 'Shipment ID';
+
+  @override
+  String get bookingTrackingInformation => 'Tracking Information';
+
+  @override
+  String get bookingTrackingNumber => 'Tracking Number';
+
+  @override
+  String get bookingTrackShipment => 'Track Shipment';
+
+  @override
+  String get bookingDocumentsTitle => 'Documents';
+
+  @override
+  String get bookingShippingLabel => 'Shipping Label';
+
+  @override
+  String get bookingPdfReadyToPrint => 'PDF - Ready to print';
+
+  @override
+  String get bookingCommercialInvoice => 'Commercial Invoice';
+
+  @override
+  String get bookingPdfCustomsDocument => 'PDF - Customs document';
+
+  @override
+  String get bookingCustomsDeclaration => 'Customs Declaration (CN22/CN23)';
+
+  @override
+  String get bookingNoDocumentsYet =>
+      'No documents generated yet. Documents will be available after label purchase.';
+
+  @override
+  String get bookingImportantInformation => 'Important Information';
+
+  @override
+  String get bookingLabelGeneratedLiveMode => 'Label Generated (Live Mode)';
+
+  @override
+  String get bookingLabelPurchasedMessage =>
+      'Your shipping label has been purchased. Print and attach it to your package.';
+
+  @override
+  String get bookingSafeModeNoLabel => 'Safe Mode: No Label Purchased';
+
+  @override
+  String get bookingSafeModeMessage =>
+      'Label creation is disabled in settings (ENABLE_SHIPPO_LABELS=false). No charges were made.';
+
+  @override
+  String get safetyConfirmLabelPurchase => 'Confirm Label Purchase';
+
+  @override
+  String get safetyWillChargeAccount => 'This will charge your account';
+
+  @override
+  String get safetyRealLabelGenerated =>
+      '• A real shipping label will be generated\n• Your Shippo account will be charged\n• This action cannot be undone easily\n• Refunds require carrier approval';
+
+  @override
+  String get safetyTypeBookToConfirm => 'To confirm, type BOOK below:';
+
+  @override
+  String get safetyTypeBookHint => 'Type BOOK to confirm';
+
+  @override
+  String get safetyConfirmPurchaseButton => 'Confirm Purchase';
+
+  @override
+  String get safetyLiveMode => '⚠️ Live Mode';
+
+  @override
+  String get safetySafeMode => '🛡️ Safe Mode';
+
+  @override
+  String get safetyLiveModeMessage =>
+      'Label creation enabled. Real charges will apply.';
+
+  @override
+  String get safetySafeModeMessage =>
+      'Labels disabled — Live API active, but no charges will be made.';
+
+  @override
+  String get customsDeclarationTitle => 'Customs Declaration';
+
+  @override
+  String get customsInternationalShipment => 'International Shipment';
+
+  @override
+  String get customsDeclarationRequiredMessage =>
+      'Customs declaration required. This information will be used to generate commercial invoice and CN22/CN23 forms.';
+
+  @override
+  String get customsLoadSavedProfile => 'Load Saved Profile';
+
+  @override
+  String get customsSelectProfile => 'Select Profile';
+
+  @override
+  String get customsNoneEnterManually => 'None (Enter manually)';
+
+  @override
+  String get customsImporterType => 'Importer Type';
+
+  @override
+  String get customsBusinessLabel => 'Business';
+
+  @override
+  String get customsIndividualLabel => 'Individual';
+
+  @override
+  String get customsTaxIdentification => 'Tax Identification';
+
+  @override
+  String get customsVatNumberOptional => 'VAT Number (Optional)';
+
+  @override
+  String get customsVatNumberHint => 'e.g., DE123456789';
+
+  @override
+  String get customsEoriRequired => 'EORI Number (Required for EU Business)';
+
+  @override
+  String get customsEoriOptional => 'EORI Number (Optional)';
+
+  @override
+  String get customsEoriHint => 'e.g., GB123456789000';
+
+  @override
+  String get customsEoriRequiredValidation =>
+      'EORI number required for business importers in EU';
+
+  @override
+  String get customsTaxIdOptional => 'Tax ID (Optional)';
+
+  @override
+  String get customsTaxIdHint => 'e.g., EIN for US';
+
+  @override
+  String get customsCompanyInformation => 'Company Information';
+
+  @override
+  String get customsCompanyName => 'Company Name';
+
+  @override
+  String get customsCompanyNameRequired =>
+      'Company name required for business importers';
+
+  @override
+  String get customsContactName => 'Contact Name';
+
+  @override
+  String get customsContactPhone => 'Contact Phone';
+
+  @override
+  String get customsContactEmail => 'Contact Email';
+
+  @override
+  String get customsIncotermsTitle => 'Incoterms';
+
+  @override
+  String get customsIncotermsSubtitle =>
+      'Delivery terms that define responsibilities between buyer and seller.';
+
+  @override
+  String get customsGoodsDeclaration => 'Goods Declaration';
+
+  @override
+  String get customsAddItem => 'Add Item';
+
+  @override
+  String customsItemNumber(int number) {
+    return 'Item $number';
+  }
+
+  @override
+  String get customsDescriptionRequired => 'Description*';
+
+  @override
+  String get customsDescriptionHint => 'e.g., Electronic components';
+
+  @override
+  String get customsQuantityRequired => 'Quantity*';
+
+  @override
+  String get customsWeightKgRequired => 'Weight (kg)*';
+
+  @override
+  String get customsValueUsdRequired => 'Value (USD)*';
+
+  @override
+  String get customsHsCodeRequired => 'HS Code*';
+
+  @override
+  String get customsHsCodeHint => 'e.g., 8542.31';
+
+  @override
+  String get customsOriginCountryRequired => 'Origin Country*';
+
+  @override
+  String get customsOriginCountryHint => 'e.g., CN, US';
+
+  @override
+  String get customsAdditionalInformation => 'Additional Information';
+
+  @override
+  String get customsInvoiceNumberOptional => 'Invoice Number (Optional)';
+
+  @override
+  String get customsInvoiceNumberHint => 'e.g., INV-2025-001';
+
+  @override
+  String get customsNotesOptional => 'Notes (Optional)';
+
+  @override
+  String get customsNotesHint => 'Any additional customs information';
+
+  @override
+  String get customsCertifyAccurate =>
+      'I certify that the information above is accurate and complete';
+
+  @override
+  String get customsCertifySubtitle =>
+      'Required for customs declaration. False information may result in penalties.';
+
+  @override
+  String get customsSaveProfileFuture =>
+      'Save this profile for future shipments';
+
+  @override
+  String get customsSaveProfileSubtitle =>
+      'Your VAT/EORI and company details will be encrypted and stored locally';
+
+  @override
+  String get customsGenerateDocsButton => 'Generate Customs Docs';
+
+  @override
+  String get customsFillAllItemsError =>
+      'Please fill in all commodity line items with description and HS code';
+
+  @override
+  String get customsMustCertifyError =>
+      'You must certify that the information is accurate';
+
+  @override
+  String get customsInformationSaved => 'Customs information saved';
 }

@@ -5,6 +5,7 @@ import 'package:bockaire/themes/theme.dart';
 import 'package:bockaire/widgets/modal/modal_card.dart';
 import 'package:bockaire/database/database.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:bockaire/l10n/app_localizations.dart';
 
 /// Booking Confirmation Page - Shows result after booking
 ///
@@ -30,7 +31,7 @@ class BookingConfirmationPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Booking Confirmation'),
+        title: Text(AppLocalizations.of(context)!.bookingConfirmationTitle),
         automaticallyImplyLeading: false,
       ),
       body: ListView(
@@ -72,7 +73,7 @@ class BookingConfirmationPage extends ConsumerWidget {
               Navigator.of(context).popUntil((route) => route.isFirst);
             },
             icon: const Icon(Icons.done),
-            label: const Text('Return to Quotes'),
+            label: Text(AppLocalizations.of(context)!.bookingReturnToQuotes),
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
@@ -98,8 +99,8 @@ class BookingConfirmationPage extends ConsumerWidget {
               children: [
                 Text(
                   result.labelCreated
-                      ? '✅ Shipment Booked!'
-                      : '📦 Shipment Created',
+                      ? AppLocalizations.of(context)!.bookingShipmentBooked
+                      : AppLocalizations.of(context)!.bookingShipmentCreated,
                   style: context.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: result.labelCreated ? Colors.green : Colors.blue,
@@ -108,8 +109,10 @@ class BookingConfirmationPage extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Text(
                   result.labelCreated
-                      ? 'Your shipping label has been generated'
-                      : 'Shipment created (No label purchased)',
+                      ? AppLocalizations.of(context)!.bookingLabelGenerated
+                      : AppLocalizations.of(
+                          context,
+                        )!.bookingShipmentCreatedNoLabel,
                   style: context.textTheme.bodyMedium,
                 ),
               ],
@@ -126,7 +129,7 @@ class BookingConfirmationPage extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Shipment Details',
+            AppLocalizations.of(context)!.bookingShipmentDetailsTitle,
             style: context.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -135,28 +138,28 @@ class BookingConfirmationPage extends ConsumerWidget {
           _buildDetailRow(
             context,
             Icons.local_shipping,
-            'Carrier',
+            AppLocalizations.of(context)!.bookingCarrierLabel,
             '${quote.carrier} ${quote.service}',
           ),
           const Divider(height: 24),
           _buildDetailRow(
             context,
             Icons.schedule,
-            'Estimated Delivery',
-            '${quote.etaMin}-${quote.etaMax} days',
+            AppLocalizations.of(context)!.bookingEstimatedDeliveryLabel,
+            AppLocalizations.of(context)!.etaDays(quote.etaMin, quote.etaMax),
           ),
           const Divider(height: 24),
           _buildDetailRow(
             context,
             Icons.euro,
-            'Total Cost',
+            AppLocalizations.of(context)!.bookingTotalCostLabel,
             '€${quote.priceEur.toStringAsFixed(2)}',
           ),
           const Divider(height: 24),
           _buildDetailRow(
             context,
             Icons.fingerprint,
-            'Shipment ID',
+            AppLocalizations.of(context)!.bookingShipmentIdLabel,
             result.shipmentId,
             isMonospace: true,
           ),
@@ -175,7 +178,7 @@ class BookingConfirmationPage extends ConsumerWidget {
               Icon(Icons.local_shipping, color: context.colorScheme.primary),
               const SizedBox(width: 8),
               Text(
-                'Tracking Information',
+                AppLocalizations.of(context)!.bookingTrackingInformation,
                 style: context.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -185,7 +188,7 @@ class BookingConfirmationPage extends ConsumerWidget {
           const SizedBox(height: 16),
           if (result.trackingNumber != null) ...[
             Text(
-              'Tracking Number',
+              AppLocalizations.of(context)!.bookingTrackingNumber,
               style: context.textTheme.bodySmall?.copyWith(
                 color: context.colorScheme.onSurfaceVariant,
               ),
@@ -205,7 +208,7 @@ class BookingConfirmationPage extends ConsumerWidget {
             FilledButton.icon(
               onPressed: () => _launchUrl(result.trackingUrlProvider!),
               icon: const Icon(Icons.open_in_new),
-              label: const Text('Track Shipment'),
+              label: Text(AppLocalizations.of(context)!.bookingTrackShipment),
             ),
           ],
         ],
@@ -223,7 +226,7 @@ class BookingConfirmationPage extends ConsumerWidget {
               Icon(Icons.description, color: context.colorScheme.primary),
               const SizedBox(width: 8),
               Text(
-                'Documents',
+                AppLocalizations.of(context)!.bookingDocumentsTitle,
                 style: context.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -234,8 +237,10 @@ class BookingConfirmationPage extends ConsumerWidget {
           if (result.labelUrl != null) ...[
             ListTile(
               leading: const Icon(Icons.local_shipping),
-              title: const Text('Shipping Label'),
-              subtitle: const Text('PDF - Ready to print'),
+              title: Text(AppLocalizations.of(context)!.bookingShippingLabel),
+              subtitle: Text(
+                AppLocalizations.of(context)!.bookingPdfReadyToPrint,
+              ),
               trailing: IconButton(
                 icon: const Icon(Icons.download),
                 onPressed: () => _launchUrl(result.labelUrl!),
@@ -246,8 +251,12 @@ class BookingConfirmationPage extends ConsumerWidget {
           if (result.commercialInvoiceUrl != null) ...[
             ListTile(
               leading: const Icon(Icons.receipt_long),
-              title: const Text('Commercial Invoice'),
-              subtitle: const Text('PDF - Customs document'),
+              title: Text(
+                AppLocalizations.of(context)!.bookingCommercialInvoice,
+              ),
+              subtitle: Text(
+                AppLocalizations.of(context)!.bookingPdfCustomsDocument,
+              ),
               trailing: IconButton(
                 icon: const Icon(Icons.download),
                 onPressed: () => _launchUrl(result.commercialInvoiceUrl!),
@@ -258,16 +267,18 @@ class BookingConfirmationPage extends ConsumerWidget {
           if (result.customsDeclarationId != null) ...[
             ListTile(
               leading: const Icon(Icons.public),
-              title: const Text('Customs Declaration (CN22/CN23)'),
+              title: Text(
+                AppLocalizations.of(context)!.bookingCustomsDeclaration,
+              ),
               subtitle: Text('ID: ${result.customsDeclarationId}'),
               contentPadding: EdgeInsets.zero,
             ),
           ],
           if (result.labelUrl == null &&
               result.commercialInvoiceUrl == null) ...[
-            const Text(
-              'No documents generated yet. Documents will be available after label purchase.',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.bookingNoDocumentsYet,
+              style: const TextStyle(
                 fontSize: 12,
                 color: Colors.grey,
                 fontStyle: FontStyle.italic,
@@ -289,7 +300,7 @@ class BookingConfirmationPage extends ConsumerWidget {
               Icon(Icons.warning_amber, color: Colors.orange.shade700),
               const SizedBox(width: 8),
               Text(
-                'Important Information',
+                AppLocalizations.of(context)!.bookingImportantInformation,
                 style: context.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -329,16 +340,16 @@ class BookingConfirmationPage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Label Generated (Live Mode)',
+                    AppLocalizations.of(context)!.bookingLabelGeneratedLiveMode,
                     style: context.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.green.shade700,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Your shipping label has been purchased. Print and attach it to your package.',
-                    style: TextStyle(fontSize: 12),
+                  Text(
+                    AppLocalizations.of(context)!.bookingLabelPurchasedMessage,
+                    style: const TextStyle(fontSize: 12),
                   ),
                 ],
               ),
@@ -357,16 +368,16 @@ class BookingConfirmationPage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Safe Mode: No Label Purchased',
+                    AppLocalizations.of(context)!.bookingSafeModeNoLabel,
                     style: context.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.blue.shade700,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Label creation is disabled in settings (ENABLE_SHIPPO_LABELS=false). No charges were made.',
-                    style: TextStyle(fontSize: 12),
+                  Text(
+                    AppLocalizations.of(context)!.bookingSafeModeMessage,
+                    style: const TextStyle(fontSize: 12),
                   ),
                 ],
               ),
