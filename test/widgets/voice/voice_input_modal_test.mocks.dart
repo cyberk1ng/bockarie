@@ -195,6 +195,12 @@ class MockCartonVoiceParserService extends _i1.Mock
             returnValue: _i3.Future<_i9.CartonData?>.value(),
           )
           as _i3.Future<_i9.CartonData?>);
+
+  @override
+  void dispose() => super.noSuchMethod(
+    Invocation.method(#dispose, []),
+    returnValueForMissingStub: null,
+  );
 }
 
 /// A class which mocks [LocationVoiceParserService].

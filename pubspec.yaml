@@ -2,7 +2,7 @@ name: bockaire
 description: "Shipping Optimizer - Smart China to Germany shipment planning"
 publish_to: 'none'
 
-version: 0.12.8+23
+version: 0.13.8+24
 
 environment:
   sdk: ^3.9.2

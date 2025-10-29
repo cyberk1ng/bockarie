@@ -38,6 +38,14 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
   OptimizationResult? _ruleBasedResult;
   bool _isOptimizing = false;
 
+  // Smart state detection
+  bool get shouldShowRuleBasedResult =>
+      _ruleBasedResult != null && _ruleBasedResult!.isActionable;
+
+  bool get hasAiSuggestions =>
+      _aiRecommendation != null &&
+      _aiRecommendation!.estimatedSavingsPercent >= 1.0;
+
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
@@ -172,143 +180,53 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
 
                   SizedBox(height: AppTheme.spacingLarge),
 
-                  // Quick Optimization (Rule-Based) Section
+                  // Packing Optimization Section (Unified)
                   Text(
-                    'Quick Optimization (Free & Instant)',
+                    'Packing Optimization',
                     style: context.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: AppTheme.spacingMedium),
 
-                  Center(
-                    child: ElevatedButton.icon(
-                      onPressed: _isOptimizing
-                          ? null
-                          : () => _runRuleBasedOptimizer(cartons),
-                      icon: _isOptimizing
-                          ? SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Icon(Icons.bolt),
-                      label: Text(
-                        _isOptimizing
-                            ? 'Analyzing...'
-                            : 'Run Rule-Based Optimizer',
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Smart optimizer button
+                  Center(child: _buildSmartOptimizerButton(cartons)),
 
-                  if (_ruleBasedResult != null) ...[
-                    SizedBox(height: AppTheme.spacingMedium),
+                  SizedBox(height: AppTheme.spacingMedium),
+
+                  // Smart result display
+                  if (shouldShowRuleBasedResult)
                     _buildRuleBasedResultCard(
                       _ruleBasedResult!,
                       cartons,
                       totals,
-                    ),
-                  ],
-
-                  SizedBox(height: AppTheme.spacingLarge),
-                  Divider(),
-                  SizedBox(height: AppTheme.spacingMedium),
-
-                  // AI Suggestions (Advanced) Section
-                  Text(
-                    'AI Suggestions (Advanced) 🪙',
-                    style: context.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: AppTheme.spacingMedium),
-
-                  // AI Recommendations Button
-                  Center(
-                    child: ElevatedButton.icon(
-                      onPressed: _isLoadingRecommendation
-                          ? null
-                          : () => _getAIRecommendations(context, cartons),
-                      icon: _isLoadingRecommendation
-                          ? SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Icon(Icons.auto_awesome),
-                      label: Text(
-                        _isLoadingRecommendation
-                            ? localizations.optimizerGettingAIRecommendations
-                            : localizations.optimizerGetAIRecommendations,
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple,
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                      ),
-                    ),
-                  ),
+                    )
+                  else if (hasAiSuggestions)
+                    _buildAiResultCard(_aiRecommendation!, cartons)
+                  else if (_ruleBasedResult != null &&
+                      !_ruleBasedResult!.isActionable)
+                    _buildNoOptimizationCard(cartons)
+                  else
+                    _buildInitialStateCard(),
 
                   SizedBox(height: AppTheme.spacingLarge),
 
-                  // Optimization Suggestions
-                  Text(
-                    localizations.optimizerSuggestions,
-                    style: context.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
+                  // Optimization Suggestions (from totals)
+                  if (totals.savingsHint != null) ...[
+                    Text(
+                      localizations.optimizerSuggestions,
+                      style: context.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: AppTheme.spacingMedium),
-
-                  if (totals.savingsHint != null)
+                    SizedBox(height: AppTheme.spacingMedium),
                     _OptimizationSuggestionCard(
                       hint: totals.savingsHint!,
                       shipmentId: widget.shipmentId,
                       cartons: cartons,
-                    )
-                  else
-                    ModalCard(
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24.0),
-                          child: Column(
-                            children: [
-                              Icon(
-                                Icons.check_circle_outline,
-                                size: 64,
-                                color: context.colorScheme.primary,
-                              ),
-                              SizedBox(height: AppTheme.spacingMedium),
-                              Text(
-                                localizations.optimizerPackingOptimal,
-                                style: context.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: AppTheme.spacingSmall),
-                              Text(
-                                localizations.optimizerNoSuggestions,
-                                style: context.textTheme.bodySmall?.copyWith(
-                                  color: context.colorScheme.onSurfaceVariant,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
                     ),
+                    SizedBox(height: AppTheme.spacingLarge),
+                  ],
 
                   SizedBox(height: AppTheme.spacingLarge),
 
@@ -654,6 +572,20 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
     );
   }
 
+  Future<bool> _hasStructuralChanges({
+    required List<models.Carton> before,
+    required int afterBoxCount,
+    required double estimatedSavingsPercent,
+  }) async {
+    // Compare total carton count
+    final beforeCount = before.fold(0, (sum, c) => sum + c.qty);
+
+    if (beforeCount != afterBoxCount) return true;
+
+    // If box count same and estimated savings < 1%, consider it "no real change"
+    return estimatedSavingsPercent >= 1.0;
+  }
+
   Future<void> _applyAIRecommendations(
     List<models.Carton> currentCartons,
   ) async {
@@ -661,7 +593,34 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
       return;
     }
 
+    // Check if AI actually found meaningful changes
+    final hasChanges = await _hasStructuralChanges(
+      before: currentCartons,
+      afterBoxCount: _aiRecommendation!.recommendedBoxCount,
+      estimatedSavingsPercent: _aiRecommendation!.estimatedSavingsPercent,
+    );
+
+    if (!hasChanges) {
+      setState(() {
+        _isLoadingRecommendation = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'AI found your packing is already optimal. No changes needed.',
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+      return; // Don't regenerate quotes
+    }
+
     // Show confirmation dialog
+    if (!mounted) return;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -885,6 +844,277 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
     }
   }
 
+  Widget _buildSmartOptimizerButton(List<models.Carton> cartons) {
+    if (_ruleBasedResult == null) {
+      // First click: Run rule-based optimizer
+      return ElevatedButton.icon(
+        onPressed: _isOptimizing ? null : () => _runRuleBasedOptimizer(cartons),
+        icon: _isOptimizing
+            ? SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Icon(Icons.bolt),
+        label: Text(_isOptimizing ? 'Analyzing...' : 'Optimize Packing'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.green,
+          foregroundColor: Colors.white,
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        ),
+      );
+    } else if (!_ruleBasedResult!.isActionable && _aiRecommendation == null) {
+      // Suggest trying AI optimizer
+      return ElevatedButton.icon(
+        onPressed: _isLoadingRecommendation
+            ? null
+            : () => _getAIRecommendations(context, cartons),
+        icon: _isLoadingRecommendation
+            ? SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Icon(Icons.auto_awesome),
+        label: Text(
+          _isLoadingRecommendation
+              ? 'Getting AI Suggestions...'
+              : 'Try AI Optimizer',
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.purple,
+          foregroundColor: Colors.white,
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        ),
+      );
+    } else {
+      // Re-optimize button
+      return ElevatedButton.icon(
+        onPressed: _isOptimizing
+            ? null
+            : () {
+                setState(() {
+                  _ruleBasedResult = null;
+                  _aiRecommendation = null;
+                });
+                _runRuleBasedOptimizer(cartons);
+              },
+        icon: _isOptimizing
+            ? SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Icon(Icons.refresh),
+        label: Text(_isOptimizing ? 'Analyzing...' : 'Re-optimize'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.green,
+          foregroundColor: Colors.white,
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        ),
+      );
+    }
+  }
+
+  Widget _buildInitialStateCard() {
+    return ModalCard(
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            children: [
+              Icon(
+                Icons.lightbulb_outline,
+                size: 64,
+                color: context.colorScheme.primary,
+              ),
+              SizedBox(height: AppTheme.spacingMedium),
+              Text(
+                'Run Optimizer to See Suggestions',
+                style: context.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: AppTheme.spacingSmall),
+              Text(
+                'Click the button above to analyze your packing and get optimization suggestions.',
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: context.colorScheme.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoOptimizationCard(List<models.Carton> cartons) {
+    return ModalCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(Icons.info_outline, color: Colors.orange, size: 24),
+              ),
+              SizedBox(width: AppTheme.spacingMedium),
+              Expanded(
+                child: Text(
+                  'No Optimization Possible',
+                  style: context.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: AppTheme.spacingMedium),
+          Text(
+            'Reasons:',
+            style: context.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: AppTheme.spacingSmall),
+          Text(
+            _ruleBasedResult!.rationale,
+            style: context.textTheme.bodyMedium,
+          ),
+          SizedBox(height: AppTheme.spacingMedium),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => _getAIRecommendations(context, cartons),
+              icon: Icon(Icons.auto_awesome),
+              label: Text('Try AI Suggestions'),
+              style: OutlinedButton.styleFrom(foregroundColor: Colors.purple),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAiResultCard(
+    PackingRecommendation recommendation,
+    List<models.Carton> cartons,
+  ) {
+    return ModalCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.purple.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(Icons.auto_awesome, color: Colors.purple, size: 24),
+              ),
+              SizedBox(width: AppTheme.spacingMedium),
+              Expanded(
+                child: Text(
+                  'AI Advanced Analysis',
+                  style: context.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.purple,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: AppTheme.spacingMedium),
+          _buildStatRow(
+            context,
+            'Recommended Box Count',
+            '${recommendation.recommendedBoxCount}',
+          ),
+          SizedBox(height: AppTheme.spacingXSmall),
+          _buildStatRow(
+            context,
+            'Estimated Savings',
+            '${recommendation.estimatedSavingsPercent.toStringAsFixed(1)}%',
+            isBold: true,
+            color: Colors.green,
+          ),
+          SizedBox(height: AppTheme.spacingMedium),
+          Text(
+            'Explanation:',
+            style: context.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: AppTheme.spacingSmall),
+          Text(recommendation.explanation, style: context.textTheme.bodyMedium),
+          if (recommendation.warnings.isNotEmpty) ...[
+            SizedBox(height: AppTheme.spacingMedium),
+            Text(
+              'Warnings:',
+              style: context.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.orange,
+              ),
+            ),
+            SizedBox(height: AppTheme.spacingSmall),
+            ...recommendation.warnings.map(
+              (warning) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  children: [
+                    Icon(Icons.warning_amber, color: Colors.orange, size: 16),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        warning,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+          SizedBox(height: AppTheme.spacingMedium),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () =>
+                      _showRecommendationsDialog(cartons, recommendation),
+                  child: Text('View Details'),
+                ),
+              ),
+              SizedBox(width: AppTheme.spacingSmall),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => _applyAIRecommendations(cartons),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text('Apply Plan'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStatRow(
     BuildContext context,
     String label,
@@ -944,167 +1174,107 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
     List<models.Carton> cartons,
     dynamic totals,
   ) {
-    if (result.isActionable) {
-      // Actionable result
-      return ModalCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.check_circle,
-                    color: Colors.green,
-                    size: 24,
-                  ),
+    // Actionable result (only called when isActionable is true)
+    return ModalCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.green.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                SizedBox(width: AppTheme.spacingMedium),
-                Expanded(
-                  child: Text(
-                    'Optimization Found',
-                    style: context.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: AppTheme.spacingMedium),
-            _buildStatRow(
-              context,
-              'Before',
-              '${result.beforeCartonCount} cartons, ${result.beforeChargeableKg.toStringAsFixed(1)}kg',
-            ),
-            SizedBox(height: AppTheme.spacingXSmall),
-            _buildStatRow(
-              context,
-              'After',
-              '${result.afterCartonCount} cartons, ${result.afterChargeableKg.toStringAsFixed(1)}kg',
-            ),
-            SizedBox(height: AppTheme.spacingXSmall),
-            _buildStatRow(
-              context,
-              'Savings',
-              '${result.savingsPercent.toStringAsFixed(1)}%',
-              isBold: true,
-              color: Colors.green,
-            ),
-            SizedBox(height: AppTheme.spacingMedium),
-            Text(
-              'Applied: ${result.appliedStrategies.join(", ")}',
-              style: context.textTheme.bodySmall?.copyWith(
-                fontStyle: FontStyle.italic,
+                child: Icon(Icons.check_circle, color: Colors.green, size: 24),
               ),
-            ),
-            if (result.warnings.isNotEmpty) ...[
-              SizedBox(height: AppTheme.spacingSmall),
-              ...result.warnings.map(
-                (warning) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Row(
-                    children: [
-                      Icon(Icons.warning_amber, color: Colors.orange, size: 16),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          warning,
-                          style: context.textTheme.bodySmall?.copyWith(
-                            color: Colors.orange,
-                          ),
-                        ),
-                      ),
-                    ],
+              SizedBox(width: AppTheme.spacingMedium),
+              Expanded(
+                child: Text(
+                  'Optimization Found',
+                  style: context.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
                   ),
                 ),
               ),
             ],
-            SizedBox(height: AppTheme.spacingMedium),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => _showOptimizationDetails(result),
-                    child: Text('Details'),
-                  ),
-                ),
-                SizedBox(width: AppTheme.spacingSmall),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => _applyRuleBasedPlan(result),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: Text('Apply Plan'),
-                  ),
-                ),
-              ],
+          ),
+          SizedBox(height: AppTheme.spacingMedium),
+          _buildStatRow(
+            context,
+            'Before',
+            '${result.beforeCartonCount} cartons, ${result.beforeChargeableKg.toStringAsFixed(1)}kg',
+          ),
+          SizedBox(height: AppTheme.spacingXSmall),
+          _buildStatRow(
+            context,
+            'After',
+            '${result.afterCartonCount} cartons, ${result.afterChargeableKg.toStringAsFixed(1)}kg',
+          ),
+          SizedBox(height: AppTheme.spacingXSmall),
+          _buildStatRow(
+            context,
+            'Savings',
+            '${result.savingsPercent.toStringAsFixed(1)}%',
+            isBold: true,
+            color: Colors.green,
+          ),
+          SizedBox(height: AppTheme.spacingMedium),
+          Text(
+            'Applied: ${result.appliedStrategies.join(", ")}',
+            style: context.textTheme.bodySmall?.copyWith(
+              fontStyle: FontStyle.italic,
             ),
-          ],
-        ),
-      );
-    } else {
-      // No optimization possible
-      return ModalCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.info_outline,
-                    color: Colors.orange,
-                    size: 24,
-                  ),
-                ),
-                SizedBox(width: AppTheme.spacingMedium),
-                Expanded(
-                  child: Text(
-                    'No Optimization Possible',
-                    style: context.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.orange,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: AppTheme.spacingMedium),
-            Text(
-              'Reasons:',
-              style: context.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+          ),
+          if (result.warnings.isNotEmpty) ...[
             SizedBox(height: AppTheme.spacingSmall),
-            Text(result.rationale, style: context.textTheme.bodyMedium),
-            SizedBox(height: AppTheme.spacingMedium),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => _getAIRecommendations(context, cartons),
-                icon: Icon(Icons.auto_awesome),
-                label: Text('Try AI Suggestions'),
-                style: OutlinedButton.styleFrom(foregroundColor: Colors.purple),
+            ...result.warnings.map(
+              (warning) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  children: [
+                    Icon(Icons.warning_amber, color: Colors.orange, size: 16),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        warning,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
-        ),
-      );
-    }
+          SizedBox(height: AppTheme.spacingMedium),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => _showOptimizationDetails(result),
+                  child: Text('Details'),
+                ),
+              ),
+              SizedBox(width: AppTheme.spacingSmall),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => _applyRuleBasedPlan(result),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text('Apply Plan'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   void _showOptimizationDetails(OptimizationResult result) {
