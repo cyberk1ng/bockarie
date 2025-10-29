@@ -48,7 +48,7 @@ final customsProfilesProvider =
 // ignore: unused_element
 typedef CustomsProfilesRef =
     AutoDisposeFutureProviderRef<List<models.CustomsProfile>>;
-String _$customsProfileHash() => r'f013c03e27b299c418054988307709e3e83e1b9b';
+String _$customsProfileHash() => r'b6e10cdfad0ca8bac8cbe8f46d3f7da15ba43245';
 
 /// Copied from Dart SDK
 class _SystemHash {

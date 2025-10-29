@@ -1831,6 +1831,7 @@ class _EditableCartonsList extends ConsumerStatefulWidget {
 class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
   List<EditableCarton> _editedCartons = [];
   bool _isRecalculating = false;
+  int _resetCounter = 0; // Force TextFormField rebuild on reset
 
   @override
   void initState() {
@@ -1851,6 +1852,7 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
       _editedCartons = widget.originalCartons
           .map((c) => EditableCarton.fromCarton(c))
           .toList();
+      _resetCounter++; // Force all TextFormFields to rebuild with new keys
     });
   }
 
@@ -2323,30 +2325,6 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
     return TransportMethod.standardAir;
   }
 
-  Future<void> _saveCartonToDatabase(EditableCarton carton) async {
-    final db = getIt<AppDatabase>();
-    try {
-      await (db.update(db.cartons)..where((c) => c.id.equals(carton.id))).write(
-        CartonsCompanion(
-          lengthCm: drift.Value(carton.lengthCm),
-          widthCm: drift.Value(carton.widthCm),
-          heightCm: drift.Value(carton.heightCm),
-          weightKg: drift.Value(carton.weightKg),
-          qty: drift.Value(carton.qty),
-          itemType: drift.Value(carton.itemType),
-        ),
-      );
-
-      // Invalidate providers so the parent page shows updated totals
-      // Must invalidate cartonsProvider first, as cartonModelsProvider depends on it
-      ref.invalidate(cartonsProvider(widget.shipmentId));
-      ref.invalidate(cartonModelsProvider(widget.shipmentId));
-    } catch (e) {
-      // Silent fail - user is still editing, we don't want to spam error messages
-      // The error will surface when they try to recalculate quotes if something is wrong
-    }
-  }
-
   Future<void> _showDeleteCartonConfirmation(
     int index,
     EditableCarton carton,
@@ -2745,7 +2723,7 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
             children: [
               Expanded(
                 child: TextFormField(
-                  key: ValueKey('length_$index'),
+                  key: ValueKey('length_${index}_$_resetCounter'),
                   initialValue: carton.lengthCm.toStringAsFixed(1),
                   decoration: InputDecoration(
                     labelText: localizations.labelLength,
@@ -2764,7 +2742,6 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
                       setState(() {
                         _editedCartons[index].lengthCm = newValue;
                       });
-                      _saveCartonToDatabase(_editedCartons[index]);
                     }
                   },
                 ),
@@ -2772,7 +2749,7 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
               const SizedBox(width: 6),
               Expanded(
                 child: TextFormField(
-                  key: ValueKey('width_$index'),
+                  key: ValueKey('width_${index}_$_resetCounter'),
                   initialValue: carton.widthCm.toStringAsFixed(1),
                   decoration: InputDecoration(
                     labelText: localizations.labelWidth,
@@ -2791,7 +2768,6 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
                       setState(() {
                         _editedCartons[index].widthCm = newValue;
                       });
-                      _saveCartonToDatabase(_editedCartons[index]);
                     }
                   },
                 ),
@@ -2799,7 +2775,7 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
               const SizedBox(width: 6),
               Expanded(
                 child: TextFormField(
-                  key: ValueKey('height_$index'),
+                  key: ValueKey('height_${index}_$_resetCounter'),
                   initialValue: carton.heightCm.toStringAsFixed(1),
                   decoration: InputDecoration(
                     labelText: localizations.labelHeight,
@@ -2818,7 +2794,6 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
                       setState(() {
                         _editedCartons[index].heightCm = newValue;
                       });
-                      _saveCartonToDatabase(_editedCartons[index]);
                     }
                   },
                 ),
@@ -2834,7 +2809,7 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
               Expanded(
                 flex: 2,
                 child: TextFormField(
-                  key: ValueKey('weight_$index'),
+                  key: ValueKey('weight_${index}_$_resetCounter'),
                   initialValue: carton.weightKg.toStringAsFixed(1),
                   decoration: InputDecoration(
                     labelText: localizations.labelWeightKg,
@@ -2853,7 +2828,6 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
                       setState(() {
                         _editedCartons[index].weightKg = newValue;
                       });
-                      _saveCartonToDatabase(_editedCartons[index]);
                     }
                   },
                 ),
@@ -2861,7 +2835,7 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
               const SizedBox(width: 6),
               Expanded(
                 child: TextFormField(
-                  key: ValueKey('qty_$index'),
+                  key: ValueKey('qty_${index}_$_resetCounter'),
                   initialValue: carton.qty.toString(),
                   decoration: InputDecoration(
                     labelText: localizations.labelQuantity,
@@ -2880,7 +2854,6 @@ class _EditableCartonsListState extends ConsumerState<_EditableCartonsList> {
                       setState(() {
                         _editedCartons[index].qty = newValue;
                       });
-                      _saveCartonToDatabase(_editedCartons[index]);
                     }
                   },
                 ),

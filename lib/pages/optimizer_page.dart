@@ -37,7 +37,6 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
   bool _isLoadingRecommendation = false;
   OptimizationResult? _ruleBasedResult;
   bool _isOptimizing = false;
-  bool _aiMadeChanges = false;
 
   // Smart state detection
   bool get shouldShowRuleBasedResult =>
@@ -603,14 +602,15 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
 
     if (!hasChanges) {
       setState(() {
-        _aiMadeChanges = false;
         _isLoadingRecommendation = false;
       });
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('AI found your packing is already optimal. No changes needed.'),
+            content: Text(
+              'AI found your packing is already optimal. No changes needed.',
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -619,6 +619,8 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
     }
 
     // Show confirmation dialog
+    if (!mounted) return;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -646,7 +648,6 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
 
     setState(() {
       _isLoadingRecommendation = true;
-      _aiMadeChanges = true;
     });
 
     try {
@@ -876,7 +877,9 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
               )
             : Icon(Icons.auto_awesome),
         label: Text(
-          _isLoadingRecommendation ? 'Getting AI Suggestions...' : 'Try AI Optimizer',
+          _isLoadingRecommendation
+              ? 'Getting AI Suggestions...'
+              : 'Try AI Optimizer',
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.purple,
@@ -893,7 +896,6 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
                 setState(() {
                   _ruleBasedResult = null;
                   _aiRecommendation = null;
-                  _aiMadeChanges = false;
                 });
                 _runRuleBasedOptimizer(cartons);
               },
@@ -961,11 +963,7 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
                   color: Colors.orange.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  Icons.info_outline,
-                  color: Colors.orange,
-                  size: 24,
-                ),
+                child: Icon(Icons.info_outline, color: Colors.orange, size: 24),
               ),
               SizedBox(width: AppTheme.spacingMedium),
               Expanded(
@@ -987,7 +985,10 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
             ),
           ),
           SizedBox(height: AppTheme.spacingSmall),
-          Text(_ruleBasedResult!.rationale, style: context.textTheme.bodyMedium),
+          Text(
+            _ruleBasedResult!.rationale,
+            style: context.textTheme.bodyMedium,
+          ),
           SizedBox(height: AppTheme.spacingMedium),
           SizedBox(
             width: double.infinity,
@@ -1019,11 +1020,7 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
                   color: Colors.purple.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  Icons.auto_awesome,
-                  color: Colors.purple,
-                  size: 24,
-                ),
+                child: Icon(Icons.auto_awesome, color: Colors.purple, size: 24),
               ),
               SizedBox(width: AppTheme.spacingMedium),
               Expanded(
@@ -1059,10 +1056,7 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
             ),
           ),
           SizedBox(height: AppTheme.spacingSmall),
-          Text(
-            recommendation.explanation,
-            style: context.textTheme.bodyMedium,
-          ),
+          Text(recommendation.explanation, style: context.textTheme.bodyMedium),
           if (recommendation.warnings.isNotEmpty) ...[
             SizedBox(height: AppTheme.spacingMedium),
             Text(
@@ -1098,7 +1092,8 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: () => _showRecommendationsDialog(cartons, recommendation),
+                  onPressed: () =>
+                      _showRecommendationsDialog(cartons, recommendation),
                   child: Text('View Details'),
                 ),
               ),
@@ -1192,11 +1187,7 @@ class _OptimizerPageState extends ConsumerState<OptimizerPage> {
                   color: Colors.green.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  Icons.check_circle,
-                  color: Colors.green,
-                  size: 24,
-                ),
+                child: Icon(Icons.check_circle, color: Colors.green, size: 24),
               ),
               SizedBox(width: AppTheme.spacingMedium),
               Expanded(
