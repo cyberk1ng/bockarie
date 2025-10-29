@@ -1932,5 +1932,44 @@
   "customsInformationSaved": "Customs information saved",
   "@customsInformationSaved": {
     "description": "Success message for saved customs"
+  },
+
+  "deleteCartonTitle": "Delete Carton?",
+  "@deleteCartonTitle": {
+    "description": "Confirmation dialog title for deleting carton"
+  },
+
+  "deleteCartonMessage": "Are you sure you want to delete this carton?\n\n{dimensions} cm\n{weight} kg × {qty}",
+  "@deleteCartonMessage": {
+    "description": "Confirmation message for deleting carton",
+    "placeholders": {
+      "dimensions": {
+        "type": "String",
+        "example": "30.0 × 20.0 × 15.0"
+      },
+      "weight": {
+        "type": "String",
+        "example": "5.0"
+      },
+      "qty": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+
+  "deleteCartonCannotDeleteLast": "Cannot delete the last carton. Shipment must have at least one carton.",
+  "@deleteCartonCannotDeleteLast": {
+    "description": "Error when trying to delete the last carton"
+  },
+
+  "successCartonDeleted": "Carton deleted successfully",
+  "@successCartonDeleted": {
+    "description": "Success message when carton is deleted"
+  },
+
+  "errorDeletingCarton": "Error deleting carton",
+  "@errorDeletingCarton": {
+    "description": "Error message when carton deletion fails"
   }
 }

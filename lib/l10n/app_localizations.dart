@@ -2251,6 +2251,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Customs information saved'**
   String get customsInformationSaved;
+
+  /// Confirmation dialog title for deleting carton
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Carton?'**
+  String get deleteCartonTitle;
+
+  /// Confirmation message for deleting carton
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this carton?\n\n{dimensions} cm\n{weight} kg × {qty}'**
+  String deleteCartonMessage(String dimensions, String weight, int qty);
+
+  /// Error when trying to delete the last carton
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot delete the last carton. Shipment must have at least one carton.'**
+  String get deleteCartonCannotDeleteLast;
+
+  /// Success message when carton is deleted
+  ///
+  /// In en, this message translates to:
+  /// **'Carton deleted successfully'**
+  String get successCartonDeleted;
+
+  /// Error message when carton deletion fails
+  ///
+  /// In en, this message translates to:
+  /// **'Error deleting carton'**
+  String get errorDeletingCarton;
 }
 
 class _AppLocalizationsDelegate
